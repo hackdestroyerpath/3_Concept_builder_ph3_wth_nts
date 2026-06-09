@@ -22,9 +22,13 @@ jobs:
         run: |
           set -euo pipefail
           test -d concept_builder_package_parts
-          ls concept_builder_package_parts/part_*.txt >/dev/null
-          cat concept_builder_package_parts/part_*.txt > /tmp/concept_builder_package.b64
-          base64 -d /tmp/concept_builder_package.b64 > /tmp/concept_builder_package.zip
+          ls concept_builder_package_parts/part_*.hex >/dev/null
+          cat concept_builder_package_parts/part_*.hex > /tmp/concept_builder_package.hex
+          python3 - <<'PY'
+          from pathlib import Path
+          hex_text = ''.join(Path('/tmp/concept_builder_package.hex').read_text().split())
+          Path('/tmp/concept_builder_package.zip').write_bytes(bytes.fromhex(hex_text))
+          PY
           echo "8373a99e238dc18b109e331dc0e96bc280742eee3f23643cd003e5e385192691  /tmp/concept_builder_package.zip" | sha256sum -c -
 
       - name: Materialize production tree
