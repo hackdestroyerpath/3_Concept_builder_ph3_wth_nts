@@ -3,7 +3,7 @@ name: Deploy Concept Builder
 on:
   push:
     paths:
-      - '.cb_payload/ready.flag'
+      - 'concept_builder_package_ready.flag'
   workflow_dispatch:
 
 permissions:
@@ -21,9 +21,9 @@ jobs:
       - name: Reconstruct package
         run: |
           set -euo pipefail
-          test -d .cb_payload/chunks
-          ls .cb_payload/chunks/part_*.b64 >/dev/null
-          cat .cb_payload/chunks/part_*.b64 > /tmp/concept_builder_package.b64
+          test -d concept_builder_package_parts
+          ls concept_builder_package_parts/part_*.txt >/dev/null
+          cat concept_builder_package_parts/part_*.txt > /tmp/concept_builder_package.b64
           base64 -d /tmp/concept_builder_package.b64 > /tmp/concept_builder_package.zip
           echo "8373a99e238dc18b109e331dc0e96bc280742eee3f23643cd003e5e385192691  /tmp/concept_builder_package.zip" | sha256sum -c -
 
@@ -42,10 +42,11 @@ jobs:
           grep -q '^Concept Builder/README.md$' /tmp/concept_builder_files.txt
           grep -q '^Concept Builder/State/service_validation_report.md$' /tmp/concept_builder_files.txt
 
-      - name: Remove temporary deploy carrier
+      - name: Remove temporary carrier files
         run: |
           set -euo pipefail
-          rm -rf .cb_payload
+          rm -rf concept_builder_package_parts
+          rm -f concept_builder_package_ready.flag
           rm -f .cb_deploy_probe_b64.tmp
           rm -f .github/workflows/deploy_concept_builder.yml
           rmdir .github/workflows 2>/dev/null || true
