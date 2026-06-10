@@ -1,2 +1,3 @@
 <PLAIN_SLOT_A>
-<PLAIN_SLOT_B>
+Beta chunk line 1
+Beta chunk line 2
