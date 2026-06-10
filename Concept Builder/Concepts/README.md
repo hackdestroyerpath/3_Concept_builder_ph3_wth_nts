@@ -1,3 +1,0 @@
-# Concepts
-
-part 1
