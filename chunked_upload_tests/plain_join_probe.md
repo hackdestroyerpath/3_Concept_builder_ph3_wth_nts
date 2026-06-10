@@ -1,0 +1,2 @@
+<PLAIN_SLOT_A>
+<PLAIN_SLOT_B>
