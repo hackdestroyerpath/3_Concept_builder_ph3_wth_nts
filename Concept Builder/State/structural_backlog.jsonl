@@ -1,0 +1,2 @@
+{"id":"SBL-001","status":"deferred_non_blocking","note":"Script assessment requires a separate approved issue if needed"}
+{"id":"SBL-002","status":"guard","note":"Keep production tree separated from development materials"}
