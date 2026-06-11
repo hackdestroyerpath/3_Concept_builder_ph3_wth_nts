@@ -1,3 +1,3 @@
-{"record_type":"metadata","status":"available","cycle_check":"pass"}
+{"record_type":"metadata","status":"available","cycle_check":"pass","node_ranges":["EXEC-001..EXEC-012","USER-001..USER-007","OPT-001..OPT-004"]}
 {"record_type":"edge_summary","status":"satisfied","range":"EXEC-002..EXEC-012","blocking":false}
-{"record_type":"deferred","issue_id":"USER-001","blocking":false}
+{"record_type":"deferred","issue_id":"USER-001","blocking":false,"next_action":"separate script assessment issue if needed"}
