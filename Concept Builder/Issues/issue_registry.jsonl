@@ -1,1 +1,23 @@
-{"issue_id":"ROOT","status":"available"}
+{"issue_id":"EXEC-001","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-002","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-003","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-004","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-005","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-006","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-007","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-008","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-009","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-010","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-011","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"EXEC-012","class":"implementation","status":"closed","next_action":"none"}
+{"issue_id":"USER-001","class":"user-noted","status":"deferred","next_action":"create separate script assessment issue only if needed"}
+{"issue_id":"USER-002","class":"user-noted","status":"closed","next_action":"none"}
+{"issue_id":"USER-003","class":"user-noted","status":"closed","next_action":"none"}
+{"issue_id":"USER-004","class":"user-noted","status":"closed","next_action":"none"}
+{"issue_id":"USER-005","class":"user-noted","status":"closed","next_action":"none"}
+{"issue_id":"USER-006","class":"user-noted","status":"closed","next_action":"none"}
+{"issue_id":"USER-007","class":"user-noted","status":"closed","next_action":"none"}
+{"issue_id":"OPT-001","class":"optimizer","status":"closed_as_continuous_guard","next_action":"guard production boundary"}
+{"issue_id":"OPT-002","class":"optimizer","status":"closed_as_continuous_guard","next_action":"guard language and style"}
+{"issue_id":"OPT-003","class":"optimizer","status":"closed_as_continuous_guard","next_action":"guard context budget"}
+{"issue_id":"OPT-004","class":"optimizer","status":"closed_as_continuous_guard","next_action":"guard links and orphans"}
