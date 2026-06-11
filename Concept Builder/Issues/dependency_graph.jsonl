@@ -1,1 +1,4 @@
 {"record_type":"metadata","status":"available","cycle_check":"pass"}
+{"record_type":"edge","edge_id":"EDGE-EXEC-002-EXEC-001","source_issue_id":"EXEC-002","target_issue_id":"EXEC-001","edge_type":"depends_on","status":"satisfied"}
+{"record_type":"edge","edge_id":"EDGE-EXEC-003-EXEC-001","source_issue_id":"EXEC-003","target_issue_id":"EXEC-001","edge_type":"depends_on","status":"satisfied"}
+{"record_type":"edge","edge_id":"EDGE-EXEC-004-EXEC-003","source_issue_id":"EXEC-004","target_issue_id":"EXEC-003","edge_type":"depends_on","status":"satisfied"}
