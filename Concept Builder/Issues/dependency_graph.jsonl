@@ -5,3 +5,4 @@
 {"record_type":"edge","edge_id":"EDGE-EXEC-005-EXEC-004","source_issue_id":"EXEC-005","target_issue_id":"EXEC-004","edge_type":"depends_on","status":"satisfied"}
 {"record_type":"edge","edge_id":"EDGE-EXEC-006-EXEC-005","source_issue_id":"EXEC-006","target_issue_id":"EXEC-005","edge_type":"depends_on","status":"satisfied"}
 {"record_type":"edge","edge_id":"EDGE-EXEC-007-EXEC-006","source_issue_id":"EXEC-007","target_issue_id":"EXEC-006","edge_type":"depends_on","status":"satisfied"}
+{"record_type":"edge","edge_id":"EDGE-EXEC-008-EXEC-007","source_issue_id":"EXEC-008","target_issue_id":"EXEC-007","edge_type":"depends_on","status":"satisfied"}
