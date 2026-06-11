@@ -1,20 +1,43 @@
 # Linked issues protocol
 
-Parent: [Protocol catalog](../catalog.md)
-Status: `available`
+Parent: [Protocol catalog](../catalog.md)  
+Protocol ID: `service/linked_issues`  
+Status: `available`  
+Updated: `2026-06-05T11:45:45Z`
 
 ## Purpose
 
-Track relationships and dependencies between issues.
+Track relationships and dependencies between issues. This protocol keeps dependency edges explicit, prevents cycles and makes readiness decisions auditable.
+
+## Edge types
+
+| Type | Meaning |
+|---|---|
+| `blocking` | target must be complete before source can close |
+| `related` | issues share context but do not block each other |
+| `informational` | issue references another issue as background |
 
 ## Steps
 
 1. Identify source issue and target issue.
-2. Define edge type: blocking, related or informational.
-3. Add edge to [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl).
-4. Check for cycles before marking dependent issue ready.
-5. Update [../../Issues/issue_registry.md](../../Issues/issue_registry.md).
+2. Confirm both issues exist in [../../Issues/issue_registry.jsonl](../../Issues/issue_registry.jsonl).
+3. Define edge type and reason.
+4. Add or update edge in [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl).
+5. Check for dependency cycles.
+6. Update issue readiness if a new blocker appears or is resolved.
+7. Persist registry and graph changes.
 
-## Output
+## Readiness rule
 
-A dependency edge with reason and readiness impact.
+An issue with open blocking dependencies is not ready for closure. A dependency may be satisfied, deferred, rejected or marked not applicable only with an explicit reason.
+
+## Repair rule
+
+If the graph references a missing issue or stale edge, stop downstream work and create a graph repair action.
+
+## Related
+
+- [complex_issue_protocol.md](complex_issue_protocol.md)
+- [existing_issue_protocol.md](existing_issue_protocol.md)
+- [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl)
+- [../../Issues/issue_registry.md](../../Issues/issue_registry.md)
