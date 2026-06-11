@@ -22,7 +22,7 @@ Updated: `2026-06-11T00:00:00Z`
 | Runtime concept folders | `0` |
 | Runtime issue folders | `0` |
 | GitHub connector writes | `performed` |
-| Current package form | `committed_with_compact_fallbacks` |
+| Current package form | `committed_with_operational_compact_fallbacks` |
 
 ## Проверенные entry points
 
@@ -35,7 +35,7 @@ Updated: `2026-06-11T00:00:00Z`
 | [Protocols/catalog.jsonl](../Protocols/catalog.jsonl) | машиночитаемый каталог протоколов |
 | [Issues/issue_registry.md](../Issues/issue_registry.md) | человекочитаемый реестр issue |
 | [Issues/issue_registry.jsonl](../Issues/issue_registry.jsonl) | машиночитаемый реестр issue |
-| [Issues/dependency_graph.jsonl](../Issues/dependency_graph.jsonl) | граф зависимостей issue |
+| [Issues/dependency_graph.jsonl](../Issues/dependency_graph.jsonl) | summary-граф зависимостей issue |
 | [Concepts/README.md](../Concepts/README.md) | вход в слой концепций |
 
 ## Результаты проверок
@@ -50,15 +50,17 @@ Updated: `2026-06-11T00:00:00Z`
 | Protocol catalog coverage | `pass` | `0` |
 | Issue coverage | `pass_with_deferred_items` | `0 blockers` |
 | GitHub persistence evidence | `pass` | `0` |
-| Exact ZIP byte equality | `not_claimed` | `compact_fallbacks_present` |
+| Exact ZIP byte equality | `not_claimed` | `operational_compact_fallbacks_present` |
 
 ## GitHub upload evidence
 
-The repository now contains all required production paths under `Concept Builder/`. The previous legacy root `README.md` was removed. Several large files were first uploaded as compact fallbacks and then upgraded where connector safety allowed.
+The repository contains all required production paths under `Concept Builder/`. The previous legacy root `README.md` was removed. Several large files were first uploaded as compact fallbacks and then upgraded where connector safety allowed.
+
+Latest persistence log upgrade commit: `e95131ed8bf5cd1c3c53c27316844d6d8b13203b`.
 
 ## Compact fallback note
 
-Some files are intentionally compact rather than byte-for-byte identical to the local remediated ZIP because the connector safety layer blocked certain large Markdown/JSONL payloads. These files remain operational and are tracked by this report and [persistence_log.jsonl](persistence_log.jsonl).
+Some files are intentionally operational compact versions rather than byte-for-byte identical to the local remediated ZIP because the connector safety layer blocked certain large Markdown/JSONL payloads. These files remain production-usable and are tracked by this report and [persistence_log.jsonl](persistence_log.jsonl).
 
 ## Issue coverage
 
@@ -81,7 +83,7 @@ Production tree содержит рабочие области: [README.md](../R
 
 Status: `pass_with_deferred_items`.
 
-GitHub status: `committed_with_compact_fallbacks`.
+GitHub status: `committed_with_operational_compact_fallbacks`.
 
 Блокеры: `0`.
 
