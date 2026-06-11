@@ -1,1 +1,14 @@
-{"protocol_id":"root","status":"available"}
+{"protocol_id":"common/context_loading","status":"available","path":"Protocols/common/context_loading_protocol.md"}
+{"protocol_id":"common/persistence_transaction","status":"available","path":"Protocols/common/persistence_protocol.md"}
+{"protocol_id":"common/final_validation","status":"available","path":"Protocols/common/final_validation_protocol.md"}
+{"protocol_id":"service/service_start","status":"available","path":"Protocols/service_protocols/service_start_protocol.md"}
+{"protocol_id":"service/new_issue","status":"available","path":"Protocols/service_protocols/new_issue_protocol.md"}
+{"protocol_id":"service/existing_issue","status":"available","path":"Protocols/service_protocols/existing_issue_protocol.md"}
+{"protocol_id":"service/question_answer","status":"available","path":"Protocols/service_protocols/question_answer_protocol.md"}
+{"protocol_id":"service/requirements","status":"available","path":"Protocols/service_protocols/requirements_protocol.md"}
+{"protocol_id":"service/solution_contract_output","status":"available","path":"Protocols/service_protocols/solution_contract_output_protocol.md"}
+{"protocol_id":"service/complex_issue","status":"available","path":"Protocols/service_protocols/complex_issue_protocol.md"}
+{"protocol_id":"service/linked_issues","status":"available","path":"Protocols/service_protocols/linked_issues_protocol.md"}
+{"protocol_id":"service/issue_retention","status":"available","path":"Protocols/service_protocols/issue_retention_protocol.md"}
+{"protocol_id":"execution/index","status":"available","path":"Protocols/execution_protocols/README.md"}
+{"protocol_id":"execution/concept_export","status":"available","path":"Protocols/execution_protocols/concept_export_protocol.md"}
