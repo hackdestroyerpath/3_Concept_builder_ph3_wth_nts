@@ -1,1 +1,7 @@
-{"transaction_id":"github-upload","status":"in_progress","committed":true,"note":"Created through GitHub connector commits"}
+{"transaction_id":"github-upload-structure","status":"committed","committed":true,"commit_sha":"639a8e911878f78ae2a5827909cb772c197af0c4","note":"Created 33 production paths under Concept Builder and removed legacy root README"}
+{"transaction_id":"github-upload-upgrade-001","status":"committed","committed":true,"commit_sha":"9540af4899c3c9471a9ca2db049b966be10190c0","note":"Upgraded service mode instructions"}
+{"transaction_id":"github-upload-upgrade-002","status":"committed","committed":true,"commit_sha":"713106025e97bb88261661aa92cfb9b29a4a939b","note":"Upgraded concept template"}
+{"transaction_id":"github-upload-upgrade-003","status":"committed","committed":true,"commit_sha":"caea15ebffb766acf8d88e8fed2a3aa99aedc263","note":"Upgraded persistence protocol"}
+{"transaction_id":"github-upload-upgrade-004","status":"committed","committed":true,"commit_sha":"598014c50360d2cb0865c2cf7d5cb91cd920f57a","note":"Upgraded service validation report"}
+{"transaction_id":"github-upload-upgrade-005","status":"committed","committed":true,"commit_sha":"a434920e4661779312aeaa3cd19ee1bbcfddd895","note":"Upgraded final validation protocol to working extended version"}
+{"transaction_id":"github-upload-current","status":"committed_with_compact_fallbacks","committed":true,"note":"Repository contains all 33 production files; several large files remain compact due connector safety limits"}
