@@ -14,3 +14,11 @@
 {"path":"Protocols/common/final_validation_protocol.md","kind":"markdown","status":"available","orphan":false}
 {"path":"Protocols/service_protocols/service_start_protocol.md","kind":"markdown","status":"available","orphan":false}
 {"path":"Protocols/service_protocols/new_issue_protocol.md","kind":"markdown","status":"available","orphan":false}
+{"path":"Protocols/service_protocols/existing_issue_protocol.md","kind":"markdown","status":"available","orphan":false}
+{"path":"Protocols/service_protocols/question_answer_protocol.md","kind":"markdown","status":"available","orphan":false}
+{"path":"Protocols/service_protocols/requirements_protocol.md","kind":"markdown","status":"available","orphan":false}
+{"path":"Protocols/service_protocols/solution_contract_output_protocol.md","kind":"markdown","status":"available","orphan":false}
+{"path":"Protocols/service_protocols/complex_issue_protocol.md","kind":"markdown","status":"available","orphan":false}
+{"path":"Protocols/service_protocols/linked_issues_protocol.md","kind":"markdown","status":"available","orphan":false}
+{"path":"Protocols/service_protocols/issue_retention_protocol.md","kind":"markdown","status":"available","orphan":false}
+{"path":"Protocols/execution_protocols/README.md","kind":"markdown","status":"available","orphan":false}
