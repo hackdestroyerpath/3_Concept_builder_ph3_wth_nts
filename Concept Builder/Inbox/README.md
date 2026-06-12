@@ -1,130 +1,108 @@
 # Inbox
 
-Parent: [README](../README.md)  
-Owner issue: `EXEC-006` / `USER-006`  
+Parent: [Concept Builder](../README.md)  
+Owner issue: `EXEC-006`  
 Источник истины: `Inbox/README.md`  
 Связанные протоколы: [new_issue_protocol.md](../Protocols/service_protocols/new_issue_protocol.md), [issue_retention_protocol.md](../Protocols/service_protocols/issue_retention_protocol.md)  
 Status: `available-empty-entrypoint`  
-Updated: `2026-06-05T10:46:09Z`
+Updated: `2026-06-05T09:52:51Z`
 
 ## Назначение
 
-`Inbox/` хранит входящие пользовательские материалы, attachments и input packets до создания или обновления issue. Эта папка является staging-областью с traceability, а не долгосрочным архивом.
+`Inbox` хранит входные материалы пользователя до и после превращения их в `issue`: текст точки входа, attachments, manifest, связь с issue и traceability. Это staging-зона источников, а не место для решений, requirements или output.
+
+Смысл простой: сначала сохранить вход и связь, потом анализировать. Обратный порядок удобен только тем, кто любит спорить с собственной памятью.
+
+## Что хранится в Inbox
+
+| Объект | Назначение |
+|---|---|
+| `manifest.md` | главный readable manifest input packet |
+| `entrypoint.md` или исходный entrypoint-файл | основной материал, от которого создаются issue |
+| `raw_user_message.md` | исходное сообщение пользователя, если оно нужно для traceability |
+| `attachments_manifest.jsonl` | машиночитаемая связь attachments с entrypoint и issue |
+| `attachments/` | приложенные файлы, если они должны храниться в рабочем дереве |
 
 Файлы внутри runtime input-папок создаются только через [new_issue_protocol.md](../Protocols/service_protocols/new_issue_protocol.md). Этот README сам по себе не разрешает неограниченное хранение произвольных материалов.
 
 ## Runtime layout
 
 ```text
-Inbox/
-├── README.md
-└── <input_id>/
-    ├── manifest.md
-    ├── raw_user_input.md
-    ├── attachments/
-    └── intake_decision.md
+Inbox/<input_id>/
+├── manifest.md
+├── entrypoint.md
+├── raw_user_message.md
+├── attachments_manifest.jsonl
+└── attachments/
 ```
 
-Runtime input folder создаётся только если пользовательский input требует сохранения перед созданием issue или attachment нельзя безопасно свернуть в registry summary.
+Если entrypoint является приложенным файлом с исходным расширением, `manifest.md` обязан указать его имя и роль. Если файл слишком тяжёлый, бинарный или хранится вне repository, manifest хранит ссылку/описание и status, а не выдуманный пересказ.
 
-## `input_id`
+## Формат `input_id`
 
-Формат:
+| Scope | Формат | Пример |
+|---|---|---|
+| root service input | `INBOX-YYYYMMDD-NNNN` | `INBOX-20260604-0001` |
+| concept-local input | определяется concept template позже | `pending_EXEC-011` |
 
-```text
-INBOX-YYYYMMDD-HHMMSS-NNNN
-```
+Номер монотонен внутри даты и не переиспользуется после cleanup, archive или tombstone.
 
-`input_id` не должен переиспользоваться. Если input ошибочный или rejected, ID сохраняется в tombstone/retention trace.
+## Минимальный `manifest.md`
 
-## `manifest.md`
+`manifest.md` input packet должен содержать:
 
-Минимальные поля:
-
-| Field | Значение |
+| Поле | Значение |
 |---|---|
 | `input_id` | стабильный ID input packet |
-| `created_at` | ISO timestamp |
-| `source` | `user_message`, `uploaded_file`, `external_reference`, `manual_note` |
-| `linked_issue_ids` | issue IDs, которые используют input |
-| `attachment_count` | число attachments |
-| `retention_status` | `active`, `archived`, `tombstone`, `deleted_nonhistorical` |
-| `cleanup_reason` | required only after cleanup |
+| `created_at` | timestamp получения |
+| `source` | сообщение пользователя, uploaded file или external reference |
+| `entrypoint` | главный входной материал |
+| `attachments` | список приложений или `none` |
+| `linked_issue_ids` | issue, созданные или связанные с этим input |
+| `status` | `pending_entrypoint`, `saved`, `linked`, `archived`, `tombstone_pending` |
+| `retention_note` | что удерживает input от cleanup |
 
-## `raw_user_input.md`
+## Минимальный `attachments_manifest.jsonl`
 
-Хранит исходную формулировку пользователя, если она нужна для reason, requirements или later audit. Если input содержит чувствительные данные, агент обязан сохранить только минимальный summary и указать `source_redacted=true` в manifest.
+Каждая строка описывает один attachment:
 
-## Attachments
-
-Attachments хранятся в `Inbox/<input_id>/attachments/` только если они нужны для issue reasoning или output evidence. Для каждого attachment нужен manifest entry:
-
-| Field | Значение |
-|---|---|
-| `attachment_id` | локальный ID |
-| `filename` | исходное имя или normalized name |
-| `role` | source, evidence, reference, output-input |
-| `size` | if known |
-| `hash` | if available |
-| `linked_issue_ids` | issue IDs |
-| `retention_status` | active/archive/tombstone/delete_nonhistorical |
-
-## Intake decision
-
-`intake_decision.md` объясняет, как input стал issue или почему был отклонён.
-
-Минимальные разделы:
-
-```text
-# Intake decision
-
-Input ID: <input_id>
-Decision: create_issue | attach_to_existing_issue | reject | defer
-Reason:
-Linked issue:
-Protocol used:
-Next action:
+```json
+{"attachment_id":"ATT-0001","filename":"example.pdf","role":"supporting_attachment","linked_issue_ids":["SVC-ISS-0001"],"content_status":"stored_or_referenced","notes":"краткая проверяемая сводка"}
 ```
 
-## Правила использования
+Если файл не прочитан, `content_status` должен явно говорить `not_read`, `binary_uninspected`, `external_reference` или другой честный статус. Сводка не должна притворяться чтением файла.
 
-1. Не создавать `Inbox/<input_id>/` без reason.
-2. Не хранить attachments без manifest entry.
-3. Не переносить input в issue без backlink из issue `reason.md` или registry.
-4. Не удалять input packet, пока linked issue не закрыты или не tombstone.
-5. Cleanup Inbox выполняется только через [issue_retention_protocol.md](../Protocols/service_protocols/issue_retention_protocol.md).
-6. Tombstone manifest должен сохранять `input_id`, linked issue, reason свёртки и cleanup reason.
-7. Temporary или тяжёлые attachments можно удалять только после tombstone и проверки зависимостей.
+## Связь с issue
 
-## Add-during-approval branch
+- [Issue registry](../Issues/issue_registry.md) хранит `input_ref` на `Inbox/<input_id>/manifest.md`.
+- [Issue registry JSONL](../Issues/issue_registry.jsonl) хранит машинный `input_ref` и `linked_issue_ids`.
+- `Issues/<issue_id>/reason.md` должен ссылаться на input packet, если issue возник из Inbox.
+- `Issues/<issue_id>/state.md` должен указывать active input_ref, пока issue не закрыт или не архивирован.
 
-Если пользователь во время approval/review добавляет новый материал, который меняет issue scope:
+## Правила хранения
 
-1. Сохранить новый material как новый `input_id` или attachment к существующему input packet.
-2. Обновить linked issue `reason.md` или registry notes.
-3. Вернуть issue в нужную phase:
-   - `requirements_reopen`, если меняются требования;
-   - `solution_reopen`, если меняется план/contract;
-   - `qa_reopen`, если появился materially important unknown.
-4. Не считать approval прежним, если новый input меняет scope.
+1. Input packet остаётся доступным, пока хотя бы один linked issue имеет статус `creating`, `proposed`, `needs_discussion`, `approved`, `active`, `blocked`, `deferred`, `closed` или `archived`.
+2. Rejected issue не удаляет input автоматически: сначала нужна retention-проверка.
+3. Cleanup Inbox выполняется только через [issue_retention_protocol.md](../Protocols/service_protocols/issue_retention_protocol.md).
+4. Tombstone должен сохранять `input_id`, linked issue, reason свёртки и cleanup reason.
+5. Temporary или тяжёлые attachments можно удалять только после tombstone и проверки зависимостей.
 
-## Cleanup и retention
+## Что запрещено
 
-Inbox cleanup не выполняется через ad-hoc delete. Порядок:
-
-1. Открыть [issue_retention_protocol.md](../Protocols/service_protocols/issue_retention_protocol.md).
-2. Найти linked issue.
-3. Проверить status linked issue.
-4. Проверить, что input не является единственным источником reason/requirements/contract.
-5. Создать tombstone manifest или archive pointer.
-6. Обновить page registry/persistence log, если Markdown-файлы изменились.
+- хранить requirements, solution, contract или output в `Inbox`;
+- создавать input-папки без manifest;
+- удалять attachment, если на него ссылается active/archived issue;
+- смешивать несколько независимых issue без явной связи в manifest;
+- записывать секреты или приватные данные без явного решения пользователя и понятного retention reason;
+- создавать runtime files без обновления [../State/page_registry.jsonl](../State/page_registry.jsonl), если это Markdown-файлы.
 
 ## Связанные файлы
 
+- [Root README](../README.md)
 - [New issue protocol](../Protocols/service_protocols/new_issue_protocol.md)
-- [Issue retention protocol](../Protocols/service_protocols/issue_retention_protocol.md)
 - [Service start protocol](../Protocols/service_protocols/service_start_protocol.md)
 - [Issue registry](../Issues/issue_registry.md)
-- [Issue registry JSONL](../Issues/issue_registry.jsonl)
+- [Dependency graph](../Issues/dependency_graph.jsonl)
+- [Persistence protocol](../Protocols/common/persistence_protocol.md)
+- [Issue Retention protocol](../Protocols/service_protocols/issue_retention_protocol.md)
 - [Page registry](../State/page_registry.jsonl)
-- [Persistence log](../State/persistence_log.jsonl)
