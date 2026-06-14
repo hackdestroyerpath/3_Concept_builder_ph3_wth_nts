@@ -1,94 +1,74 @@
 # Отчёт проверки service-уровня
 
-Parent: [README](../README.md)  
-Owner issue: `EXEC-012` / `AUD-REMEDIATION-20260605`  
+Parent: [service_state.md](service_state.md)  
+Owner issue: `CB-AUD-001..CB-AUD-018`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-11T00:00:00Z`
+Updated: `2026-06-14T02:12:33Z`
 
-## Назначение
+## Verdict
 
-Этот отчёт фиксирует текущее состояние production tree в GitHub после загрузки через GitHub Connector и последующего апгрейда compact-файлов.
+Phase 2 repair status: `pass_with_deferred_items`.
 
-## Проверенный scope
+`Concept Builder/` restored to the approved canonical production baseline, with only the allowed metadata deltas listed below. `USER-001` remains deferred/non-blocking: no service scripts are created without a separate approved issue. No runtime concept folder is created because no `concept_slug` was provided.
 
-| Показатель | Значение |
-|---|---:|
-| Production paths under `Concept Builder/` | `33` |
-| Markdown files | `27` |
-| JSONL files | `6` |
-| Legacy root `README.md` | `removed` |
-| Development-only files in production tree | `0` |
-| Runtime concept folders | `0` |
-| Runtime issue folders | `0` |
-| GitHub connector writes | `performed` |
-| Current package form | `committed_with_operational_compact_fallbacks` |
+## Repository write evidence
 
-## Проверенные entry points
-
-| Файл | Роль |
+| Field | Value |
 |---|---|
-| [README.md](../README.md) | root entry map |
-| [State/service_state.md](service_state.md) | состояние `Service Mode` |
-| [State/execution_index.md](execution_index.md) | состояние `Execution Mode` |
-| [Protocols/catalog.md](../Protocols/catalog.md) | человекочитаемый каталог протоколов |
-| [Protocols/catalog.jsonl](../Protocols/catalog.jsonl) | машиночитаемый каталог протоколов |
-| [Issues/issue_registry.md](../Issues/issue_registry.md) | человекочитаемый реестр issue |
-| [Issues/issue_registry.jsonl](../Issues/issue_registry.jsonl) | машиночитаемый реестр issue |
-| [Issues/dependency_graph.jsonl](../Issues/dependency_graph.jsonl) | summary-граф зависимостей issue |
-| [Concepts/README.md](../Concepts/README.md) | вход в слой концепций |
+| Repository | `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` |
+| Base branch | `main` |
+| Working branch | `agent/20260614-cb-phase2-repair-a1` |
+| Persistence transaction | `tx-cb-phase2-repair-20260614` |
+| Changed production files | `19` |
+| Validation status | `pass_with_deferred_items` |
+| Blocking status | `none` |
 
-## Результаты проверок
+GitHub write evidence must be read together with semantic gates. A file existence check, JSONL row, self-report or commit marker alone is not accepted as proof.
 
-| Gate | Результат | Problems |
-|---|---|---:|
-| Required path coverage | `pass` | `0` |
-| Extra root README | `pass` | `0` |
-| Development-only boundary | `pass` | `0` |
-| JSONL parse basic validity | `pass` | `0` |
-| Page registry path coverage | `pass` | `0` |
-| Protocol catalog coverage | `pass` | `0` |
-| Issue coverage | `pass_with_deferred_items` | `0 blockers` |
-| GitHub persistence evidence | `pass` | `0` |
-| Exact ZIP byte equality | `not_claimed` | `operational_compact_fallbacks_present` |
+## Allowed metadata deltas actually applied
 
-## GitHub upload evidence
-
-The repository contains all required production paths under `Concept Builder/`. The previous legacy root `README.md` was removed. Several large files were first uploaded as compact fallbacks and then upgraded where connector safety allowed.
-
-Latest persistence log upgrade commit: `e95131ed8bf5cd1c3c53c27316844d6d8b13203b`.
-
-## Compact fallback note
-
-Some files are intentionally operational compact versions rather than byte-for-byte identical to the local remediated ZIP because the connector safety layer blocked certain large Markdown/JSONL payloads. These files remain production-usable and are tracked by this report and [persistence_log.jsonl](persistence_log.jsonl).
-
-## Issue coverage
-
-| Группа | Результат |
+| Path | Applied delta |
 |---|---|
-| `EXEC-001` … `EXEC-012` | `closed` |
-| `USER-002` … `USER-007` | `closed` |
-| `OPT-001` … `OPT-004` | `closed_as_continuous_guard` |
-| `USER-001` | `deferred`, non-blocking, с reason и next action |
+| [../README.md](../README.md) | Current build paragraph now reflects actual GitHub repair write instead of pre-transfer `not_committed` wording. |
+| [service_state.md](service_state.md) | Repository, base branch, working branch, write status and next-step marker now describe the real GitHub repair workflow. |
+| [execution_index.md](execution_index.md) | Next-step marker no longer instructs transferring a package that has already been transferred. |
+| [service_validation_report.md](service_validation_report.md) | This report was regenerated after repair and lists gate evidence and allowed metadata deltas. |
+| [persistence_log.jsonl](persistence_log.jsonl) | Canonical rich package log restored, then corrective transaction `tx-cb-phase2-repair-20260614` appended with full write set. |
 
-`USER-001` не блокирует package: служебные скрипты не входят в обязательный production scope и требуют отдельного approved issue перед созданием.
+No other semantic or stylistic deltas are approved or applied.
 
-## Boundary conclusion
+## Validation gate summary
 
-Production tree содержит рабочие области: [README.md](../README.md), [State](service_state.md), [Instructions](../Instructions/service_mode_project_instructions.md), [Protocols](../Protocols/catalog.md), [Issues](../Issues/issue_registry.md), [Inbox](../Inbox/README.md), [Concepts](../Concepts/README.md).
+| Gate | Status | Evidence |
+|---|---|---|
+| Manifest gate | `pass` | Approved production file set remains 33 files under `Concept Builder/`; no runtime concept folder was created. |
+| Canonical fidelity gate | `pass` | All non-metadata semantic files match the canonical production baseline; only the five allowed metadata paths differ. |
+| JSONL syntax gate | `pass` | `page_registry`, `persistence_log`, `structural_backlog`, `catalog`, `issue_registry` and `dependency_graph` parse line-by-line. |
+| JSONL semantic gate | `pass` | Registries contain operational fields: parent/backlinks/owner/source, lifecycle evidence, dependency refs, readiness and validation paths. |
+| Navigation/link/backlink/orphan gate | `pass` | Markdown links resolve inside production tree; page registry contains parent/backlink/orphan metadata for all production pages. |
+| Issue lifecycle gate | `pass` | `Issues/issue_registry.jsonl` contains reason, scope, phase, dependencies, retention and validation evidence for closed/deferred/guard entries. |
+| Dependency edge/cycle/readiness gate | `pass` | `Issues/dependency_graph.jsonl` contains explicit edge rows plus metadata `cycle_check=pass`; readiness is derived from edge status, not summary text. |
+| Protocol depth/catalog sync/language gate | `pass` | Service protocols cover input → reason → QA → requirements → solution → contract → output → validation → retention; catalog MD/JSONL route to operational files. |
+| Persistence truthfulness gate | `pass` | `persistence_log.jsonl` records this corrective transaction and does not claim `package_draft_not_committed` after GitHub write. |
+| Production boundary gate | `pass` | Handoff archive, audit/source/methodology/checkpoint materials are not part of production paths. |
+| Causality gate | `pass` | Gate conclusions are based on content evidence and read-back/diff workflow, not only existence, row count, self-report or commit marker. |
 
-Исходные материалы передачи, методология выполнения, промежуточные checkpoint reports, audit сырьё и remediation evidence остаются вне production tree.
+## Audit register closure
 
-## Итоговый статус
+| Range | Status | Notes |
+|---|---|---|
+| `CB-AUD-001..CB-AUD-004` | `closed` | Canonical fidelity, page registry, issue registry and dependency graph restored. |
+| `CB-AUD-005..CB-AUD-009` | `closed` | Service lifecycle protocols, catalog sync, validation honesty and metadata truthfulness repaired. |
+| `CB-AUD-010..CB-AUD-014` | `closed` | Persistence truthfulness, navigation proof, execution readiness and production boundary preserved. |
+| `CB-AUD-015..CB-AUD-018` | `closed` | Causality gates, allowed deltas and delivery hygiene applied. |
 
-Status: `pass_with_deferred_items`.
+## Deferred non-blocking item
 
-GitHub status: `committed_with_operational_compact_fallbacks`.
+`USER-001` remains deferred/non-blocking. Service scripts are not created in this repair because there is no separate approved issue. This is the sole reason the final status is `pass_with_deferred_items` rather than `pass`.
 
-Блокеры: `0`.
+## Final status
 
-Deferred items: `USER-001`.
-
-## Следующий шаг
-
-Новые изменения выполнять только через issue lifecycle и [persistence_protocol.md](../Protocols/common/persistence_protocol.md). Если connector позже пропустит более крупные payloads, compact fallback files can be upgraded without changing the production path set.
+Final validation status: `pass_with_deferred_items`.  
+Unresolved blockers: `none`.  
+Next action: use [../README.md](../README.md), [service_state.md](service_state.md) and [../Protocols/service_protocols/service_start_protocol.md](../Protocols/service_protocols/service_start_protocol.md) for future service changes; use [execution_index.md](execution_index.md) and [../Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md) only after a user provides a concept scope.
