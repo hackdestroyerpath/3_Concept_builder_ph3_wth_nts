@@ -24,7 +24,7 @@ Phase 2 repair status: `pass_with_deferred_items`.
 | Validation status | `pass_with_deferred_items` |
 | Blocking status | `none` |
 
-GitHub write evidence must be read together with semantic gates. A file existence check, JSONL row, self-report or commit marker alone is not accepted as proof. Yes, apparently this needs saying in 2026.
+GitHub write evidence must be read together with semantic gates. A file existence check, JSONL row, self-report or commit marker alone is not accepted as proof.
 
 ## Allowed metadata deltas actually applied
 
