@@ -3,12 +3,12 @@
 Parent: [README](../README.md)  
 Owner issue: `EXEC-004`  
 Источник истины: `State/service_state.md`  
-Status: `commit_ready_package`  
-Updated: `2026-06-05T11:45:45Z`
+Status: `pass_with_deferred_items`  
+Updated: `2026-06-14T02:12:33Z`
 
 ## Назначение
 
-Этот файл хранит верхнее состояние `Concept Builder Service Mode`. Его читают при старте обслуживания системы, перед изменением структуры репозитория и перед переходом к service-level issue.
+Этот файл хранит верхнее состояние `Concept Builder Service Mode`. Его читают при старте обслуживания системы, перед изменением структуры репозитория и перед переходом к service-level `issue`.
 
 ## Текущий service scope
 
@@ -20,61 +20,125 @@ Updated: `2026-06-05T11:45:45Z`
 | Active phase | `none` |
 | Repository | `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` |
 | Default branch | `main` |
-| Write status | `committed_via_github_connector` |
-| GitHub metadata | `verified` |
+| Write status | `github_repair_committed` |
+| GitHub metadata | `base=main; working_branch=agent/20260614-cb-phase2-repair-a1; transaction=tx-cb-phase2-repair-20260614` |
 | Validation status | `pass_with_deferred_items` |
 | Validation report | [service_validation_report.md](service_validation_report.md) |
 | Blocking status | `none` |
+
+`Write status` означает: Phase 2 repair записан через GitHub connector и должен проверяться по фактическому repo ref, PR/diff gate, read-back и строке transaction-like в [persistence_log.jsonl](persistence_log.jsonl). Commit marker сам по себе не является доказательством: доказательство состоит из canonical fidelity, semantic JSONL gates, navigation checks, issue/dependency evidence и production-boundary gate.
 
 ## Минимальная загрузка при старте `Service Mode`
 
 1. [../README.md](../README.md) — корневой вход и карта маршрутов.
 2. [service_state.md](service_state.md) — текущий service-scope, validation status и next-step marker.
-3. [page_registry.jsonl](page_registry.jsonl) — проверка страниц, parent, backlinks и orphan-status.
-4. [../Protocols/catalog.md](../Protocols/catalog.md) — выбор локального протокола.
-5. [../Protocols/service_protocols/service_start_protocol.md](../Protocols/service_protocols/service_start_protocol.md) — старт `Service Mode`.
-6. [../Protocols/common/context_loading_protocol.md](../Protocols/common/context_loading_protocol.md) — focus packet.
-7. [../Protocols/common/persistence_protocol.md](../Protocols/common/persistence_protocol.md) — запись и честный статус.
-8. [../Protocols/common/final_validation_protocol.md](../Protocols/common/final_validation_protocol.md) — финальная проверка.
-9. [../Issues/issue_registry.md](../Issues/issue_registry.md) — человекочитаемый issue registry.
-10. [../Issues/dependency_graph.jsonl](../Issues/dependency_graph.jsonl) — dependency graph.
+3. [page_registry.jsonl](page_registry.jsonl) — проверка существования страниц, parent, backlinks и orphan-status.
+4. [../Protocols/catalog.md](../Protocols/catalog.md) — выбор самого локального протокола.
+5. [../Protocols/service_protocols/service_start_protocol.md](../Protocols/service_protocols/service_start_protocol.md) — старт `Service Mode` и первичная навигация.
+6. [../Protocols/service_protocols/existing_issue_protocol.md](../Protocols/service_protocols/existing_issue_protocol.md) — фокусировка на существующем issue.
+7. [../Protocols/service_protocols/question_answer_protocol.md](../Protocols/service_protocols/question_answer_protocol.md) — QA перед requirements, если есть materially important unknowns.
+8. [../Protocols/service_protocols/requirements_protocol.md](../Protocols/service_protocols/requirements_protocol.md) — draft/review/approval/reopen requirements.
+9. [../Protocols/service_protocols/solution_contract_output_protocol.md](../Protocols/service_protocols/solution_contract_output_protocol.md) — solution/contract review, execution и output package.
+10. [../Protocols/service_protocols/complex_issue_protocol.md](../Protocols/service_protocols/complex_issue_protocol.md) — decomposition и requalification.
+11. [../Protocols/service_protocols/linked_issues_protocol.md](../Protocols/service_protocols/linked_issues_protocol.md) — dependency edges, stale и cycle handling.
+12. [../Protocols/service_protocols/issue_retention_protocol.md](../Protocols/service_protocols/issue_retention_protocol.md) — archive, tombstone, deletion и Inbox cleanup lifecycle.
+13. [../Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md) — execution scope и concept template routing.
+14. [../Protocols/execution_protocols/concept_export_protocol.md](../Protocols/execution_protocols/concept_export_protocol.md) — export policy для closed/WIP concept package.
+15. [../Protocols/common/context_loading_protocol.md](../Protocols/common/context_loading_protocol.md) — правила минимальной загрузки и context lift.
+16. [../Protocols/common/final_validation_protocol.md](../Protocols/common/final_validation_protocol.md) — проверка перед закрытием issue, commit package или export.
+17. [../Issues/issue_registry.md](../Issues/issue_registry.md) и [../Issues/issue_registry.jsonl](../Issues/issue_registry.jsonl) — текущая issue-модель и bootstrap registry.
+18. [../Issues/dependency_graph.jsonl](../Issues/dependency_graph.jsonl) — проверка blocking dependencies перед выбором issue.
+19. [../Inbox/README.md](../Inbox/README.md) — читать только при intake нового issue или проверке Inbox lifecycle.
+
+Агент не должен имитировать planned протоколы: если нужный протокол ещё не создан, он создаёт implementation step или фиксирует blocker.
+
+## State-области верхнего уровня
+
+| Файл | Роль | Когда читать |
+|---|---|---|
+| [service_state.md](service_state.md) | состояние обслуживания системы | старт `Service Mode`, структурные изменения, validation |
+| [execution_index.md](execution_index.md) | индекс концепций и active execution-object | старт `Execution Mode`, выбор или создание концепции |
+| [page_registry.jsonl](page_registry.jsonl) | реестр страниц и backlinks | создание, удаление, проверка или навигация |
+| [persistence_log.jsonl](persistence_log.jsonl) | журнал transaction-like сохранения | перед ответом о сохранении, после записи |
+| [structural_backlog.jsonl](structural_backlog.jsonl) | управляемый backlog структурных решений | при новом структурном вопросе или guard-проверке |
+| [service_validation_report.md](service_validation_report.md) | финальная проверка service layer | перед commit/export или handoff |
+
+## Доступные service protocols
+
+| Протокол | Статус | Когда использовать |
+|---|---|---|
+| [../Protocols/service_protocols/service_start_protocol.md](../Protocols/service_protocols/service_start_protocol.md) | `available` | `пинг`, `старт`, service bootstrap, `продолжай` в service scope |
+| [../Protocols/service_protocols/new_issue_protocol.md](../Protocols/service_protocols/new_issue_protocol.md) | `available` | создание нового service-level issue из input/attachments |
+| [../Protocols/service_protocols/existing_issue_protocol.md](../Protocols/service_protocols/existing_issue_protocol.md) | `available` | выбор, продолжение или диагностика существующего issue |
+| [../Protocols/service_protocols/question_answer_protocol.md](../Protocols/service_protocols/question_answer_protocol.md) | `available` | закрытие materially important unknowns перед requirements |
+| [../Protocols/service_protocols/requirements_protocol.md](../Protocols/service_protocols/requirements_protocol.md) | `available` | requirements draft, review, approval и reopen |
+| [../Protocols/service_protocols/solution_contract_output_protocol.md](../Protocols/service_protocols/solution_contract_output_protocol.md) | `available` | solution/contract review, execution и output package |
+| [../Protocols/service_protocols/complex_issue_protocol.md](../Protocols/service_protocols/complex_issue_protocol.md) | `available` | parent/children decomposition и requalification |
+| [../Protocols/service_protocols/linked_issues_protocol.md](../Protocols/service_protocols/linked_issues_protocol.md) | `available` | dependency edges, readiness, stale и cycle handling |
+| [../Protocols/service_protocols/issue_retention_protocol.md](../Protocols/service_protocols/issue_retention_protocol.md) | `available` | archive, tombstone, deletion и Inbox cleanup lifecycle |
+
+## Доступные common/execution resources
+
+| Ресурс | Статус | Роль |
+|---|---|---|
+| [../Protocols/common/context_loading_protocol.md](../Protocols/common/context_loading_protocol.md) | `available` | context budget и context lift |
+| [../Protocols/common/persistence_protocol.md](../Protocols/common/persistence_protocol.md) | `available` | transaction-like persistence |
+| [../Protocols/common/final_validation_protocol.md](../Protocols/common/final_validation_protocol.md) | `available` | pre-commit/export validation |
+| [../Concepts/README.md](../Concepts/README.md) | `available-empty-layer` | вход в слой концепций |
+| [../Concepts/_template/README.md](../Concepts/_template/README.md) | `template` | шаблон concrete concept |
+| [../Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md) | `available` | execution routing, concept scope и path mapping |
+| [../Protocols/execution_protocols/concept_export_protocol.md](../Protocols/execution_protocols/concept_export_protocol.md) | `available` | closed/WIP export package |
+
+## Issue sources
+
+| Файл | Роль | Статус |
+|---|---|---|
+| [../Issues/issue_registry.md](../Issues/issue_registry.md) | человекочитаемый lifecycle, schema и bootstrap snapshot | `available` |
+| [../Issues/issue_registry.jsonl](../Issues/issue_registry.jsonl) | машинный реестр implementation/user/optimizer issue | `available` |
+| [../Issues/dependency_graph.jsonl](../Issues/dependency_graph.jsonl) | dependency edges и cycle status | `available` |
+| [../Issues/_archive/README.md](../Issues/_archive/README.md) | entry point архива закрытых/отклонённых issue | `available-empty-entrypoint` |
+| [../Issues/_tombstones/README.md](../Issues/_tombstones/README.md) | entry point tombstone cleanup | `available-empty-entrypoint` |
+| [../Inbox/README.md](../Inbox/README.md) | entry point input/attachments и traceability | `available-empty-entrypoint` |
 
 ## Context budget
 
-| Уровень | Что читать |
-|---|---|
-| `entry` | root README, service state, page registry, protocol catalog |
-| `focused` | active issue, selected protocol, affected files |
-| `expanded` | direct dependency summaries and parent summary |
-| `full_scope` | только для final validation или approved refactor |
-| `repository_wide` | запрещён без explicit reason |
-
-## Routing
-
-| Trigger | Protocol |
-|---|---|
-| старт / пинг | [service_start_protocol.md](../Protocols/service_protocols/service_start_protocol.md) |
-| новый issue | [new_issue_protocol.md](../Protocols/service_protocols/new_issue_protocol.md) |
-| существующий issue | [existing_issue_protocol.md](../Protocols/service_protocols/existing_issue_protocol.md) |
-| QA | [question_answer_protocol.md](../Protocols/service_protocols/question_answer_protocol.md) |
-| requirements | [requirements_protocol.md](../Protocols/service_protocols/requirements_protocol.md) |
-| solution/output | [solution_contract_output_protocol.md](../Protocols/service_protocols/solution_contract_output_protocol.md) |
-| complex/decomposition | [complex_issue_protocol.md](../Protocols/service_protocols/complex_issue_protocol.md) |
-| linked dependencies | [linked_issues_protocol.md](../Protocols/service_protocols/linked_issues_protocol.md) |
-| retention/archive/tombstone | [issue_retention_protocol.md](../Protocols/service_protocols/issue_retention_protocol.md) |
-
-## Deferred items
-
-| ID | Status | Next action |
+| Уровень | Разрешённый пакет | Статус |
 |---|---|---|
-| `USER-001` | `deferred_non_blocking` | Оценивать служебные скрипты только через отдельный approved issue при реальной необходимости. |
+| `entry` | root `README.md`, этот state, page registry, protocol catalog | default |
+| `focused` | active issue state, reason, ближайший протокол | после materialization runtime issue-папки или registry-only bootstrap issue |
+| `expanded` | parent/linked/dependency summaries и affected files | только с reason |
+| `full_scope` | весь service scope | только для финальной проверки или крупного refactor |
+| `repository_wide` | широкий обход репозитория | запрещён по умолчанию |
 
-## Production boundary
+Расширение контекста регулируется [../Protocols/common/context_loading_protocol.md](../Protocols/common/context_loading_protocol.md). Перед расширением агент фиксирует, какой факт нельзя проверить в текущем пакете и какой дополнительный файл нужен. После решения агент сворачивает детали обратно в state.
 
-Production tree ограничен папкой `Concept Builder/` и содержит только рабочие источники: `README.md`, `State/`, `Instructions/`, `Protocols/`, `Issues/`, `Inbox/`, `Concepts/`. Development handoff, checkpoint reports, audit сырьё и локальные архивы не являются production files.
+## Текущие bootstrap issue
+
+| ID | Статус | Смысл |
+|---|---|---|
+| `EXEC-001` … `EXEC-012` | `closed` | рабочая сеть, State, instructions, protocols, issue model, execution layer, final validation и remediation pass созданы и проверены |
+| `USER-001` | `deferred` | служебные скрипты не созданы без отдельного approved issue и cost/benefit decision |
+| `USER-002` … `USER-007` | `closed` | пользовательские структурные вопросы покрыты реализацией и validation report |
+| `OPT-001` … `OPT-004` | `closed_as_continuous_guard` | optimizer guards покрыты final validation report |
+
+## Persistence guard
+
+Перед ответом, который утверждает изменение состояния, агент обязан применить [../Protocols/common/persistence_protocol.md](../Protocols/common/persistence_protocol.md): перечитать state/registry, составить write set, записать artifacts, обновить индексы и добавить запись в [persistence_log.jsonl](persistence_log.jsonl). Если запись не выполнена, ответ должен быть `pending` или `blocked`, а не заявлением о сохранённом результате.
+
+## Blockers
+
+Блокирующие вопросы: отсутствуют.
+
+Неблокирующие deferred items:
+
+- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует `pass_with_deferred_items` и не создаёт service scripts в этом patch.
+- GitHub metadata проверена для фактического репозитория: branch-first repair выполнен в рабочей ветке, затем должен быть подтверждён read-back на `main` после merge.
+- Concrete concept folders не созданы: пользователь не задавал concept slug и initial scope.
+
+<a id="next-step-marker"></a>
 
 ## Next-step marker
 
-Next status: `ready_for_github_validation_or_runtime_concept_request`.
+Next status: `ready_for_runtime_use_or_new_service_issue`.
 
-Следующий service шаг: принимать новые service issue, runtime concept request или повторную финальную проверку после апгрейда compact files.
+Следующий рабочий шаг: открыть `README.md` и [service_validation_report.md](service_validation_report.md) в фактическом GitHub repo, затем выполнять новые изменения только через issue lifecycle и [../Protocols/common/persistence_protocol.md](../Protocols/common/persistence_protocol.md). Пакет уже перенесён; повторный перенос не является рабочим шагом.
