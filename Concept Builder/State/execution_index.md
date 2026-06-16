@@ -4,7 +4,7 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-004`  
 Источник истины: `State/execution_index.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-14T02:12:33Z`
+Updated: `2026-06-16T07:13:02Z`
 
 ## Назначение
 
@@ -81,4 +81,4 @@ Service-level развитие execution-слоя отслеживается в 
 
 Execution next status: `ready_for_concept_selection_or_creation`.
 
-Следующий шаг в `Execution Mode`: получить от пользователя concept slug / title / reason или выбрать существующую концепцию. Следующий шаг в `Service Mode`: открыть новый service issue через lifecycle; перенос commit-ready package в GitHub уже выполнен Phase 2 repair, поэтому concrete concept folders не создаются без `concept_slug`.
+Следующий шаг в `Execution Mode`: получить от пользователя concept slug / title / reason или выбрать существующую концепцию. Следующий шаг в `Service Mode`: открыть новый service issue через lifecycle; Phase 2 repair записан напрямую в `main`, поэтому concrete concept folders не создаются без `concept_slug`.
