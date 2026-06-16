@@ -9,7 +9,7 @@ Updated: `2026-06-05T11:45:45Z`
 
 ## Назначение
 
-Этот протокол управляет участком `simple issue` после утверждения требований: подготовка `solution.md`, подготовка `contract.md`, утверждение пользователем, выполнение approved solution и сохранение `output/` package. Он не заменяет [requirements_protocol.md](requirements_protocol.md), не выполняет complex decomposition и не закрывает issue без проверки. Само слово “готово” без contract coverage в этой системе имеет примерно ту же юридическую силу, что чек на салфетке.
+Этот протокол управляет участком `simple issue` после утверждения требований: подготовка `solution.md`, подготовка `contract.md`, утверждение пользователем, выполнение approved solution и сохранение `output/` package. Он не заменяет [requirements_protocol.md](requirements_protocol.md), не выполняет complex decomposition и не закрывает issue без проверки. Одного слова “готово” недостаточно: закрытие требует contract coverage и validation evidence.
 
 Главный принцип: `solution.md` объясняет способ выполнения, `contract.md` задаёт проверяемый критерий готовности, а `output/` фиксирует то, что реально было сделано. Эти артефакты не дублируют друг друга и не соревнуются за источник истины.
 
@@ -364,7 +364,7 @@ Changed files:
 - [Requirements protocol](requirements_protocol.md)
 - [Question Answer protocol](question_answer_protocol.md)
 - [Existing issue protocol](existing_issue_protocol.md)
-- [New issue protocol](new_issue_protocol.md)
+- [New Issue protocol](new_issue_protocol.md)
 - [Service start protocol](service_start_protocol.md)
 - [Service state](../../State/service_state.md)
 - [Issue Retention protocol](issue_retention_protocol.md)
