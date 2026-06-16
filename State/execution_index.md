@@ -29,7 +29,7 @@ Updated: `2026-06-16T16:48:11Z`
 
 Пока конкретные концепции не созданы. Агент не должен создавать папку концепции без явного пользовательского запроса или service/execution issue с владельцем, reason, requirements и критерием закрытия.
 
-Production root is the repository root `/`. Execution paths are resolved from root-level `Concepts/`, `Protocols/`, `State/` and `Issues/` directories.
+Production root: корень репозитория `/`. Execution paths разрешаются от корневых каталогов `Concepts/`, `Protocols/`, `State/` и `Issues/`.
 
 ## Реестр концепций
 
