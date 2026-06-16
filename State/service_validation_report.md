@@ -6,15 +6,15 @@ Owner issue: `ROOT-FLAT-ACCEPTANCE`
 Status: `pass_with_deferred_items`  
 Updated: `2026-06-16T16:48:11Z`
 
-## Verdict
+## Вердикт
 
-Root-flatten acceptance repair status: `pass_with_deferred_items`.
+Статус root-flatten acceptance repair: `pass_with_deferred_items`.
 
-Production root is the repository root `/`. The former `Concept Builder/` wrapper has been flattened into repository root and removed from tracked production files. `USER-001` remains deferred/non-blocking: no service scripts are created without a separate approved issue. No runtime concept folder is created because no `concept_slug` was provided.
+Production root: корень репозитория `/`. Бывшая wrapper-папка `Concept Builder/` вынесена в корень и удалена из tracked production files. `USER-001` остаётся deferred/non-blocking: service scripts не создаются без отдельного approved issue. Runtime concept folder не создан, потому что `concept_slug` не был предоставлен.
 
-## Repository write evidence
+## Доказательства GitHub-записи
 
-| Field | Value |
+| Поле | Значение |
 |---|---|
 | Repository | `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` |
 | Target branch | `main` |
@@ -26,52 +26,52 @@ Production root is the repository root `/`. The former `Concept Builder/` wrappe
 | Validation status | `pass_with_deferred_items` |
 | Blocking status | `none` |
 
-GitHub write evidence must be read together with semantic gates. A file existence check, JSONL row, self-report or commit marker alone is not accepted as proof. Because this report is written before the final GitHub commit SHA is known, the final executor response reports the post-write SHA after readback.
+Доказательства GitHub-записи нужно сопоставлять с semantic gates. Проверка существования файла, JSONL-строка, self-report или commit marker сами по себе не принимаются как proof. Так как отчёт записывается до получения final GitHub commit SHA, post-write SHA указывается в executor response после readback.
 
-## Changed production files in this root-flatten repair
+## Production-файлы, изменённые при root-flatten repair
 
-| Path | Reason |
+| Path | Причина |
 |---|---|
-| [../README.md](../README.md) | Promoted to repository root and updated to identify `/` as production root. |
-| [service_state.md](service_state.md) | Promoted to root-level `State/` and updated for direct-main root-flatten metadata. |
-| [execution_index.md](execution_index.md) | Promoted to root-level `State/` and updated to remove obsolete wrapper-state wording. |
-| [page_registry.jsonl](page_registry.jsonl) | Promoted to root-level `State/`; paths remain root-relative. |
-| [persistence_log.jsonl](persistence_log.jsonl) | Promoted to root-level `State/` and appended with root-flatten transaction. |
-| [structural_backlog.jsonl](structural_backlog.jsonl) | Promoted to root-level `State/`. |
-| [service_validation_report.md](service_validation_report.md) | Regenerated for root-level production boundary and style neutrality. |
-| [../Instructions/](../Instructions/) | Promoted to repository root. |
-| [../Protocols/](../Protocols/) | Promoted to repository root. |
-| [../Issues/](../Issues/) | Promoted to repository root. |
-| [../Inbox/README.md](../Inbox/README.md) | Promoted to repository root. |
-| [../Concepts/](../Concepts/) | Promoted to repository root; template style wording neutralized. |
+| [../README.md](../README.md) | Перенесён в корень репозитория и обновлён, чтобы обозначить `/` как production root. |
+| [service_state.md](service_state.md) | Перенесён в корневой `State/` и обновлён metadata для direct-main root-flatten. |
+| [execution_index.md](execution_index.md) | Перенесён в корневой `State/` и очищен от устаревшей wrapper-state формулировки. |
+| [page_registry.jsonl](page_registry.jsonl) | Перенесён в корневой `State/`; paths остаются root-relative. |
+| [persistence_log.jsonl](persistence_log.jsonl) | Перенесён в корневой `State/` и дополнен root-flatten transaction. |
+| [structural_backlog.jsonl](structural_backlog.jsonl) | Перенесён в корневой `State/`. |
+| [service_validation_report.md](service_validation_report.md) | Пересобран для root-level production boundary и style neutrality. |
+| [../Instructions/](../Instructions/) | Перенесён в корень репозитория. |
+| [../Protocols/](../Protocols/) | Перенесён в корень репозитория. |
+| [../Issues/](../Issues/) | Перенесён в корень репозитория. |
+| [../Inbox/README.md](../Inbox/README.md) | Перенесён в корень репозитория. |
+| [../Concepts/](../Concepts/) | Перенесён в корень репозитория; template style wording нейтрализован. |
 
-## Validation gate summary
+## Сводка validation gates
 
-| Gate | Status | Evidence |
+| Gate | Status | Подтверждение |
 |---|---|---|
-| G1 Root manifest gate | `pass` | All 33 approved production target paths are present at repository root after promotion. |
-| G2 Wrapper deletion gate | `pass` | No tracked production files remain under the former wrapper after the root tree commit. |
-| G3 No duplicate tree gate | `pass` | Root-level production tree is canonical; wrapper-level duplicate tree is absent. |
-| G4 JSONL syntax gate | `pass` | Root JSONL files parse line by line: page registry, persistence log, structural backlog, catalog, issue registry and dependency graph. |
-| G5 JSONL semantic gate | `pass` | Registries retain operational fields, root-relative paths, lifecycle evidence, edge rows and cycle metadata. |
-| G6 Link/backlink/orphan gate | `pass` | Internal relative links remain valid because the production tree was moved as a unit and root-relative registry paths match target files. |
-| G7 Style/neutrality gate | `pass` | The two flagged phrases are absent; no new conversational jokes or evaluative metaphors are introduced. |
-| G8 Production boundary gate | `pass` | No handoff, audit, source, methodology or checkpoint artifacts are copied into the repo production tree. |
-| G9 Deferred item gate | `pass` | `USER-001` remains deferred/non-blocking; no service scripts were created. |
-| G10 Concept scope gate | `pass` | No runtime concept folders were created without `concept_slug`. |
-| G11 Persistence truthfulness gate | `pass` | `persistence_log.jsonl` records the root-flatten transaction without pretending to know the final commit SHA before GitHub returns it. |
-| G12 Causality gate | `pass` | Gate conclusions are based on root layout, file contents, parse/readback and wrapper absence, not only existence or self-report. |
+| G1 Root manifest gate | `pass` | Все 33 approved production target paths присутствуют в корне репозитория после promotion. |
+| G2 Wrapper deletion gate | `pass` | После root tree commit tracked production files под бывшей wrapper-папкой отсутствуют. |
+| G3 No duplicate tree gate | `pass` | Корневое production tree является canonical; wrapper-level duplicate tree отсутствует. |
+| G4 JSONL syntax gate | `pass` | Root JSONL files разбираются построчно: page registry, persistence log, structural backlog, catalog, issue registry и dependency graph. |
+| G5 JSONL semantic gate | `pass` | Registries сохраняют operational fields, root-relative paths, lifecycle evidence, edge rows и cycle metadata. |
+| G6 Link/backlink/orphan gate | `pass` | Internal relative links остаются валидными, потому что production tree перенесено как единый блок, а root-relative registry paths совпадают с target files. |
+| G7 Style/neutrality gate | `pass` | Две ранее flagged phrases отсутствуют; новые conversational jokes или evaluative metaphors не добавлены. |
+| G8 Production boundary gate | `pass` | Handoff, audit, source, methodology и checkpoint artifacts не скопированы в repo production tree. |
+| G9 Deferred item gate | `pass` | `USER-001` остаётся deferred/non-blocking; service scripts не созданы. |
+| G10 Concept scope gate | `pass` | Runtime concept folders без `concept_slug` не созданы. |
+| G11 Persistence truthfulness gate | `pass` | `persistence_log.jsonl` фиксирует root-flatten transaction без утверждения final commit SHA до ответа GitHub. |
+| G12 Causality gate | `pass` | Gate conclusions основаны на root layout, file contents, parse/readback и wrapper absence, а не только на existence check или self-report. |
 
-## Style-fix confirmation
+## Подтверждение style-fix
 
-The English sentence about computers and causality is absent from [service_validation_report.md](service_validation_report.md). The metaphor about empty-folder museums is absent from [../Concepts/_template/README.md](../Concepts/_template/README.md).
+Английская фраза про computers и causality отсутствует в [service_validation_report.md](service_validation_report.md). Метафора про empty-folder museums отсутствует в [../Concepts/_template/README.md](../Concepts/_template/README.md).
 
-## Deferred non-blocking item
+## Отложенный неблокирующий item
 
-`USER-001` remains deferred/non-blocking. Service scripts are not created in this repair because there is no separate approved issue. This is the sole reason the final status is `pass_with_deferred_items` rather than `pass`.
+`USER-001` остаётся deferred/non-blocking. Service scripts не создаются в этом repair, потому что нет отдельного approved issue. Это единственная причина, по которой итоговый статус остаётся `pass_with_deferred_items`, а не `pass`.
 
-## Final status
+## Итоговый статус
 
-Final validation status: `pass_with_deferred_items`.  
-Unresolved blockers: `none`.  
-Next action: use [../README.md](../README.md), [service_state.md](service_state.md) and [../Protocols/service_protocols/service_start_protocol.md](../Protocols/service_protocols/service_start_protocol.md) for future service changes; use [execution_index.md](execution_index.md) and [../Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md) only after a user provides a concept scope.
+Итоговый validation status: `pass_with_deferred_items`.  
+Нерешённые blockers: `none`.  
+Следующее действие: использовать [../README.md](../README.md), [service_state.md](service_state.md) и [../Protocols/service_protocols/service_start_protocol.md](../Protocols/service_protocols/service_start_protocol.md) для будущих service changes; использовать [execution_index.md](execution_index.md) и [../Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md) только после того, как пользователь предоставит concept scope.

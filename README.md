@@ -13,7 +13,7 @@
 1. `Concept Builder Service Mode` — обслуживание самой структуры: `State`, project instructions, протоколы, issue-модель, навигация, retention и проверки.
 2. `Concept Builder / Execution Mode` — развитие конкретных концепций внутри [Concepts/](Concepts/README.md).
 
-Production root is the repository root `/`. The former `Concept Builder/` wrapper has been flattened into repository root and is not a production boundary.
+Production root: корень репозитория `/`; бывшая wrapper-папка `Concept Builder/` вынесена в корень и не является production boundary.
 
 Этот файл является главным входом в репозиторий. Он не дублирует всю систему: он ведёт агента к ближайшему источнику истины и помогает выбрать минимальный рабочий контекст.
 
@@ -115,4 +115,4 @@ Production root is the repository root `/`. The former `Concept Builder/` wrappe
 
 ## Текущий статус сборки
 
-`Service Mode` и базовый `Execution Mode` находятся в состоянии `pass_with_deferred_items` после direct-main root-flatten repair. Production root is the repository root `/`; the former `Concept Builder/` wrapper has been removed from tracked production files. Фактическая GitHub-запись выполнена напрямую в `main` для `hackdestroyerpath/3_Concept_builder_ph3_wth_nts`; transaction `tx-cb-root-flatten-20260616`. Конкретные concept folders не созданы, потому что пользователь не дал `concept_slug` и initial scope. `USER-001` остаётся deferred/non-blocking и не создаёт service scripts без отдельного approved issue.
+`Service Mode` и базовый `Execution Mode` находятся в состоянии `pass_with_deferred_items` после direct-main root-flatten repair. Production root: корень репозитория `/`; бывшая wrapper-папка `Concept Builder/` удалена из tracked production files. Фактическая GitHub-запись выполнена напрямую в `main` для `hackdestroyerpath/3_Concept_builder_ph3_wth_nts`; transaction `tx-cb-root-flatten-20260616`. Конкретные concept folders не созданы, потому что пользователь не дал `concept_slug` и initial scope. `USER-001` остаётся deferred/non-blocking и не создаёт service scripts без отдельного approved issue.
