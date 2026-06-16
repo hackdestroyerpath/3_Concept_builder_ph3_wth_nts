@@ -2,7 +2,7 @@
 
 Статус: `pass_with_deferred_items`  
 Источник истины этого входа: `README.md`  
-Последнее обновление: `2026-06-14T02:12:33Z`  
+Последнее обновление: `2026-06-16T07:13:02Z`  
 Реестр страниц: [State/page_registry.jsonl](State/page_registry.jsonl)  
 Финальная проверка: [State/service_validation_report.md](State/service_validation_report.md)
 
@@ -80,8 +80,8 @@
 
 | Область | Назначение | Статус наполнения |
 |---|---|---|
-| `State/` | состояние, реестры, журнал сохранения, backlog и финальный validation report | восстановлено и проверено |
-| `Instructions/` | исходники project instructions для двух режимов | canonical baseline verified |
+| `State/` | состояние, реестры, журнал сохранения, backlog и финальный validation report | готово к commit package |
+| `Instructions/` | исходники project instructions для двух режимов | готово к commit package |
 | `Protocols/` | каталог и протоколы выбора действий | common, service, execution и final validation доступны |
 | `Issues/` | service-level issue, dependency graph, archive и tombstones | bootstrap issue закрыты или явно deferred |
 | `Inbox/` | входящие материалы пользователя и attachments | rules entrypoint создан; cleanup только через retention protocol |
@@ -113,4 +113,4 @@
 
 ## Текущий статус сборки
 
-`Service Mode` и базовый `Execution Mode` находятся в состоянии `pass_with_deferred_items` после Phase 2 repair. Canonical production content восстановлен, а разрешённые metadata deltas применены только в утверждённых файлах состояния. Фактическая GitHub-запись выполнена для `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` через branch-first workflow: base `main`, working branch `agent/20260614-cb-phase2-repair-a1`. Конкретные concept folders не созданы, потому что пользователь не дал `concept_slug` и initial scope. `USER-001` остаётся deferred/non-blocking и не создаёт service scripts без отдельного approved issue.
+`Service Mode` и базовый `Execution Mode` находятся в состоянии `pass_with_deferred_items` после Phase 2 direct-main repair. Canonical production content восстановлен, а разрешённые metadata deltas применены только в утверждённых файлах состояния. Фактическая GitHub-запись выполнена напрямую в `main` для `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` по явному `main mode`; transaction `tx-cb-phase2-direct-main-20260616`. Конкретные concept folders не созданы, потому что пользователь не дал `concept_slug` и initial scope. `USER-001` остаётся deferred/non-blocking и не создаёт service scripts без отдельного approved issue.
