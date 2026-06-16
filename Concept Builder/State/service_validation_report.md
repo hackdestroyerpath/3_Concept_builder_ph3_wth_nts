@@ -4,7 +4,7 @@ Parent: [service_state.md](service_state.md)
 Owner issue: `CB-AUD-001..CB-AUD-018`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-14T02:12:33Z`
+Updated: `2026-06-16T07:13:02Z`
 
 ## Verdict
 
@@ -17,42 +17,54 @@ Phase 2 repair status: `pass_with_deferred_items`.
 | Field | Value |
 |---|---|
 | Repository | `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` |
-| Base branch | `main` |
-| Working branch | `agent/20260614-cb-phase2-repair-a1` |
-| Persistence transaction | `tx-cb-phase2-repair-20260614` |
-| Changed production files | `19` |
+| Target branch | `main` |
+| Requested write mode | `direct_main` |
+| Observed main HEAD before direct repair | `280c640af9992fbee5d4df5c09bd7f97360d11cb` |
+| Persistence transaction | `tx-cb-phase2-direct-main-20260616` |
+| Changed production files | `6` |
 | Validation status | `pass_with_deferred_items` |
 | Blocking status | `none` |
 
-GitHub write evidence must be read together with semantic gates. A file existence check, JSONL row, self-report or commit marker alone is not accepted as proof.
+GitHub write evidence must be read together with semantic gates. A file existence check, JSONL row, self-report or commit marker alone is not accepted as proof. Because this report is itself written before the final persistence-log readback commit SHA is known, the final executor response is the place where the final commit SHA is reported. Yes, computers made causality annoying; this is why we write things down.
+
+## Changed production files in this direct-main repair
+
+| Path | Reason |
+|---|---|
+| [../README.md](../README.md) | Truthful current-build paragraph for direct `main` write. |
+| [service_state.md](service_state.md) | Repository, target branch, write mode, write status and validation state updated for actual direct-main persistence. |
+| [execution_index.md](execution_index.md) | Next-step marker no longer instructs transferring a package already written; no concept folders are created without `concept_slug`. |
+| [page_registry.jsonl](page_registry.jsonl) | Restored canonical page registry content from `canonical_target_tree/Concept Builder/`. |
+| [service_validation_report.md](service_validation_report.md) | Regenerated post-repair report with gate evidence and allowed metadata deltas. |
+| [persistence_log.jsonl](persistence_log.jsonl) | Canonical rich package log restored, then corrective transaction `tx-cb-phase2-direct-main-20260616` appended truthfully. |
 
 ## Allowed metadata deltas actually applied
 
 | Path | Applied delta |
 |---|---|
-| [../README.md](../README.md) | Current build paragraph now reflects actual GitHub repair write instead of pre-transfer `not_committed` wording. |
-| [service_state.md](service_state.md) | Repository, base branch, working branch, write status and next-step marker now describe the real GitHub repair workflow. |
-| [execution_index.md](execution_index.md) | Next-step marker no longer instructs transferring a package that has already been transferred. |
-| [service_validation_report.md](service_validation_report.md) | This report was regenerated after repair and lists gate evidence and allowed metadata deltas. |
-| [persistence_log.jsonl](persistence_log.jsonl) | Canonical rich package log restored, then corrective transaction `tx-cb-phase2-repair-20260614` appended with full write set. |
+| [../README.md](../README.md) | Current build paragraph now reflects actual direct write to `main` instead of pre-transfer or blocked-draft wording. |
+| [service_state.md](service_state.md) | Repository, target branch, direct-main write mode, write status, transaction and next-step marker now describe the real GitHub repair workflow. |
+| [execution_index.md](execution_index.md) | Next-step marker no longer instructs transferring a package that has already been transferred and still requires `concept_slug` before runtime concept creation. |
+| [service_validation_report.md](service_validation_report.md) | This report was regenerated after repair and lists gate evidence, changed files and allowed metadata deltas. |
+| [persistence_log.jsonl](persistence_log.jsonl) | Canonical rich package log restored, then corrective transaction `tx-cb-phase2-direct-main-20260616` appended with full write set and honest direct-main status. |
 
-No other semantic or stylistic deltas are approved or applied.
+No other semantic or stylistic deltas are approved or applied. `State/page_registry.jsonl` is restored from canonical target content and is not treated as a metadata delta.
 
 ## Validation gate summary
 
 | Gate | Status | Evidence |
 |---|---|---|
 | Manifest gate | `pass` | Approved production file set remains 33 files under `Concept Builder/`; no runtime concept folder was created. |
-| Canonical fidelity gate | `pass` | All non-metadata semantic files match the canonical production baseline; only the five allowed metadata paths differ. |
+| Canonical fidelity gate | `pass` | Non-metadata semantic files match the canonical production baseline; `State/page_registry.jsonl` is restored to canonical target content; only allowed metadata paths differ. |
 | JSONL syntax gate | `pass` | `page_registry`, `persistence_log`, `structural_backlog`, `catalog`, `issue_registry` and `dependency_graph` parse line-by-line. |
 | JSONL semantic gate | `pass` | Registries contain operational fields: parent/backlinks/owner/source, lifecycle evidence, dependency refs, readiness and validation paths. |
-| Navigation/link/backlink/orphan gate | `pass` | Markdown links resolve inside production tree; page registry contains parent/backlink/orphan metadata for all production pages. |
+| Navigation/link/backlink/orphan gate | `pass` | Markdown links resolve inside production tree; page registry contains parent/backlink/orphan metadata for production pages. |
 | Issue lifecycle gate | `pass` | `Issues/issue_registry.jsonl` contains reason, scope, phase, dependencies, retention and validation evidence for closed/deferred/guard entries. |
 | Dependency edge/cycle/readiness gate | `pass` | `Issues/dependency_graph.jsonl` contains explicit edge rows plus metadata `cycle_check=pass`; readiness is derived from edge status, not summary text. |
 | Protocol depth/catalog sync/language gate | `pass` | Service protocols cover input → reason → QA → requirements → solution → contract → output → validation → retention; catalog MD/JSONL route to operational files. |
-| Persistence truthfulness gate | `pass` | `persistence_log.jsonl` records this corrective transaction and does not claim `package_draft_not_committed` after GitHub write. |
+| Persistence truthfulness gate | `pass` | `persistence_log.jsonl` records this corrective transaction as direct-main GitHub persistence and avoids pretending a self-referential commit SHA was known before GitHub returned it. |
 | Production boundary gate | `pass` | Handoff archive, audit/source/methodology/checkpoint materials are not part of production paths. |
-| Causality gate | `pass` | Gate conclusions are based on content evidence and read-back/diff workflow, not only existence, row count, self-report or commit marker. |
+| Causality gate | `pass` | Gate conclusions are based on content evidence and post-write readback workflow, not only existence, row count, self-report or commit marker. |
 
 ## Audit register closure
 
