@@ -27,7 +27,7 @@ Updated: `2026-06-16T16:48:11Z`
 | Validation report | [service_validation_report.md](service_validation_report.md) |
 | Blocking status | `none` |
 
-`Write status` означает: root-flatten repair записан напрямую в `main` через GitHub connector. Production root is the repository root `/`; the former `Concept Builder/` wrapper has been flattened into root and is not a production boundary. Проверять это состояние нужно по фактическому repo ref, read-back целевых файлов и transaction-like строке в [persistence_log.jsonl](persistence_log.jsonl). Commit marker, JSONL row или self-report сами по себе не являются достаточным доказательством; доказательство состоит из root manifest, wrapper deletion, semantic JSONL gates, navigation checks, issue/dependency evidence, production-boundary gate и readback после записи.
+`Write status` означает: root-flatten repair записан напрямую в `main` через GitHub connector. Production root: корень репозитория `/`; бывшая wrapper-папка `Concept Builder/` вынесена в корень и не является production boundary. Проверять это состояние нужно по фактическому repo ref, read-back целевых файлов и transaction-like строке в [persistence_log.jsonl](persistence_log.jsonl). Commit marker, JSONL row или self-report сами по себе не являются достаточным доказательством; доказательство состоит из root manifest, wrapper deletion, semantic JSONL gates, navigation checks, issue/dependency evidence, production-boundary gate и readback после записи.
 
 ## Минимальная загрузка при старте `Service Mode`
 
