@@ -2,7 +2,7 @@
 
 Статус: `pass_with_deferred_items`  
 Источник истины этого входа: `README.md`  
-Последнее обновление: `2026-06-16T07:13:02Z`  
+Последнее обновление: `2026-06-16T16:48:11Z`  
 Реестр страниц: [State/page_registry.jsonl](State/page_registry.jsonl)  
 Финальная проверка: [State/service_validation_report.md](State/service_validation_report.md)
 
@@ -12,6 +12,8 @@
 
 1. `Concept Builder Service Mode` — обслуживание самой структуры: `State`, project instructions, протоколы, issue-модель, навигация, retention и проверки.
 2. `Concept Builder / Execution Mode` — развитие конкретных концепций внутри [Concepts/](Concepts/README.md).
+
+Production root is the repository root `/`. The former `Concept Builder/` wrapper has been flattened into repository root and is not a production boundary.
 
 Этот файл является главным входом в репозиторий. Он не дублирует всю систему: он ведёт агента к ближайшему источнику истины и помогает выбрать минимальный рабочий контекст.
 
@@ -80,8 +82,8 @@
 
 | Область | Назначение | Статус наполнения |
 |---|---|---|
-| `State/` | состояние, реестры, журнал сохранения, backlog и финальный validation report | готово к commit package |
-| `Instructions/` | исходники project instructions для двух режимов | готово к commit package |
+| `State/` | состояние, реестры, журнал сохранения, backlog и финальный validation report | готово к runtime use |
+| `Instructions/` | исходники project instructions для двух режимов | готово к runtime use |
 | `Protocols/` | каталог и протоколы выбора действий | common, service, execution и final validation доступны |
 | `Issues/` | service-level issue, dependency graph, archive и tombstones | bootstrap issue закрыты или явно deferred |
 | `Inbox/` | входящие материалы пользователя и attachments | rules entrypoint создан; cleanup только через retention protocol |
@@ -113,4 +115,4 @@
 
 ## Текущий статус сборки
 
-`Service Mode` и базовый `Execution Mode` находятся в состоянии `pass_with_deferred_items` после Phase 2 direct-main repair. Canonical production content восстановлен, а разрешённые metadata deltas применены только в утверждённых файлах состояния. Фактическая GitHub-запись выполнена напрямую в `main` для `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` по явному `main mode`; transaction `tx-cb-phase2-direct-main-20260616`. Конкретные concept folders не созданы, потому что пользователь не дал `concept_slug` и initial scope. `USER-001` остаётся deferred/non-blocking и не создаёт service scripts без отдельного approved issue.
+`Service Mode` и базовый `Execution Mode` находятся в состоянии `pass_with_deferred_items` после direct-main root-flatten repair. Production root is the repository root `/`; the former `Concept Builder/` wrapper has been removed from tracked production files. Фактическая GitHub-запись выполнена напрямую в `main` для `hackdestroyerpath/3_Concept_builder_ph3_wth_nts`; transaction `tx-cb-root-flatten-20260616`. Конкретные concept folders не созданы, потому что пользователь не дал `concept_slug` и initial scope. `USER-001` остаётся deferred/non-blocking и не создаёт service scripts без отдельного approved issue.

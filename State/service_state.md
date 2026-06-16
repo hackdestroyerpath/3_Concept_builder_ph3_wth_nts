@@ -4,7 +4,7 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-004`  
 Источник истины: `State/service_state.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-16T07:13:02Z`
+Updated: `2026-06-16T16:48:11Z`
 
 ## Назначение
 
@@ -19,14 +19,15 @@ Updated: `2026-06-16T07:13:02Z`
 | Active issue | `none` |
 | Active phase | `none` |
 | Repository | `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` |
+| Production root | `/` |
 | Default branch | `main` |
-| Write status | `github_direct_main_committed` |
-| GitHub metadata | `write_mode=direct_main; target_branch=main; observed_main_head_before_repair=280c640af9992fbee5d4df5c09bd7f97360d11cb; transaction=tx-cb-phase2-direct-main-20260616; final_commit_sha=reported_in_executor_response_after_readback` |
+| Write status | `github_direct_main_root_flatten_committed` |
+| GitHub metadata | `write_mode=direct_main; target_branch=main; production_root=/; source_wrapper=Concept Builder/; transaction=tx-cb-root-flatten-20260616; final_commit_sha=reported_in_executor_response_after_readback` |
 | Validation status | `pass_with_deferred_items` |
 | Validation report | [service_validation_report.md](service_validation_report.md) |
 | Blocking status | `none` |
 
-`Write status` означает: Phase 2 repair записан напрямую в `main` через GitHub connector по явному `main mode`. Проверять это состояние нужно по фактическому repo ref, read-back целевых файлов и transaction-like строке в [persistence_log.jsonl](persistence_log.jsonl). Commit marker, JSONL row или self-report сами по себе не являются достаточным доказательством; доказательство состоит из canonical fidelity, semantic JSONL gates, navigation checks, issue/dependency evidence, production-boundary gate и readback после записи.
+`Write status` означает: root-flatten repair записан напрямую в `main` через GitHub connector. Production root is the repository root `/`; the former `Concept Builder/` wrapper has been flattened into root and is not a production boundary. Проверять это состояние нужно по фактическому repo ref, read-back целевых файлов и transaction-like строке в [persistence_log.jsonl](persistence_log.jsonl). Commit marker, JSONL row или self-report сами по себе не являются достаточным доказательством; доказательство состоит из root manifest, wrapper deletion, semantic JSONL gates, navigation checks, issue/dependency evidence, production-boundary gate и readback после записи.
 
 ## Минимальная загрузка при старте `Service Mode`
 

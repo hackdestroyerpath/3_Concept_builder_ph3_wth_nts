@@ -4,7 +4,7 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-004`  
 Источник истины: `State/execution_index.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-16T07:13:02Z`
+Updated: `2026-06-16T16:48:11Z`
 
 ## Назначение
 
@@ -28,6 +28,8 @@ Updated: `2026-06-16T07:13:02Z`
 | Blocking status | `none` |
 
 Пока конкретные концепции не созданы. Агент не должен создавать папку концепции без явного пользовательского запроса или service/execution issue с владельцем, reason, requirements и критерием закрытия.
+
+Production root is the repository root `/`. Execution paths are resolved from root-level `Concepts/`, `Protocols/`, `State/` and `Issues/` directories.
 
 ## Реестр концепций
 
@@ -81,4 +83,4 @@ Service-level развитие execution-слоя отслеживается в 
 
 Execution next status: `ready_for_concept_selection_or_creation`.
 
-Следующий шаг в `Execution Mode`: получить от пользователя concept slug / title / reason или выбрать существующую концепцию. Следующий шаг в `Service Mode`: открыть новый service issue через lifecycle; Phase 2 repair записан напрямую в `main`, поэтому concrete concept folders не создаются без `concept_slug`.
+Следующий шаг в `Execution Mode`: получить от пользователя concept slug / title / reason или выбрать существующую концепцию. Следующий шаг в `Service Mode`: открыть новый service issue через lifecycle. Root-flatten repair записан напрямую в `main`, поэтому concrete concept folders не создаются без `concept_slug`.

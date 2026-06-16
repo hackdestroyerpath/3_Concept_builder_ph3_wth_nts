@@ -4,11 +4,11 @@ Parent: [Слой концепций](../README.md)
 Owner issue: `EXEC-011`  
 Источник истины: `Concepts/_template/README.md`  
 Status: `template`  
-Updated: `2026-06-05T11:45:45Z`
+Updated: `2026-06-16T16:48:11Z`
 
 ## Назначение
 
-Этот файл описывает минимальный шаблон concrete concept. Он не является рабочей концепцией и не должен получать issue, output или export как будто это живой объект. Шаблон — это форма для будущей сети файлов, а не музей пустых папок.
+Этот файл описывает минимальный шаблон concrete concept. Он не является рабочей концепцией и не должен получать issue, output или export как будто это живой объект. Шаблон задаёт минимальную структуру для будущей сети файлов конкретной концепции.
 
 ## Как использовать
 
@@ -118,51 +118,4 @@ Updated: <timestamp>
 |---|---|
 | entry | README, concept_state, local page registry, local issue registry |
 | focused | active issue, selected protocol, affected pages |
-| expanded | linked issue and dependency summaries |
-
-## Next-step marker
-
-Next status: `needs_first_issue_or_page`.
 ```
-
-## Local issue registry
-
-`Concepts/<concept_slug>/Issues/issue_registry.jsonl` использует те же поля, что root [issue registry](../../Issues/issue_registry.md), но `scope_type = execution`, `scope_path = Concepts/<concept_slug>/`, а ID имеет формат `<concept_slug>-ISS-0001`.
-
-## Local dependency graph
-
-`Concepts/<concept_slug>/Issues/dependency_graph.jsonl` хранит только зависимости внутри concept scope. Root dependency graph не должен хранить concept-internal edges без cross-scope reason. Если dependency связывает concept issue с service issue, это cross-scope edge и требует явного reason в обоих registry или service-level decision.
-
-## Local page registry
-
-`Concepts/<concept_slug>/State/page_registry.jsonl` хранит concept-internal Markdown и значимые registry artifacts. Root [page_registry.jsonl](../../State/page_registry.jsonl) обязан знать как минимум concept entrypoint и local registry files, если они созданы в production tree.
-
-Минимальная строка local page registry:
-
-```json
-{"path":"README.md","kind":"markdown","parent":null,"owner":"concept","source_of_truth":true,"entrypoint":true,"links":[],"backlinks":[],"orphan":false,"status":"draft"}
-```
-
-## Issue workflow внутри концепции
-
-1. Создать reason для concept issue.
-2. Провести QA только если unknowns влияют на requirements.
-3. Сохранить `requirements.md`.
-4. Проверить simple/complex requalification.
-5. Создать solution и contract.
-6. Выполнить approved work.
-7. Сохранить output package.
-8. Провести validation.
-9. Закрыть issue или вернуть в нужную phase.
-
-## Closure и export
-
-Closure concept scope выполняется только после проверки local pages, local issues, dependencies, output coverage и user approval. Export выполняется через [concept_export_protocol.md](../../Protocols/execution_protocols/concept_export_protocol.md). Если есть open issue, export обязан быть `work_in_progress`.
-
-## Guardrails
-
-- Не копировать этот шаблон как готовую концепцию без заполнения reason и scope.
-- Не создавать concrete concept без пользовательского intent.
-- Не смешивать service-level issue и concept issue без cross-scope reason.
-- Не считать WIP export закрытой концепцией.
-- Не добавлять Markdown-файлы без parent/backlink/local registry.
