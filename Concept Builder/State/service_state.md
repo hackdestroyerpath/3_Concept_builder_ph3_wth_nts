@@ -4,7 +4,7 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-004`  
 Источник истины: `State/service_state.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-14T02:12:33Z`
+Updated: `2026-06-16T07:13:02Z`
 
 ## Назначение
 
@@ -20,13 +20,13 @@ Updated: `2026-06-14T02:12:33Z`
 | Active phase | `none` |
 | Repository | `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` |
 | Default branch | `main` |
-| Write status | `github_repair_committed` |
-| GitHub metadata | `base=main; working_branch=agent/20260614-cb-phase2-repair-a1; transaction=tx-cb-phase2-repair-20260614` |
+| Write status | `github_direct_main_committed` |
+| GitHub metadata | `write_mode=direct_main; target_branch=main; observed_main_head_before_repair=280c640af9992fbee5d4df5c09bd7f97360d11cb; transaction=tx-cb-phase2-direct-main-20260616; final_commit_sha=reported_in_executor_response_after_readback` |
 | Validation status | `pass_with_deferred_items` |
 | Validation report | [service_validation_report.md](service_validation_report.md) |
 | Blocking status | `none` |
 
-`Write status` означает: Phase 2 repair записан через GitHub connector и должен проверяться по фактическому repo ref, PR/diff gate, read-back и строке transaction-like в [persistence_log.jsonl](persistence_log.jsonl). Commit marker сам по себе не является доказательством: доказательство состоит из canonical fidelity, semantic JSONL gates, navigation checks, issue/dependency evidence и production-boundary gate.
+`Write status` означает: Phase 2 repair записан напрямую в `main` через GitHub connector по явному `main mode`. Проверять это состояние нужно по фактическому repo ref, read-back целевых файлов и transaction-like строке в [persistence_log.jsonl](persistence_log.jsonl). Commit marker, JSONL row или self-report сами по себе не являются достаточным доказательством; доказательство состоит из canonical fidelity, semantic JSONL gates, navigation checks, issue/dependency evidence, production-boundary gate и readback после записи.
 
 ## Минимальная загрузка при старте `Service Mode`
 
@@ -127,12 +127,11 @@ Updated: `2026-06-14T02:12:33Z`
 
 ## Blockers
 
-Блокирующие вопросы: отсутствуют.
+Блокирующие вопросы: `none`.
 
 Неблокирующие deferred items:
 
-- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует `pass_with_deferred_items` и не создаёт service scripts в этом patch.
-- GitHub metadata проверена для фактического репозитория: branch-first repair выполнен в рабочей ветке, затем должен быть подтверждён read-back на `main` после merge.
+- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует commit-ready package.
 - Concrete concept folders не созданы: пользователь не задавал concept slug и initial scope.
 
 <a id="next-step-marker"></a>
@@ -141,4 +140,4 @@ Updated: `2026-06-14T02:12:33Z`
 
 Next status: `ready_for_runtime_use_or_new_service_issue`.
 
-Следующий рабочий шаг: открыть `README.md` и [service_validation_report.md](service_validation_report.md) в фактическом GitHub repo, затем выполнять новые изменения только через issue lifecycle и [../Protocols/common/persistence_protocol.md](../Protocols/common/persistence_protocol.md). Пакет уже перенесён; повторный перенос не является рабочим шагом.
+Следующий рабочий шаг в `Service Mode`: открывать новый service issue через lifecycle. Следующий рабочий шаг в `Execution Mode`: запросить у пользователя `concept_slug`, title, reason и initial scope перед созданием runtime concept folders.
