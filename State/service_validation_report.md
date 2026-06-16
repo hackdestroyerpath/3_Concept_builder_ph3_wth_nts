@@ -1,10 +1,10 @@
 # Отчёт проверки service-уровня
 
 Parent: [service_state.md](service_state.md)  
-Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01`  
+Owner issue: `ROOT-FLAT-ACCEPTANCE`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-16T20:44:45Z`
+Updated: `2026-06-16T16:48:11Z`
 
 ## Вердикт
 
@@ -61,56 +61,6 @@ Production root: корень репозитория `/`. Бывшая wrapper-�
 | G10 Concept scope gate | `pass` | Runtime concept folders без `concept_slug` не созданы. |
 | G11 Persistence truthfulness gate | `pass` | `persistence_log.jsonl` фиксирует root-flatten transaction без утверждения final commit SHA до ответа GitHub. |
 | G12 Causality gate | `pass` | Gate conclusions основаны на root layout, file contents, parse/readback и wrapper absence, а не только на existence check или self-report. |
-
-## Stage 01 validation addendum — baseline / navigation hygiene
-
-Transaction: `tx-cb-stage-01-baseline-nav-20260616`  
-Branch: `agent/cb-unification-stage-01-baseline`  
-Status: `committed_on_task_branch` after branch readback.  
-Updated: `2026-06-16T20:44:45Z`
-
-### Scope
-
-Stage 01 keeps `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` as the leader repository. Repo 1 and Repo 2 are read-only donors for local ideas only. No donor layout is copied wholesale.
-
-### Changed files
-
-| Path | Stage 01 purpose |
-|---|---|
-| [file_manifest.jsonl](file_manifest.jsonl) | Compact machine companion to `State/page_registry.jsonl`. |
-| [navigation_map.md](navigation_map.md) | Human-readable navigation map adapted to the leader architecture. |
-| [page_registry_guide.md](page_registry_guide.md) | Short guide for `path`, `parent`, `links`, `backlinks`, `orphan`, `entrypoint` and reachability checks. |
-| [page_registry.jsonl](page_registry.jsonl) | Add registry entries for Stage 01 companions. |
-| [../Protocols/service_protocols/solution_contract_output_protocol.md](../Protocols/service_protocols/solution_contract_output_protocol.md) | Neutralize the style-gate contradiction in `ISSUE-005`. |
-| [persistence_log.jsonl](persistence_log.jsonl) | Add Stage 01 transaction marker after content/index updates. |
-
-### Validation gates
-
-| Gate | Result | Evidence |
-|---|---|---|
-| JSONL parse | `pass` | `file_manifest.jsonl`, `page_registry.jsonl` append and `persistence_log.jsonl` append parse line-by-line. |
-| New Markdown parent links | `pass` | `navigation_map.md` links to `README.md`; `page_registry_guide.md` links to `page_registry.jsonl`. |
-| Source-of-truth notes | `pass` | New companions state that `State/page_registry.jsonl` remains authoritative. |
-| Reachability | `pass` | `navigation_map.md` is marked as entrypoint; `file_manifest.jsonl` and `page_registry_guide.md` are reachable through it and registry entries. |
-| ISSUE-005 | `pass` | Conversational sentence is replaced by a neutral closure rule: one word `готово` is insufficient. |
-| Project instructions loader check | `kept` | Service and Execution instructions remain compact loaders; no protocol catalog duplication added. |
-| Baseline guard | `pass` | Repo 3 remains leader; donor repos are not transferred wholesale. |
-| Service scripts | `not_created` | `USER-001` remains deferred/non-blocking. |
-| Runtime concept folders | `not_created` | No `Concepts/<concept_slug>/` folder is created without concept scope. |
-| Deep lifecycle/export/persistence refactor | `not_changed` | Stage 01 only adds navigation companions and one style patch. |
-
-### Stage 01 registry ID coverage
-
-`CB-U-001`, `CB-U-002`, `CB-U-003`, `CB-U-004`, `NAV-001`, `NAV-002`, `NAV-003`, `NAV-005`, `NAV-006`, `INST-001`, `INST-002`, `INST-003`, `ISSUE-005`, `NO-001`, `NO-002`, `NO-004`, `NO-005`, `NO-007`, `NO-008` are covered by this branch result. `CB-U-005` remains deferred to a future final self-check stage.
-
-### Deferred items
-
-- `CB-U-005`: deferred to future final self-check stage.
-- `USER-001` / service scripts: deferred by existing repo policy; Stage 01 does not create service scripts.
-
-### Blocking status
-
-Known blockers after Stage 01 branch write and readback: `none`.
 
 ## Подтверждение style-fix
 
