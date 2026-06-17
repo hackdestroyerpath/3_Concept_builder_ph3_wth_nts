@@ -5,7 +5,7 @@ Owner issue: `EXEC-004` / `OPT-003` / `CB-STAGE-03`
 Protocol ID: `common/context_loading`  
 Источник истины: `Protocols/common/context_loading_protocol.md`  
 Status: `available`  
-Updated: `2026-06-17T22:24:00Z`
+Updated: `2026-06-17T23:18:00Z`
 
 ## Назначение
 
@@ -117,12 +117,12 @@ focus_id_requirements:
     required: [state_file, active_scope, active_concept_slug]
     active_issue_id: required_only_if_concept_issue_active
   concept_issue_scope:
-    required: [state_file, active_concept_slug, active_issue_id]
+    required: [state_file, active_scope, active_concept_slug, active_issue_id]
 ```
 
 `context_confidence=low` ставится только когда identifier, обязательный для текущего mode/scope, отсутствует или противоречит state/readback. Missing IDs, которые явно допустимы как `none`/`null` для текущего mode/scope, не снижают confidence.
 
-Recovery должен называть конкретный применимый missing identifier: например `active_issue_missing` для `service_active_issue` или `concept_issue_scope`, `active_concept_missing` для `execution_selected_concept`, и `active_scope_unknown` если невозможно определить scope. Валидный старт `Service Mode` не требует `active_concept_slug`; валидный `Execution Mode` с выбранной концепцией не требует `active_issue_id`, пока concept issue не активен; валидный `Execution Mode` без active concept допускает `active_concept_slug` как `none`/`null`.
+Recovery должен называть конкретный применимый missing identifier: например `active_issue_missing` для `service_active_issue` или `concept_issue_scope`, `active_concept_missing` для `execution_selected_concept`, и `active_scope_unknown` если невозможно определить scope. Валидный старт `Service Mode` не требует `active_concept_slug`; валидный `Execution Mode` с выбранной концепцией не требует `active_issue_id`, пока concept issue не активен; валидный `Execution Mode` без active concept допускает `active_concept_slug` как `none`/`null`; concept issue scope всегда требует `active_scope`, чтобы выбрать правильный root-vs-concept state and registry boundary.
 
 ## State integrity marker
 
