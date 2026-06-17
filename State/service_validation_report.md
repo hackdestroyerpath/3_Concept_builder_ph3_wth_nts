@@ -4,7 +4,7 @@ Parent: [service_state.md](service_state.md)
 Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-16T22:24:00Z`
+Updated: `2026-06-17T13:27:00Z`
 
 ## Вердикт
 
@@ -67,7 +67,7 @@ Production root: корень репозитория `/`. Бывшая wrapper-�
 Transaction: `tx-cb-stage-01-baseline-nav-20260616`  
 Branch: `agent/cb-unification-stage-01-baseline`  
 Status: `committed_on_task_branch`  
-Updated: `2026-06-16T22:24:00Z`
+Updated: `2026-06-17T13:27:00Z`
 
 ### Scope
 
@@ -107,6 +107,28 @@ Stage 01 keeps `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` as the leader r
 ### Blocking status
 
 Known blocker before final Stage 01 acceptance: `none`.
+
+
+## Stage 01 second rework checkpoint
+
+Transaction: `tx-cb-stage-01-second-rework-step-06-20260617`  
+Branch: `agent/stage-01-second-rework-step-06-20260617-1327Z`  
+Status: `committed_on_task_branch`  
+Updated: `2026-06-17T13:27:00Z`
+
+### Scope
+
+Second rework is limited to Stage 01 navigation consistency. No Stage 02 work is started. No service scripts, donor wholesale layout, Phase 2/P2R5 repair-history, broad lifecycle/export/persistence refactor, or runtime concept folder is introduced.
+
+### Navigation consistency evidence
+
+| Gate | Result | Evidence |
+|---|---|---|
+| `State/navigation_map.md` links | `pass` | Registry row now matches actual Markdown links, including [../README.md](../README.md), [page_registry.jsonl](page_registry.jsonl), [page_registry_guide.md](page_registry_guide.md), [persistence_log.jsonl](persistence_log.jsonl), [service_validation_report.md](service_validation_report.md), and affected service/execution/issue/concept routes. |
+| `State/page_registry_guide.md` links | `pass` | Registry row now reflects actual links to [../README.md](../README.md), [page_registry.jsonl](page_registry.jsonl), [navigation_map.md](navigation_map.md), [file_manifest.jsonl](file_manifest.jsonl), [persistence_log.jsonl](persistence_log.jsonl), and [service_validation_report.md](service_validation_report.md). |
+| Backlinks | `pass` | [page_registry.jsonl](page_registry.jsonl) backlinks were recomputed from registered Markdown `links` for affected targets. |
+| Reachability | `pass` | Root [../README.md](../README.md) now links directly to [navigation_map.md](navigation_map.md), so `State/navigation_map.md` is reachable through the direct root route. |
+| Persistence truthfulness | `pass` | [persistence_log.jsonl](persistence_log.jsonl) records this task-branch write without claiming a final GitHub SHA inside the pre-response row. |
 
 ## Подтверждение style-fix
 
