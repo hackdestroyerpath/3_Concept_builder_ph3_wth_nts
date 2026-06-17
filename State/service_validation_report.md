@@ -4,7 +4,7 @@ Parent: [service_state.md](service_state.md)
 Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-17T13:27:00Z`
+Updated: `2026-06-17T14:07:00Z`
 
 ## Вердикт
 
@@ -129,6 +129,28 @@ Second rework is limited to Stage 01 navigation consistency. No Stage 02 work is
 | Backlinks | `pass` | [page_registry.jsonl](page_registry.jsonl) backlinks were recomputed from registered Markdown `links` for affected targets. |
 | Reachability | `pass` | Root [../README.md](../README.md) now links directly to [navigation_map.md](navigation_map.md), so `State/navigation_map.md` is reachable through the direct root route. |
 | Persistence truthfulness | `pass` | [persistence_log.jsonl](persistence_log.jsonl) records this task-branch write without claiming a final GitHub SHA inside the pre-response row. |
+
+## Stage 01 third narrow rework checkpoint
+
+Transaction: `tx-cb-stage-01-third-rework-step-07-20260617`  
+Branch: `agent/stage-01-third-rework-step-07-20260617-1407Z`  
+Status: `committed_on_task_branch`  
+Updated: `2026-06-17T14:07:00Z`
+
+### Scope
+
+Third narrow rework uses preferred option A: restore the root orientation sections in [../README.md](../README.md). The direct route to [navigation_map.md](navigation_map.md) remains in README. No Stage 02 work is started. No service scripts, runtime concept folders, donor wholesale layout, Phase 2/P2R5 repair-history, or broad lifecycle/export/persistence refactor is introduced.
+
+### README restoration evidence
+
+| Gate | Result | Evidence |
+|---|---|---|
+| Restored heading `Production-области` | `pass` | [../README.md](../README.md) again contains the production-area orientation table. |
+| Restored heading `Правила навигации` | `pass` | Navigation rules are restored in the root entry, including the registry/backlink update rule. |
+| Restored heading `Источники истины верхнего уровня` | `pass` | Navigation source row explicitly names `README.md`, [navigation_map.md](navigation_map.md) and [page_registry.jsonl](page_registry.jsonl). |
+| Restored heading `Текущий статус сборки` | `pass` | Current build status is restored without changing the Stage 01 boundary. |
+| Registry link impact | `pass` | Restored README sections reuse links already present in the registered README unique link set; [page_registry.jsonl](page_registry.jsonl) rows for [navigation_map.md](navigation_map.md) and [page_registry_guide.md](page_registry_guide.md) remain correct. |
+| Persistence truthfulness | `pass` | [persistence_log.jsonl](persistence_log.jsonl) records this third narrow rework transaction without claiming final GitHub SHA inside the pre-response row. |
 
 ## Подтверждение style-fix
 
