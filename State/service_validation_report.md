@@ -4,7 +4,7 @@ Parent: [service_state.md](service_state.md)
 Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-16T22:06:00Z`
+Updated: `2026-06-16T22:24:00Z`
 
 ## Вердикт
 
@@ -43,7 +43,7 @@ Production root: корень репозитория `/`. Бывшая wrapper-�
 | [../Protocols/](../Protocols/) | Перенесён в корень репозитория. |
 | [../Issues/](../Issues/) | Перенесён в корень репозитория. |
 | [../Inbox/README.md](../Inbox/README.md) | Перенесён в корень репозитория. |
-| [../Concepts/](../Concepts/) | Перенён в корень репозитория; template style wording нейтрализован. |
+| [../Concepts/](../Concepts/) | Перенесён в корень репозитория; template style wording нейтрализован. |
 
 ## Сводка validation gates
 
@@ -66,8 +66,8 @@ Production root: корень репозитория `/`. Бывшая wrapper-�
 
 Transaction: `tx-cb-stage-01-baseline-nav-20260616`  
 Branch: `agent/cb-unification-stage-01-baseline`  
-Status: `partial_committed_on_task_branch`  
-Updated: `2026-06-16T22:06:00Z`
+Status: `committed_on_task_branch`  
+Updated: `2026-06-16T22:24:00Z`
 
 ### Scope
 
@@ -80,14 +80,17 @@ Stage 01 keeps `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` as the leader r
 | [file_manifest.jsonl](file_manifest.jsonl) | Compact machine companion to `State/page_registry.jsonl`. | `created` |
 | [navigation_map.md](navigation_map.md) | Human-readable navigation map adapted to the leader architecture. | `created` |
 | [page_registry_guide.md](page_registry_guide.md) | Short guide for `path`, `parent`, `links`, `backlinks`, `orphan`, `entrypoint` and reachability checks. | `created` |
+| [page_registry.jsonl](page_registry.jsonl) | Register Stage 01 companions and preserve reachability metadata. | `updated` |
 | [../Protocols/service_protocols/solution_contract_output_protocol.md](../Protocols/service_protocols/solution_contract_output_protocol.md) | Neutralize the style-gate contradiction in `ISSUE-005`. | `patched` |
 | [persistence_log.jsonl](persistence_log.jsonl) | Add Stage 01 transaction marker after content writes. | `updated` |
+| [service_validation_report.md](service_validation_report.md) | Record Stage 01 validation result. | `updated` |
 
-### Validation gates for completed Stage 01 writes
+### Validation gates for Stage 01 writes
 
 | Gate | Result | Evidence |
 |---|---|---|
 | File manifest JSONL | `pass` | `State/file_manifest.jsonl` exists and readback shows JSONL rows. |
+| Page registry JSONL | `pass` | `State/page_registry.jsonl` readback shows registered entries for `file_manifest`, `navigation_map` and `page_registry_guide`. |
 | New Markdown parent links | `pass` | `navigation_map.md` links to `README.md`; `page_registry_guide.md` links to `page_registry.jsonl`. |
 | Source-of-truth notes | `pass` | New companions state that `State/page_registry.jsonl` remains authoritative. |
 | ISSUE-005 | `pass` | Conversational sentence is replaced by a neutral closure rule: one word `готово` is insufficient. |
@@ -97,17 +100,13 @@ Stage 01 keeps `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` as the leader r
 | Runtime concept folders | `not_created` | No `Concepts/<concept_slug>/` folder is created without concept scope. |
 | Deep lifecycle/export/persistence refactor | `not_changed` | Stage 01 only adds navigation companions and one style patch. |
 
-### Pending Stage 01 registry gate
-
-`State/page_registry.jsonl` still needs a safe append/update for the three new companion files. A prior replacement attempt was reverted to keep JSONL parse safety. Current branch state is useful but not final until registry entries and backlinks are added and read back cleanly.
-
 ### Stage 01 registry ID coverage
 
-`CB-U-001`, `CB-U-002`, `CB-U-003`, `CB-U-004`, `NAV-001`, `NAV-002`, `NAV-003`, `NAV-005`, `NAV-006`, `INST-001`, `INST-002`, `INST-003`, `ISSUE-005`, `NO-001`, `NO-002`, `NO-004`, `NO-005`, `NO-007`, `NO-008` are covered by the current branch result except the final clean registry gate. `CB-U-005` remains deferred to a future final self-check stage.
+`CB-U-001`, `CB-U-002`, `CB-U-003`, `CB-U-004`, `NAV-001`, `NAV-002`, `NAV-003`, `NAV-005`, `NAV-006`, `INST-001`, `INST-002`, `INST-003`, `ISSUE-005`, `NO-001`, `NO-002`, `NO-004`, `NO-005`, `NO-007`, `NO-008` are covered by the current branch result. `CB-U-005` remains deferred to a future final self-check stage.
 
 ### Blocking status
 
-Known blocker before final Stage 01 acceptance: `pending_page_registry_update`.
+Known blocker before final Stage 01 acceptance: `none`.
 
 ## Подтверждение style-fix
 
@@ -120,5 +119,5 @@ Known blocker before final Stage 01 acceptance: `pending_page_registry_update`.
 ## Итоговый статус
 
 Итоговый validation status: `pass_with_deferred_items`.  
-Нерешённые blockers: `pending_page_registry_update` for Stage 01.  
+Нерешённые blockers: `none`.  
 Следующее действие: использовать [../README.md](../README.md), [service_state.md](service_state.md) и [../Protocols/service_protocols/service_start_protocol.md](../Protocols/service_protocols/service_start_protocol.md) для будущих service changes; использовать [execution_index.md](execution_index.md) и [../Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md) только после того, как пользователь предоставит concept scope.
