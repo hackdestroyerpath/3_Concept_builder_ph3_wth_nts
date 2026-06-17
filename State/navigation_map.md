@@ -3,8 +3,9 @@
 Parent: [README](../README.md)  
 Источник истины для связей: [page_registry.jsonl](page_registry.jsonl)  
 Machine companion: [file_manifest.jsonl](file_manifest.jsonl)  
+Registry guide: [page_registry_guide.md](page_registry_guide.md)  
 Status: `active`  
-Updated: `2026-06-16T20:44:45Z`
+Updated: `2026-06-17T13:27:00Z`
 
 ## Назначение
 
