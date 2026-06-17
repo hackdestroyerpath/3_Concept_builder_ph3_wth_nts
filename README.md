@@ -2,8 +2,9 @@
 
 Статус: `pass_with_deferred_items`  
 Источник истины этого входа: `README.md`  
-Последнее обновление: `2026-06-16T16:48:11Z`  
+Последнее обновление: `2026-06-17T13:27:00Z`  
 Реестр страниц: [State/page_registry.jsonl](State/page_registry.jsonl)  
+Карта навигации: [State/navigation_map.md](State/navigation_map.md)  
 Финальная проверка: [State/service_validation_report.md](State/service_validation_report.md)
 
 ## Назначение
@@ -48,6 +49,7 @@ Production root: корень репозитория `/`; бывшая wrapper-�
 | Service state | [State/service_state.md](State/service_state.md) | состояние обслуживания системы | `State/service_state.md` |
 | Execution index | [State/execution_index.md](State/execution_index.md) | индекс концепций и execution-объектов | `State/execution_index.md` |
 | Реестр страниц | [State/page_registry.jsonl](State/page_registry.jsonl) | машинная карта страниц, родителей и backlinks | `State/page_registry.jsonl` |
+| Карта навигации | [State/navigation_map.md](State/navigation_map.md) | человекочитаемый direct route companion | `State/page_registry.jsonl` |
 | Журнал сохранения | [State/persistence_log.jsonl](State/persistence_log.jsonl) | записи transaction-like сохранения | `State/persistence_log.jsonl` |
 | Structural backlog | [State/structural_backlog.jsonl](State/structural_backlog.jsonl) | структурные решения, отложенные вопросы и guards | `State/structural_backlog.jsonl` |
 | Финальный отчёт | [State/service_validation_report.md](State/service_validation_report.md) | проверка service layer, contract coverage и commit readiness | `State/service_validation_report.md` |
@@ -77,42 +79,3 @@ Production root: корень репозитория `/`; бывшая wrapper-�
 | Inbox rules | [Inbox/README.md](Inbox/README.md) | правила хранения input и attachments | `Inbox/README.md` |
 | Concepts layer | [Concepts/README.md](Concepts/README.md) | вход в слой концепций | `Concepts/README.md` |
 | Concept template | [Concepts/_template/README.md](Concepts/_template/README.md) | шаблон новой концепции | `Concepts/_template/README.md` |
-
-## Production-области
-
-| Область | Назначение | Статус наполнения |
-|---|---|---|
-| `State/` | состояние, реестры, журнал сохранения, backlog и финальный validation report | готово к runtime use |
-| `Instructions/` | исходники project instructions для двух режимов | готово к runtime use |
-| `Protocols/` | каталог и протоколы выбора действий | common, service, execution и final validation доступны |
-| `Issues/` | service-level issue, dependency graph, archive и tombstones | bootstrap issue закрыты или явно deferred |
-| `Inbox/` | входящие материалы пользователя и attachments | rules entrypoint создан; cleanup только через retention protocol |
-| `Concepts/` | конкретные концепции, локальный state, pages, output и exports | layer entry и template созданы; concrete concepts ещё не созданы |
-
-## Правила навигации
-
-- Каждый Markdown-файл должен иметь запись в [State/page_registry.jsonl](State/page_registry.jsonl) или входящий путь из этой карты.
-- Каждый дочерний Markdown-файл должен иметь ссылку на родительский уровень.
-- Новый рабочий файл создаётся только если у него есть owner, назначение, источник истины и lifecycle.
-- Материалы разработки, технические задания, checkpoint-архивы, исходные notes и проверочное сырьё не входят в production-слой.
-- При создании, переименовании, архивировании или удалении страницы обновляются parent link, backlink, [State/page_registry.jsonl](State/page_registry.jsonl) и соответствующая проверка.
-
-## Источники истины верхнего уровня
-
-| Данные | Основной источник |
-|---|---|
-| Навигация репозитория | `README.md` и [State/page_registry.jsonl](State/page_registry.jsonl) |
-| Состояние обслуживания | [State/service_state.md](State/service_state.md) |
-| Индекс концепций | [State/execution_index.md](State/execution_index.md) |
-| Project instructions | [Instructions/service_mode_project_instructions.md](Instructions/service_mode_project_instructions.md) и [Instructions/execution_mode_project_instructions.md](Instructions/execution_mode_project_instructions.md) |
-| Протоколы | [Protocols/catalog.md](Protocols/catalog.md) и [Protocols/catalog.jsonl](Protocols/catalog.jsonl) |
-| Issue lifecycle | [Issues/issue_registry.md](Issues/issue_registry.md) |
-| Dependency graph | [Issues/dependency_graph.jsonl](Issues/dependency_graph.jsonl) |
-| Concept layer | [Concepts/README.md](Concepts/README.md) |
-| Concept template | [Concepts/_template/README.md](Concepts/_template/README.md) |
-| Concept export | [Protocols/execution_protocols/concept_export_protocol.md](Protocols/execution_protocols/concept_export_protocol.md) |
-| Финальная проверка | [Protocols/common/final_validation_protocol.md](Protocols/common/final_validation_protocol.md) и [State/service_validation_report.md](State/service_validation_report.md) |
-
-## Текущий статус сборки
-
-`Service Mode` и базовый `Execution Mode` находятся в состоянии `pass_with_deferred_items` после direct-main root-flatten repair. Production root: корень репозитория `/`; бывшая wrapper-папка `Concept Builder/` удалена из tracked production files. Фактическая GitHub-запись выполнена напрямую в `main` для `hackdestroyerpath/3_Concept_builder_ph3_wth_nts`; transaction `tx-cb-root-flatten-20260616`. Конкретные concept folders не созданы, потому что пользователь не дал `concept_slug` и initial scope. `USER-001` остаётся deferred/non-blocking и не создаёт service scripts без отдельного approved issue.
