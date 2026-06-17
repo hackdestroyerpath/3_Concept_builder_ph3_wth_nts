@@ -15,13 +15,13 @@ Updated: `2026-06-17T21:27:32Z`
 
 ## Preconditions
 
-- Root [README](../../README.md) существует.
+- Root `README.md` существует.
 - Relevant state существует:
   - [State/service_state.md](../../State/service_state.md) для `Service Mode`;
   - [State/execution_index.md](../../State/execution_index.md) для `Execution Mode`.
 - [State/page_registry.jsonl](../../State/page_registry.jsonl) существует.
-- [Protocols/catalog.md](../catalog.md) существует.
-- Перед утверждением persistence/readback статуса применён текущий persistence protocol.
+- `Protocols/catalog.md` существует.
+- Перед утверждением persistence/readback статуса применён `Protocols/common/persistence_protocol.md`.
 
 ## Входы
 
@@ -36,7 +36,7 @@ Updated: `2026-06-17T21:27:32Z`
 
 ## Порядок выполнения
 
-1. **Entry read**: открыть [../../README.md](../../README.md).
+1. **Entry read**: открыть `README.md`.
 2. **Mode state read**:
    - `Service Mode`: открыть [../../State/service_state.md](../../State/service_state.md);
    - `Execution Mode`: открыть [../../State/execution_index.md](../../State/execution_index.md).
@@ -209,7 +209,6 @@ Recovery не является разрешением читать весь ре
 
 ## Связанные файлы
 
-- [Persistence protocol](persistence_protocol.md)
 - [Service state](../../State/service_state.md)
 - [Execution index](../../State/execution_index.md)
 - [Page registry](../../State/page_registry.jsonl)
