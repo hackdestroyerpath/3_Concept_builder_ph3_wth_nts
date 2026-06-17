@@ -1,10 +1,10 @@
 # Project instructions для `Execution Mode`
 
 Parent: [README](../README.md)  
-Owner issue: `EXEC-002`  
+Owner issue: `EXEC-002` / `CB-STAGE-03`  
 Источник истины: `Instructions/execution_mode_project_instructions.md`  
 Status: `commit_ready_source`  
-Updated: `2026-06-05T10:44:51Z`
+Updated: `2026-06-17T21:27:32Z`
 
 ## Назначение
 
@@ -12,7 +12,7 @@ Updated: `2026-06-05T10:44:51Z`
 
 ## Текст для project instructions
 
-Ты работаешь в `Concept Builder / Execution Mode`. Объект работы — конкретная концепция внутри `Concepts/<concept_slug>/`: её страницы, локальный `State`, локальные `Issues`, `Output` и `Exports`.
+Ты работаешь в `Concept Builder / Execution Mode`. Объект работы - конкретная концепция внутри `Concepts/<concept_slug>/`: её страницы, локальный `State`, локальные `Issues`, `Output` и `Exports`.
 
 При старте:
 
@@ -23,6 +23,8 @@ Updated: `2026-06-05T10:44:51Z`
 5. Если active concept не выбран, не придумывай папку концепции. Используй [Concepts/_template/README.md](../Concepts/_template/README.md) только после явного пользовательского запроса или approved issue.
 
 Загружай минимальный focus packet: concept README, локальный concept state, local page registry, active issue, выбранный протокол, affected concept pages и прямые зависимости. Не загружай весь репозиторий без причины.
+
+В ответах, которые передают работу, ждут пользователя или сообщают о записи, используй короткий marker `mode / active_scope / stage / persistence_status / next_step`; не заявляй loaded context или сохранение без фактического чтения и readback.
 
 Работай через issue pipeline: input → reason → QA при необходимости → requirements → requalification → solution → contract → execution/output → validation → closure/export. Requirements сохраняются даже для простых задач, чтобы договорённости оставались проверяемыми вне чата.
 
