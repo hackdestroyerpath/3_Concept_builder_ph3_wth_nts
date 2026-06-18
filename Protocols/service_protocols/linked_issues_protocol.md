@@ -5,7 +5,7 @@ Owner issue: `EXEC-010`
 Protocol ID: `service/linked_issues`  
 Источник истины: `Protocols/service_protocols/linked_issues_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T02:05:00Z`
+Updated: `2026-06-18T12:50:00Z`
 
 ## Назначение
 
@@ -89,7 +89,18 @@ Parent/child decomposition выполняется через [complex_issue_prot
 }
 ```
 
-Bootstrap edges могут сохранять `relation` и `status`, но protocol при чтении нормализует их в `relation_type` и `readiness`.
+Bootstrap edges могут сохранять legacy `relation` и `status`, но protocol при чтении обязан нормализовать их перед lifecycle decision.
+
+### Legacy normalization
+
+| Legacy input | Normalized relation/readiness | Lifecycle meaning |
+|---|---|---|
+| `relation = blocks_until_ready`, `status = satisfied` | relation remains blocking; `readiness = ready` | prerequisite подтверждён, dependent может продолжать |
+| `status = satisfied_for_draft` | `readiness = satisfied_for_draft` | разрешены analysis, requirements и explicitly scoped implementation draft; runtime execution approval, validation и closure ещё заблокированы |
+| `status = unsatisfied` | `readiness = unsatisfied` | prerequisite отсутствует, dependent blocked |
+| missing `relation_type` with known legacy `relation` | map to equivalent specific relation when evidence exists; otherwise keep legacy relation and record normalization note | semantics не выдумываются без reason/artifact evidence |
+
+Нормализация является read-time decision и не требует массовой migration bootstrap graph. Если edge изменяется по существу, write transaction сохраняет normalized fields, не удаляя нужные legacy mirrors.
 
 ## Relation types
 
@@ -113,10 +124,10 @@ Legacy `blocks_until_ready` допустима для bootstrap implementation e
 | `blocked` | dependency ещё не дала нужный artifact/state | dependent не идёт в execution/validation/closed |
 | `stale` | dependency изменилась после использования dependent issue | dependent возвращается к affected requirements/contract check |
 | `cycle_blocked` | blocking edge создал бы cycle | active edge не сохраняется; нужен decision/repair |
-| `satisfied_for_draft` | bootstrap dependency достаточно закрыта для draft | можно делать draft, но final validation ещё нужна |
+| `satisfied_for_draft` | bootstrap prerequisite достаточно закрыта только для явно ограниченного draft | разрешить draft work; не разрешать runtime execution approval, validation или closure до `ready`/legacy `satisfied` |
 | `unsatisfied` | prerequisite не реализован | dependent remains blocked |
 
-QA и requirements dependent issue могут продолжаться, если им не нужен отсутствующий artifact. Execution, validation и closure запрещены при active blocking edge со status `blocked`, `stale`, `cycle_blocked` или `unsatisfied`.
+QA и requirements dependent issue могут продолжаться, если им не нужен отсутствующий artifact. Runtime execution approval, validation и closure запрещены при active blocking edge со readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`. Исключение для `satisfied_for_draft` ограничено bootstrap implementation draft и должно быть явно отражено в scope/validation notes.
 
 ## Создание связи
 
