@@ -5,7 +5,7 @@ Owner issue: `EXEC-009`
 Protocol ID: `service/solution_contract_output`  
 Источник истины: `Protocols/service_protocols/solution_contract_output_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T01:29:00Z`
+Updated: `2026-06-18T12:50:00Z`
 
 ## Назначение
 
@@ -86,7 +86,22 @@ Issues/<issue_id>/
 | output saved and contract covered | route к validation | `active: validation` |
 | output incomplete | сохранить gap и blocker | `active: execution` или return phase |
 
-Execution без approved solution + approved contract запрещён. Единственное узкое исключение: пользователь явно разрешил выполнение без отдельного обсуждения, но agent всё равно обязан сначала сохранить проверяемый `contract.md`, указать exception reason и сделать его committed artifact перед execution.
+## Approval gate
+
+Execution без approved `solution.md` и approved `contract.md` запрещён.
+
+Обычный approval выполняется ответом пользователя `утверждаю solution и contract` или эквивалентным однозначным решением по обоим artifacts.
+
+Узкий shortcut `выполнить без отдельного обсуждения` допустим только как атомарное approval обеих частей, если одновременно выполнены все условия:
+
+1. `solution.md` и `contract.md` уже сохранены и прошли собственные quality gates;
+2. user intent однозначно относится к текущему `issue_id`, exact work set и обоим artifacts;
+3. approval log обоих files фиксирует explicit shortcut decision и timestamp;
+4. оба files получают `Status: approved`, а registry/state переходят к `active: execution` одной persistence transaction;
+5. branch/commit readback подтверждает artifacts и transition до начала execution;
+6. dependencies остаются ready и scope не расширился после user decision.
+
+Одного committed `contract.md`, approval только solution или общего сообщения `делай` без привязки к review packet недостаточно. При ambiguity agent сохраняет review state и возвращает `needs_confirmation`.
 
 ## Минимальная структура `solution.md`
 
@@ -305,7 +320,7 @@ Bootstrap implementation issue без runtime folder могут оставать
 | Нет approved requirements | `blocked_on_requirements` | вернуться к [requirements_protocol.md](requirements_protocol.md) |
 | Issue оказался complex | `needs_complex_requalification` | route к [complex_issue_protocol.md](complex_issue_protocol.md) |
 | Contract непроверяем | `contract_quality_fail` | переписать contract до review |
-| User approval ambiguous | `needs_confirmation` | сохранить draft/review, запросить точное решение |
+| User approval ambiguous или покрывает только один artifact | `needs_confirmation` | сохранить draft/review, запросить точное решение по solution и contract |
 | Affected files вне scope | `scope_violation_blocked` | вернуть к requirements или создать linked issue через [linked_issues_protocol.md](linked_issues_protocol.md) |
 | Dependency stale | `blocked_on_stale_dependency` | обновить readiness и получить required artifact |
 | Execution не покрывает contract | `output_contract_gap` | сохранить gap, не закрывать issue |
