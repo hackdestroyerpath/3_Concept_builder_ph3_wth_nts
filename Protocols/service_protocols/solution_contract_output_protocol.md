@@ -5,7 +5,7 @@ Owner issue: `EXEC-009`
 Protocol ID: `service/solution_contract_output`  
 Источник истины: `Protocols/service_protocols/solution_contract_output_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T12:50:00Z`
+Updated: `2026-06-18T13:10:00Z`
 
 ## Назначение
 
@@ -54,7 +54,10 @@ Updated: `2026-06-18T12:50:00Z`
 2. `status = active`, `phase = solution` или `phase = execution`.
 3. `requirements.md` существует, сохранён и approved.
 4. Issue подтверждён как `simple`, либо requalification не выявила complex scope.
-5. Blocking dependencies отсутствуют; stale dependency проверен до approval/execution.
+5. Dependency edges нормализованы по [linked_issues_protocol.md](linked_issues_protocol.md):
+   - solution/contract draft допускается при `satisfied_for_draft`, только если отсутствующий artifact не нужен для текущего design step и risk записан;
+   - approval, переход к execution, runtime execution и validation запрещены при active blocking readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`;
+   - generic legacy `status = satisfied` не считается `ready` без artifact/state evidence.
 6. Affected files и scope перечислены или могут быть перечислены в `solution.md`.
 7. Persistence доступен. Если запись невозможна, agent не заявляет, что artifacts стали источником истины.
 
@@ -80,15 +83,15 @@ Issues/<issue_id>/
 | Текущее состояние | Разрешённое действие | Следующее состояние |
 |---|---|---|
 | approved requirements, simple issue | создать `solution.md` и `contract.md` в status `review` | ожидание user approval |
-| user approves solution + contract | перевести оба artifact в `approved` | `active: execution` |
+| user approves solution + contract и dependencies normalized `ready` | перевести оба artifact в `approved` | `active: execution` |
 | user requests changes | обновить artifact и approval log | `active: solution` / review |
-| approved solution + contract | выполнить work set | `active: execution` |
+| approved solution + contract, dependencies `ready` | выполнить work set | `active: execution` |
 | output saved and contract covered | route к validation | `active: validation` |
 | output incomplete | сохранить gap и blocker | `active: execution` или return phase |
 
 ## Approval gate
 
-Execution без approved `solution.md` и approved `contract.md` запрещён.
+Execution без approved `solution.md` и approved `contract.md` запрещён. Approval также не снимает dependency blocker: transition к execution выполняется только после normalized graph check.
 
 Обычный approval выполняется ответом пользователя `утверждаю solution и contract` или эквивалентным однозначным решением по обоим artifacts.
 
@@ -99,9 +102,9 @@ Execution без approved `solution.md` и approved `contract.md` запрещё
 3. approval log обоих files фиксирует explicit shortcut decision и timestamp;
 4. оба files получают `Status: approved`, а registry/state переходят к `active: execution` одной persistence transaction;
 5. branch/commit readback подтверждает artifacts и transition до начала execution;
-6. dependencies остаются ready и scope не расширился после user decision.
+6. все active blocking dependencies normalized to `ready`, required artifacts проверены и scope не расширился после user decision.
 
-Одного committed `contract.md`, approval только solution или общего сообщения `делай` без привязки к review packet недостаточно. При ambiguity agent сохраняет review state и возвращает `needs_confirmation`.
+Одного committed `contract.md`, approval только solution или общего сообщения `делай` без привязки к review packet недостаточно. При ambiguity или draft-only dependency agent сохраняет review state и возвращает blocker.
 
 ## Минимальная структура `solution.md`
 
@@ -153,7 +156,7 @@ Requirements: requirements.md
 3. affected files перечислены настолько точно, насколько позволяет scope;
 4. known risks, assumptions и non-goals записаны явно;
 5. новый scope не появляется без requirements approval;
-6. dependencies и stale risks отражены в плане.
+6. normalized dependencies, draft-only boundaries и stale risks отражены в плане.
 
 ## Минимальная структура `contract.md`
 
@@ -209,12 +212,13 @@ Contract нельзя вынести на review, если он:
 Перед execution агент обязан:
 
 1. перечитать approved `solution.md`, approved `contract.md`, registry, dependency graph и relevant target files;
-2. проверить, что affected files находятся в approved scope;
-3. сформировать work set и write set;
-4. выполнить только действия, покрытые solution и contract;
-5. если нужен новый scope, остановиться и создать linked issue/backlog entry вместо молчаливого расширения;
-6. сохранить output package до ответа пользователю;
-7. обновить registry/state/persistence markers после artifacts.
+2. нормализовать direct blocking edges и остановиться при `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft`, `unsatisfied` или ambiguous legacy `satisfied` без required evidence;
+3. проверить, что affected files находятся в approved scope;
+4. сформировать work set и write set;
+5. выполнить только действия, покрытые solution и contract;
+6. если нужен новый scope, остановиться и создать linked issue/backlog entry вместо молчаливого расширения;
+7. сохранить output package до ответа пользователю;
+8. обновить registry/state/persistence markers после artifacts.
 
 ## Минимальная структура `output/`
 
@@ -321,6 +325,8 @@ Bootstrap implementation issue без runtime folder могут оставать
 | Issue оказался complex | `needs_complex_requalification` | route к [complex_issue_protocol.md](complex_issue_protocol.md) |
 | Contract непроверяем | `contract_quality_fail` | переписать contract до review |
 | User approval ambiguous или покрывает только один artifact | `needs_confirmation` | сохранить draft/review, запросить точное решение по solution и contract |
+| Dependency draft-only | `blocked_on_draft_only_dependency` | разрешить только scoped draft; получить full readiness перед approval/execution |
+| Legacy dependency evidence ambiguous | `blocked_on_dependency_evidence` | проверить required artifact/source validation |
 | Affected files вне scope | `scope_violation_blocked` | вернуть к requirements или создать linked issue через [linked_issues_protocol.md](linked_issues_protocol.md) |
 | Dependency stale | `blocked_on_stale_dependency` | обновить readiness и получить required artifact |
 | Execution не покрывает contract | `output_contract_gap` | сохранить gap, не закрывать issue |
