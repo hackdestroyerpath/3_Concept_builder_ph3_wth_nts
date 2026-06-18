@@ -5,13 +5,13 @@ Owner issue: `EXEC-007`
 Protocol ID: `service/existing_issue`  
 Источник истины: `Protocols/service_protocols/existing_issue_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T12:41:00Z`
+Updated: `2026-06-18T13:06:00Z`
 
 ## Назначение
 
-Этот протокол выбирает ровно один уже существующий service-level `issue`, проверяет registry, state, dependency graph и фокус, затем собирает минимальный focus packet для следующего протокола. Он не создаёт новый `issue`, не пишет requirements, не выполняет solution и не открывает параллельную работу, если существующий active/focused issue уже покрывает запрос пользователя.
+Этот протокол выбирает ровно один уже существующий service-level `issue`, проверяет registry, state, dependency graph и фокус, затем собирает минимальный focus packet для следующего протокола. Он не создаёт новый `issue`, не пишет requirements, не выполняет solution и не открывает параллельную работу, если существующий nonterminal/focused issue уже покрывает запрос пользователя.
 
-Главная защита Stage 04: продолжение существующего issue всегда предпочтительнее создания дубликата. Если registry, `service_state` или focus packet уже указывают на active/approved/blocked issue в том же scope, агент сначала доказывает, что это не та же работа. Без такого доказательства новый issue не создаётся.
+Главная защита Stage 04: продолжение существующего issue всегда предпочтительнее создания дубликата. Если registry, `service_state` или focus packet уже указывают на nonterminal issue в том же scope, агент сначала доказывает, что это не та же работа. Без такого доказательства новый issue не создаётся.
 
 ## Runtime service issue scaffold
 
@@ -42,8 +42,8 @@ QA artifacts допустимы только когда QA действител�
 | Пользователь указал точный `issue_id` | найти одну registry row и проверить graph/state |
 | Пользователь сказал `продолжай` | продолжить active issue из `service_state`, если scope совпадает |
 | Пользователь выбрал пункт existing issue после service start | показать shortlist или сфокусировать выбранный issue |
-| Registry/state/focus уже указывают на активную работу | продолжить её, не создавать дубликат |
-| Новый input похож на active issue | показать duplicate-risk и запросить явное решение merge/split/link |
+| Registry/state/focus уже указывают на nonterminal работу | продолжить её, не создавать дубликат |
+| Новый input похож на nonterminal issue | показать duplicate-risk и запросить явное решение merge/split/link |
 
 Новый материал не смешивается с текущим issue автоматически. Он становится linked input только после решения пользователя или отдельного protocol routing.
 
@@ -70,8 +70,9 @@ Runtime-файлы `Issues/<issue_id>/state.md`, `reason.md`, `requirements.md`,
 4. Для runtime continuation есть одно из двух оснований:
    - active issue state существует и совпадает с registry;
    - registry-only bootstrap continuation разрешён, потому что registry содержит explicit bootstrap reason и runtime files ещё не требуются.
-5. Dependency graph проверен: blocking edges не находятся в `blocked`, `stale`, `cycle_blocked` или `unsatisfied`, если выбранная phase требует execution/validation/closure.
-6. Если registry, state и focus packet конфликтуют, агент останавливается с blocker `focus_evidence_conflict` и repair write set.
+5. Dependency graph проверен: active blocking edges с readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied` запрещают routing в execution, validation и closure.
+6. Legacy edge со `status = satisfied` сначала нормализуется по [linked_issues_protocol.md](linked_issues_protocol.md); explicit draft-only evidence не может быть поднято до `ready`.
+7. Если registry, state и focus packet конфликтуют, агент останавливается с blocker `focus_evidence_conflict` и repair write set.
 
 ## Duplicate-prevention gate
 
@@ -124,9 +125,11 @@ Status/phase mismatch не чинится молча. Агент фиксиру�
 
 ### 3. Dependency readiness
 
-Агент читает `dependency_refs` выбранного issue и direct graph edges. Проверка чистая, если нет active blocking edges со status `blocked`, `stale`, `cycle_blocked` или `unsatisfied`, нет stale edge на несуществующий issue и parent/child/linked refs не требуют context lift.
+Агент читает `dependency_refs` выбранного issue и direct graph edges. Проверка чистая для runtime execution/validation/closure, только если после legacy normalization нет active blocking edges с readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`, нет stale edge на несуществующий issue и parent/child/linked refs не требуют context lift.
 
-`ready` в registry не заменяет graph evidence. Если graph и registry расходятся, действует blocker `graph_registry_mismatch`.
+`ready` в registry не заменяет graph evidence. Generic legacy `status = satisfied` не заменяет artifact evidence. Если graph и registry расходятся, действует blocker `graph_registry_mismatch`.
+
+QA, requirements и explicitly scoped bootstrap implementation draft могут продолжаться при `satisfied_for_draft`, только если отсутствующий artifact не нужен текущему draft step. Это не разрешает runtime execution approval, validation или closure.
 
 ### 4. Return anchor и next protocol
 
@@ -139,7 +142,7 @@ Focus packet обязан содержать:
 | `mode` | `Service Mode` |
 | `scope_path` | `/` или иной registry scope |
 | `status` / `phase` | reconstructed lifecycle state |
-| `dependency_ready` | итог graph check |
+| `dependency_ready` | итог graph check после legacy normalization |
 | `reason_summary` | краткая сводка reason |
 | `loaded_files` | только реально прочитанные файлы |
 | `missing_expected_files` | отсутствующие expected paths с reason |
@@ -161,11 +164,12 @@ Write set обычно включает `State/service_state.md`, registry JSONL
 |---|---|---|
 | Issue ID не найден | `issue_not_found` | вернуть shortlist или route к new issue |
 | Найдено несколько candidates | `ambiguous_issue_reference` | показать shortlist |
-| Active issue уже покрывает запрос | `duplicate_issue_prevented` | продолжить active issue или запросить merge/split/link decision |
+| Nonterminal issue уже покрывает запрос | `duplicate_issue_prevented` | продолжить existing issue или запросить merge/split/link decision |
 | Registry parse error | `blocked_on_registry_parse` | repair write set |
 | Graph/state/registry conflict | `focus_evidence_conflict` | blocker до repair |
 | Dependency cycle | `blocked_on_dependency_cycle` | не переводить в active/execution |
-| Blocking dependency unsatisfied | `blocked_on_dependency` | показать edge IDs и unblock condition |
+| Draft-only dependency для runtime phase | `blocked_on_draft_only_dependency` | оставить draft-only work или получить full readiness evidence |
+| Blocking dependency unsatisfied/ambiguous | `blocked_on_dependency` | показать edge IDs и unblock/evidence condition |
 | Runtime file отсутствует | `missing_issue_artifact` | разрешить только registry-only bootstrap или repair blocker |
 | Следующий phase protocol planned | `next_protocol_planned` | остановиться после focus packet |
 | Persistence недоступен | `blocked_on_persistence` | не заявлять active transition |
