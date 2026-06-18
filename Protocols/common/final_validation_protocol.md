@@ -4,7 +4,7 @@ Parent: [Каталог протоколов](../catalog.md)
 Owner issue: `EXEC-012`  
 Источник истины: `Protocols/common/final_validation_protocol.md`  
 Status: `available`  
-Updated: `2026-06-05T11:45:45Z`
+Updated: `2026-06-18T15:22:00Z`
 
 ## Назначение
 
@@ -42,9 +42,26 @@ Updated: `2026-06-05T11:45:45Z`
 12. persistence log не содержит записи о проверяемой операции или честного `package_draft_not_committed` статуса;
 13. metadata статусы одного и того же протокола расходятся между Markdown-шапкой, [catalog.jsonl](../catalog.jsonl) и [page_registry.jsonl](../../State/page_registry.jsonl);
 14. production Markdown содержит разговорные, оценочные или саркастические фразы, не имеющие операционной роли;
-15. production metadata ссылается на development-only материалы как на рабочие пути репозитория.
+15. production metadata ссылается на development-only материалы как на рабочие пути репозитория;
+16. direct blocking dependency после evidence- и chronology-aware normalization имеет readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`;
+17. legacy edge имеет raw `status = satisfied`, но required artifact/final validation evidence не подтверждает readiness или reason сохраняет draft-only boundary без более позднего superseding evidence.
 
 `pass_with_deferred_items` разрешён только когда deferred items явно неблокирующие, имеют owner, reason и next action.
+
+## Dependency normalization для closure
+
+Final validation не использует raw graph status как готовый verdict. Перед validation/closure каждый direct blocking edge нормализуется по семантике `service/linked_issues` из `Protocols/service_protocols/linked_issues_protocol.md`:
+
+| Evidence | Normalized readiness | Closure rule |
+|---|---|---|
+| explicit `ready` с существующим required artifact/state | `ready` | разрешено продолжать |
+| legacy `satisfied` без draft-only qualifier, при наличии required artifact и подходящего final evidence | `ready` | разрешено продолжать |
+| historical `satisfied for draft` / `satisfied_for_draft` без более позднего final evidence | `satisfied_for_draft` | validation и closure запрещены |
+| historical draft-only marker, superseded более поздним committed final validation/artifact coverage по этому edge condition | `ready` | не reopen уже validated issue |
+| `blocked`, `stale`, `cycle_blocked`, `unsatisfied` | сохранить readiness | validation и closure запрещены |
+| ambiguous или конфликтующее legacy evidence | `blocked` с evidence-conflict reason | validation и closure запрещены |
+
+Chronology определяется по edge `updated_at`, registry state/`updated_at`, validation records и existence/coverage required artifacts. Один terminal label или generic `status = satisfied` не заменяет evidence. Нормализованный результат и использованные evidence фиксируются в validation report; изменение самого edge выполняется отдельной graph transaction, если lifecycle требует persistence.
 
 ## Процедура проверки
 
@@ -65,14 +82,18 @@ Updated: `2026-06-05T11:45:45Z`
 6. Проверь, что каждый дочерний Markdown-файл содержит parent link в шапке.
 7. Для каждого orphan-кандидата выбери одно действие: добавить ссылку, добавить registry entry или удалить лишний файл.
 
-### 3. JSONL и registry check
+### 3. JSONL, registry и dependency readiness check
 
 1. Каждый `.jsonl` парсится как независимые JSON objects, по строке за раз.
 2. `issue_registry.jsonl` содержит стабильные `issue_id`, `status`, `phase`, `dependency_refs`, `validation_path`, `next_action`.
 3. `dependency_graph.jsonl` содержит metadata record и edge records.
 4. Все `dependency_refs` у issue существуют в graph.
 5. Blocking edges не создают cycles.
-6. Зависимая задача не marked ready, если blocking dependency не satisfied/deferred/rejected/not_applicable.
+6. Для каждого direct blocking edge вычисли normalized readiness по status, reason, chronology и artifact/validation evidence.
+7. Не считай raw legacy `satisfied` эквивалентом `ready` без required evidence.
+8. Не понижай historical draft-only edge, если более поздняя committed final validation явно покрывает его condition; normalize to `ready`.
+9. Зависимая задача не marked ready и не закрывается, если normalized readiness равна `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`.
+10. Graph/registry mismatch или evidence conflict делает validation `blocked` до repair.
 
 ### 4. Protocol catalog check
 
@@ -97,6 +118,7 @@ Updated: `2026-06-05T11:45:45Z`
 3. Для каждого deferred item есть reason и next action.
 4. Контракт проверяется по пунктам: рабочая сеть, связи, no orphan, no dev materials, state/protocol/issue/concept sources of truth, русский язык, checkpoint continuity и финальный report.
 5. Runtime requirements проверяются только для реально существующих runtime issue. Если runtime issue не создавались, статус requirements coverage — `not_applicable_for_bootstrap`.
+6. Для закрываемого issue validation report перечисляет normalized direct dependency readiness и evidence для каждого blocking edge.
 
 ### 7. Report и persistence
 
@@ -104,7 +126,8 @@ Updated: `2026-06-05T11:45:45Z`
 2. Обнови [State/page_registry.jsonl](../../State/page_registry.jsonl), если report или protocol добавлены.
 3. Обнови [Issues/issue_registry.jsonl](../../Issues/issue_registry.jsonl), если проверка закрывает bootstrap issue.
 4. Добавь запись в [State/persistence_log.jsonl](../../State/persistence_log.jsonl).
-5. Только после этого отвечай пользователю финальным статусом.
+5. Если normalized edge state должен стать новым operational source of truth, обнови graph и registry mirrors одной controlled transaction до closure.
+6. Только после этого отвечай пользователю финальным статусом.
 
 ## Формат результата
 
@@ -112,7 +135,7 @@ Updated: `2026-06-05T11:45:45Z`
 |---|---|---|
 | `pass` | blockers и deferred items отсутствуют | пакет готов к commit |
 | `pass_with_deferred_items` | blockers отсутствуют, но есть явно deferred non-blocking items | пакет готов к commit, deferred items перечислены |
-| `blocked` | есть broken links, orphan, graph cycle, boundary breach, language failure или blocking issue | пакет не готов, нужен repair checkpoint |
+| `blocked` | есть broken links, orphan, graph cycle, dependency readiness/evidence failure, boundary breach, language failure или blocking issue | пакет не готов, нужен repair checkpoint |
 
 ## Связанные файлы
 
