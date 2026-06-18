@@ -5,7 +5,7 @@ Owner issue: `EXEC-009`
 Protocol ID: `service/solution_contract_output`  
 Источник истины: `Protocols/service_protocols/solution_contract_output_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T13:10:00Z`
+Updated: `2026-06-18T20:00:00Z`
 
 ## Назначение
 
@@ -296,13 +296,13 @@ Parent: [report.md](report.md)
 
 ### `output/attachments_manifest.jsonl`
 
-Each line is one JSON object:
+Каждая строка содержит один JSON-объект:
 
 ```json
 {"path":"Issues/<issue_id>/output/attachments/<file>","purpose":"...","source":"...","related_requirement":"REQ-...","related_contract_check":"...","status":"kept|generated|external_ref"}
 ```
 
-If attachments are not needed, manifest may be empty. If output references an attachment, the manifest row is required.
+Если attachments не нужны, manifest может быть пустым. Если output ссылается на attachment, соответствующая строка manifest обязательна.
 
 ## Registry и State updates
 
