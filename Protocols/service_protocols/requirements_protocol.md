@@ -11,7 +11,7 @@ Updated: `2026-06-18T01:29:00Z`
 
 `Requirements` — обязательный checkpoint перед requalification, solution, contract, execution, validation и closure выбранного service issue. QA, чат и agent analysis могут быть источниками, но финальным источником истины перед solution является только сохранённый `Issues/<issue_id>/requirements.md`.
 
-Требования создаются даже если QA была пропущена. Это предотвращает ситуацию, где выполнение начинается по устному контексту, а future agent не может проверить, почему work set вообще допустим. Какая удивительная идея: записывать требования до выполнения. Почти цивилизация.
+Требования создаются даже если QA была пропущена. Это предотвращает ситуацию, где выполнение начинается по устному контексту, а future agent не может проверить, почему work set допустим.
 
 ## Когда использовать
 
@@ -106,7 +106,7 @@ Requirements packet нельзя считать готовым к review, пок
 | Approval log | любое утверждение, reopen, change/remove фиксируется строкой журнала |
 | Reopen behavior | materially important change возвращает status к `reopened` / phase `requirements` |
 
-Непроверяемые формулировки вроде `сделать нормально` не являются requirement. Они превращаются в вопрос, risk или blocker, потому что магия всё ещё не входит в dependency model.
+Непроверяемые формулировки вроде `сделать нормально` не являются requirement. Они превращаются в вопрос, risk или blocker.
 
 ## Поля requirement
 
