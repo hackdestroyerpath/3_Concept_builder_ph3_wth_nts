@@ -5,7 +5,7 @@ Owner issue: `USER-006` / `EXEC-005`
 Protocol ID: `service/issue_retention`  
 Источник истины: `Protocols/service_protocols/issue_retention_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T12:27:00Z`
+Updated: `2026-06-18T15:50:00Z`
 
 ## Назначение
 
@@ -35,7 +35,7 @@ Immediate cleanup допустим только для явно temporary file, 
 | Issue получил `rejected` | сохранить rejection reason, затем archive/tombstone decision |
 | Нужно очистить closed issue от heavy attachments | создать tombstone/manifest, затем delete_nonhistorical |
 | Пользователь просит удалить/очистить/архивировать | выполнить retention decision, не удалять без traceability |
-| `Inbox/<input_id>/` связан только с closed/rejected/tombstone/deleted issue | свернуть input packet до tombstone manifest или archive reason |
+| `Inbox/<input_id>/` связан только с rejected/tombstone/deleted issue | свернуть input packet до tombstone manifest или external/archive reference |
 | Dependency graph указывает на archived/tombstone issue | проверить, достаточно ли tombstone для dependents |
 | Page registry показывает устаревший runtime Markdown | обновить registry/backlinks через retention transaction |
 
@@ -181,14 +181,15 @@ Deletion допустим только после tombstone transaction и то�
 
 ## Inbox cleanup
 
-Inbox cleanup выполняется через те же traceability gates:
+Inbox cleanup выполняется через те же traceability gates и не сокращает packet раньше, чем разрешает [../../Inbox/README.md](../../Inbox/README.md):
 
 1. Найти `Inbox/<input_id>/manifest.md` и `linked_issue_ids`.
-2. Если хотя бы один linked issue active/approved/blocked/deferred, cleanup запрещён.
-3. Если все linked issue closed/rejected/tombstone/deleted и input больше не нужен, создать/обновить tombstone manifest.
-4. Heavy attachments удаляются только после manifest/hash/external ref.
-5. Registry/graph refs на input сохраняются или указывают на tombstone/external ref.
-6. Page registry и persistence log обновляются при Markdown changes.
+2. Если хотя бы один linked issue имеет status `creating`, `proposed`, `needs_discussion`, `approved`, `active`, `blocked`, `deferred`, `closed` или `archived`, cleanup запрещён и input packet остаётся доступным.
+3. Если все linked issue имеют status `rejected`, `tombstone` или `deleted` и input больше не нужен, создать/обновить tombstone manifest.
+4. Rejected status сам по себе не удаляет packet: retention decision должен подтвердить отсутствие required context/dependency refs.
+5. Heavy attachments удаляются только после manifest/hash/external ref.
+6. Registry/graph refs на input сохраняются или указывают на tombstone/external ref.
+7. Page registry и persistence log обновляются при Markdown changes.
 
 ## Registry update rules
 
@@ -228,6 +229,7 @@ Retention не снимает dependency blocker автоматически. Dep
 | Сбой | Статус | Действие |
 |---|---|---|
 | Issue active/approved/blocked | `retention_not_allowed_for_active_issue` | read-only summary and blocker |
+| Inbox связан с `closed` или `archived` issue | `blocked_on_inbox_retention_policy` | сохранить input packet доступным до tombstone/rejected/deleted terminal set |
 | Нет cleanup reason | `blocked_on_missing_cleanup_reason` | request reason / decision |
 | Active dependent needs artifact | `blocked_on_active_dependency_ref` | keep full archive/no_cleanup |
 | Tombstone insufficient | `blocked_on_tombstone_coverage` | add summary/refs before deletion |
@@ -237,7 +239,7 @@ Retention не снимает dependency blocker автоматически. Dep
 
 ## Completion signal
 
-Протокол завершён, когда retention decision packet saved, registry lifecycle/retention fields and artifact paths agree with retained files, dependency graph checked, page registry updated as required, tombstone/archive/delete action committed, or work stopped with honest blocker. Inbox cleanup is complete only when linked issues, manifest/tombstone and deleted_paths evidence agree.
+Протокол завершён, когда retention decision packet saved, registry lifecycle/retention fields and artifact paths agree with retained files, dependency graph checked, page registry updated as required, tombstone/archive/delete action committed, or work stopped with honest blocker. Inbox cleanup is complete only when linked issues, Inbox policy, manifest/tombstone and deleted_paths evidence agree.
 
 ## Связанные файлы
 
