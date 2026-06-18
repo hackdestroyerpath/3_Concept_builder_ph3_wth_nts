@@ -5,7 +5,7 @@ Owner issue: `USER-006` / `EXEC-005`
 Protocol ID: `service/issue_retention`  
 Источник истины: `Protocols/service_protocols/issue_retention_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T01:29:00Z`
+Updated: `2026-06-18T02:05:00Z`
 
 ## Назначение
 
@@ -35,7 +35,7 @@ Immediate cleanup допустим только для явно temporary file, 
 | Issue получил `rejected` | сохранить rejection reason, затем archive/tombstone decision |
 | Нужно очистить closed issue от heavy attachments | создать tombstone/manifest, затем delete_nonhistorical |
 | Пользователь просит удалить/очистить/архивировать | выполнить retention decision, не удалять без traceability |
-| `Inbox/<input_id>/` связан только с closed/rejected/tombstone issue | свернуть input packet до tombstone manifest или archive reason |
+| `Inbox/<input_id>/` связан только с closed/rejected/tombstone/deleted issue | свернуть input packet до tombstone manifest или archive reason |
 | Dependency graph указывает на archived/tombstone issue | проверить, достаточно ли tombstone для dependents |
 | Page registry показывает устаревший runtime Markdown | обновить registry/backlinks через retention transaction |
 
@@ -176,7 +176,7 @@ Inbox cleanup выполняется через те же traceability gates:
 
 1. Найти `Inbox/<input_id>/manifest.md` и `linked_issue_ids`.
 2. Если хотя бы один linked issue active/approved/blocked/deferred, cleanup запрещён.
-3. Если все linked issue closed/rejected/tombstone и input больше не нужен, создать/обновить tombstone manifest.
+3. Если все linked issue closed/rejected/tombstone/deleted и input больше не нужен, создать/обновить tombstone manifest.
 4. Heavy attachments удаляются только после manifest/hash/external ref.
 5. Registry/graph refs на input сохраняются или указывают на tombstone/external ref.
 6. Page registry и persistence log обновляются при Markdown changes.
@@ -215,7 +215,6 @@ Retention не снимает dependency blocker автоматически.
 - [Catalog JSONL](../catalog.jsonl)
 - [Existing issue protocol](existing_issue_protocol.md)
 - [Linked Issues protocol](linked_issues_protocol.md)
-- [Complex Issue protocol](complex_issue_protocol.md)
 - [Issue registry](../../Issues/issue_registry.md)
 - [Issue registry JSONL](../../Issues/issue_registry.jsonl)
 - [Dependency graph](../../Issues/dependency_graph.jsonl)
