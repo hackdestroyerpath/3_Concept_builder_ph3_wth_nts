@@ -1,10 +1,10 @@
 # Отчёт проверки service-уровня
 
 Parent: [service_state.md](service_state.md)  
-Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01`  
+Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01` / `CB-STAGE-04`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-17T14:07:00Z`
+Updated: `2026-06-18T17:48:00Z`
 
 ## Вердикт
 
@@ -150,7 +150,7 @@ Third narrow rework uses preferred option A: restore the root orientation sectio
 | Restored heading `Источники истины верхнего уровня` | `pass` | Navigation source row explicitly names `README.md`, [navigation_map.md](navigation_map.md) and [page_registry.jsonl](page_registry.jsonl). |
 | Restored heading `Текущий статус сборки` | `pass` | Current build status is restored without changing the Stage 01 boundary. |
 | Registry link impact | `pass` | Restored README sections reuse links already present in the registered README unique link set; [page_registry.jsonl](page_registry.jsonl) rows for [navigation_map.md](navigation_map.md) and [page_registry_guide.md](page_registry_guide.md) remain correct. |
-| Persistence truthfulness | `pass` | [persistence_log.jsonl](persistence_log.jsonl) records this third narrow rework transaction without claiming final GitHub SHA inside the pre-response row. |
+| Persistence truthfulness | `pass` | [persistence_log.jsonl](persistence_log.jsonl) records this third narrow rework transaction without claiming a final GitHub SHA inside the pre-response row. |
 
 ## Подтверждение style-fix
 
@@ -165,3 +165,52 @@ Third narrow rework uses preferred option A: restore the root orientation sectio
 Итоговый validation status: `pass_with_deferred_items`.  
 Нерешённые blockers: `none`.  
 Следующее действие: использовать [../README.md](../README.md), [service_state.md](service_state.md) и [../Protocols/service_protocols/service_start_protocol.md](../Protocols/service_protocols/service_start_protocol.md) для будущих service changes; использовать [execution_index.md](execution_index.md) и [../Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md) только после того, как пользователь предоставит concept scope.
+
+## Stage 04 service issue lifecycle checkpoint
+
+Transaction: `tx-cb-stage-04-service-issue-lifecycle-20260618`  
+Branch: `agent/stage-04-service-issue-lifecycle-20260618-0129Z`  
+Pull request: `#18`  
+Base commit: `c5fb23251c0283294029f803b9361f2cf7e13912`  
+Validated protocol head before evidence writes: `cd5e42fc2e5be1af64c5912dcde420a6bc751b49`  
+Status: `pass_branch_scoped_pending_reviewer_merge_main_readback`  
+Updated: `2026-06-18T17:48:00Z`
+
+### Scope
+
+Stage 04 hardens the existing Service Mode issue lifecycle without creating runtime issue folders, runtime concept folders or service scripts. The branch changes six service lifecycle protocols and the common final-validation closure gate. `ISSUE-005` remains the accepted Stage 01 style fix and is not reopened. `Issues/issue_registry.jsonl` and `Issues/dependency_graph.jsonl` remain unchanged because Stage 04 defines runtime semantics rather than rewriting historical bootstrap records.
+
+### Coverage by archive issue ID
+
+| Archive issue ID | Result | Production path |
+|---|---|---|
+| `ISSUE-001` | Runtime scaffold is created only when a phase artifact is required; empty issue folders are forbidden; QA is conditional. | `Protocols/service_protocols/existing_issue_protocol.md`, `Protocols/service_protocols/requirements_protocol.md`, `Protocols/service_protocols/solution_contract_output_protocol.md` |
+| `ISSUE-002` | Existing-issue continuation now validates registry/graph state, excludes the selected issue from duplicate matching, blocks material overlap and emits a durable focus packet. | `Protocols/service_protocols/existing_issue_protocol.md` |
+| `ISSUE-003` | `requirements.md` is the approved source of truth with source reason, QA trace or skip reason, stable IDs, acceptance notes, non-goals, approval history and reopen rules. | `Protocols/service_protocols/requirements_protocol.md` |
+| `ISSUE-004` | Solution, contract and output are separated; execution requires approved solution and contract except for the narrow committed and verifiable shortcut. | `Protocols/service_protocols/solution_contract_output_protocol.md` |
+| `ISSUE-006` | Complex-issue requalification, bounded decomposition, parent/child consistency, closure and rollback rules are explicit. | `Protocols/service_protocols/complex_issue_protocol.md` |
+| `ISSUE-007` | Dependency direction, edge schema, legacy normalization, stale/cycle handling and readiness propagation are explicit. | `Protocols/service_protocols/linked_issues_protocol.md` |
+| `ISSUE-008` | Archive, tombstone, deletion and Inbox cleanup require retention reasons and preserved traceability. | `Protocols/service_protocols/issue_retention_protocol.md` |
+| `ISSUE-009` | Common final validation normalizes legacy dependency evidence before closure and refuses draft-only readiness. | `Protocols/common/final_validation_protocol.md` |
+
+### Stage 04 validation gates
+
+| Gate | Result | Evidence |
+|---|---|---|
+| Branch/base isolation | `pass` | PR `#18` targets `main`; branch is based on accepted Stage 03 commit `c5fb23251c0283294029f803b9361f2cf7e13912`; no normal writes target `main`. |
+| Changed-file scope | `pass` | Seven protocol files implement lifecycle hardening; this report and `State/persistence_log.jsonl` are the only evidence companions. |
+| Runtime scaffold and no-empty-folder rule | `pass` | Folder creation is phase-driven; registry-only bootstrap remains allowed with an explicit reason. |
+| Duplicate and overlap protection | `pass` | Selected issue self-exclusion, material-overlap blocking, conflict evidence and return anchor are defined. |
+| Requirements discipline | `pass` | Approval, stable requirement IDs, QA traceability, non-goals, reopen and downstream invalidation are defined. |
+| Solution/contract/output gate | `pass` | Execution is blocked without approved artifacts except for the bounded shortcut that persists and verifies both artifacts. |
+| Dependency consistency | `pass` | Direction, normalized readiness, chronology, stale propagation, cycle block and parent/child closure are coherent across service and final-validation protocols. |
+| Historical graph treatment | `pass` | Legacy draft-only `satisfied` rows are normalized by later committed validation evidence; historical rows are not rewritten without a separate graph transaction. |
+| Retention and Inbox cleanup | `pass` | Cleanup is retention-only; archive/tombstone/delete operations preserve registry and graph traceability. |
+| JSONL syntax and scope | `pass` | Existing issue registry, dependency graph and page registry are unchanged baseline JSONL; the appended persistence record is parsed locally before write and read back after write. |
+| Page-registry impact | `pass` | Stage 04 introduces no new Markdown file and no new Markdown-link target; changed protocol paths already have registered rows. |
+| Production boundary | `pass` | No Stage 05 work, scripts, runtime concept folders, runtime issue folders, donor layout or development-only archive content enters production. |
+| Review state | `pending` | Final acceptance still requires reviewer approval, PR merge and post-merge `main` readback. |
+
+### Non-goals and remaining gate
+
+Stage 04 does not migrate historical registry or graph rows, does not create runtime artifacts, does not change the persistence protocol, and does not start Stage 05. Known content blocker on the task branch: `none`. Terminal acceptance remains pending reviewer approval, merge of PR `#18`, and readback of the merged files from `main`.
