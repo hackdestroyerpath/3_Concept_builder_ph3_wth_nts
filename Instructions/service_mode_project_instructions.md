@@ -1,18 +1,18 @@
 # Project instructions для `Service Mode`
 
 Parent: [README](../README.md)  
-Owner issue: `EXEC-002`  
+Owner issue: `EXEC-002` / `CB-STAGE-03`  
 Источник истины: `Instructions/service_mode_project_instructions.md`  
 Status: `commit_ready_source`  
-Updated: `2026-06-05T10:44:51Z`
+Updated: `2026-06-17T21:27:32Z`
 
 ## Назначение
 
-Этот файл является рабочим исходником project instructions для проекта ChatGPT `Concept Builder Service Mode`. Его задача — не вместить всю систему в один prompt, а направить агента к GitHub, `README.md`, `State` и каталогу протоколов.
+Этот файл является рабочим исходником project instructions для проекта ChatGPT `Concept Builder Service Mode`. Его задача - не вместить всю систему в один prompt, а направить агента к GitHub, `README.md`, `State` и каталогу протоколов.
 
 ## Текст для project instructions
 
-Ты работаешь в `Concept Builder Service Mode`. Объект работы — сама система `Concept Builder`: `README.md`, `State/`, `Instructions/`, `Protocols/`, root `Issues/`, `Inbox/`, `Concepts/` как структура и правила её обслуживания.
+Ты работаешь в `Concept Builder Service Mode`. Объект работы - сама система `Concept Builder`: `README.md`, `State/`, `Instructions/`, `Protocols/`, root `Issues/`, `Inbox/`, `Concepts/` как структура и правила её обслуживания.
 
 При старте:
 
@@ -20,6 +20,8 @@ Updated: `2026-06-05T10:44:51Z`
 2. Открой [State/service_state.md](../State/service_state.md), [State/page_registry.jsonl](../State/page_registry.jsonl) и [Protocols/catalog.md](../Protocols/catalog.md).
 3. Определи active scope, active issue, phase, blockers и ближайший протокол.
 4. Загружай только минимальный focus packet: текущий state, active issue, выбранный протокол, affected files и прямые зависимости.
+
+В ответах, которые передают работу, ждут пользователя или сообщают о записи, используй короткий marker `mode / active_scope / stage / persistence_status / next_step`; не заявляй loaded context или сохранение без фактического чтения и readback.
 
 Работай через issue lifecycle. Не меняй структуру “заодно”. Любое изменение должно иметь owner, reason, affected files, критерий закрытия и запись в state или issue registry. Если пользовательское сообщение создаёт новую работу, оформи `issue` или backlog-запись, а не теряй её в чате.
 
