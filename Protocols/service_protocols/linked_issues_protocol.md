@@ -5,7 +5,7 @@ Owner issue: `EXEC-010`
 Protocol ID: `service/linked_issues`  
 Источник истины: `Protocols/service_protocols/linked_issues_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T13:06:00Z`
+Updated: `2026-06-18T14:34:00Z`
 
 ## Назначение
 
@@ -89,20 +89,24 @@ Parent/child decomposition выполняется через [complex_issue_prot
 }
 ```
 
-Bootstrap edges могут сохранять legacy `relation` и `status`, но protocol при чтении обязан нормализовать их по совокупности status, reason и artifact evidence перед lifecycle decision.
+Bootstrap edges могут сохранять legacy `relation` и `status`, но protocol при чтении обязан нормализовать их по совокупности status, reason, chronology и artifact/validation evidence перед lifecycle decision.
 
 ### Legacy normalization
 
 | Legacy input / evidence | Normalized readiness | Lifecycle meaning |
 |---|---|---|
-| `status = satisfied`, но `reason`, notes или validation evidence явно говорят `satisfied for draft`, `draft-only` или эквивалент | `satisfied_for_draft` | разрешены analysis, requirements и explicitly scoped implementation draft; runtime execution approval, validation и closure заблокированы |
+| `status = satisfied`, reason содержит исторический `satisfied for draft`, но более поздние registry/validation records показывают source и dependent как terminal/validated, а required artifact или validation coverage существует | `ready` | позднее финальное evidence supersedes ранний draft-only marker; закрытые/валидированные legacy issue не понижаются обратно |
+| `status = satisfied`, reason/notes явно говорят `satisfied for draft` или `draft-only`, и более позднее final evidence отсутствует | `satisfied_for_draft` | разрешены analysis, requirements и explicitly scoped implementation draft; runtime execution approval, validation и closure заблокированы |
 | `status = satisfied`, draft-only qualifier отсутствует, source issue terminal/validated и required artifact существует и подходит dependent issue | `ready` | prerequisite подтверждён artifact/state evidence; dependent может продолжать |
 | `status = satisfied`, но evidence недостаточно, противоречиво или required artifact не проверен | `blocked` с `blocking_reason = legacy_satisfied_requires_evidence` | слово `satisfied` само по себе не авторизует execution/validation/closure |
-| `status = satisfied_for_draft` | `satisfied_for_draft` | сохранить draft-only boundary |
+| `status = satisfied_for_draft`, но после него есть committed final validation/artifact evidence, которое явно покрывает edge condition | `ready` | later final evidence upgrades the historical draft-only state |
+| `status = satisfied_for_draft` без более позднего final evidence | `satisfied_for_draft` | сохранить draft-only boundary |
 | `status = unsatisfied` | `unsatisfied` | prerequisite отсутствует, dependent blocked |
 | missing `relation_type` with known legacy `relation` | map to equivalent specific relation when evidence exists; otherwise keep legacy relation and record normalization note | semantics не выдумываются без reason/artifact evidence |
 
-Explicit draft-only evidence имеет приоритет над generic `status = satisfied`. Нормализация является read-time decision и не требует массовой migration bootstrap graph. Если edge изменяется по существу, write transaction сохраняет normalized fields, не удаляя нужные legacy mirrors.
+Chronology определяется по `updated_at`, validation records, registry terminal state и artifact existence. Финальное evidence должно быть более поздним или явно охватывать edge condition; один terminal label без required artifact/coverage недостаточен. При конфликте evidence действует conservative `blocked`, а не автоматическое повышение или понижение.
+
+Нормализация является read-time decision и не требует массовой migration bootstrap graph. Если edge изменяется по существу, write transaction сохраняет normalized fields, не удаляя нужные legacy mirrors.
 
 ## Relation types
 
@@ -122,14 +126,14 @@ Legacy `blocks_until_ready` допустима для bootstrap implementation e
 
 | Readiness | Значение | Что делать |
 |---|---|---|
-| `ready` | required artifact/state доступен и подходит dependent issue | dependent может продолжать |
+| `ready` | required artifact/state доступен и подходит dependent issue или подтверждён later final validation evidence | dependent может продолжать |
 | `blocked` | dependency ещё не дала нужный artifact/state или legacy evidence недостаточно | dependent не идёт в execution/validation/closed |
 | `stale` | dependency изменилась после использования dependent issue | dependent возвращается к affected requirements/contract check |
 | `cycle_blocked` | blocking edge создал бы cycle | active edge не сохраняется; нужен decision/repair |
-| `satisfied_for_draft` | bootstrap prerequisite достаточно закрыта только для явно ограниченного draft | разрешить draft work; не разрешать runtime execution approval, validation или closure до `ready` |
+| `satisfied_for_draft` | prerequisite достаточно закрыта только для явно ограниченного draft | разрешить draft work; не разрешать runtime execution approval, validation или closure до `ready` |
 | `unsatisfied` | prerequisite не реализован | dependent remains blocked |
 
-QA и requirements dependent issue могут продолжаться, если им не нужен отсутствующий artifact. Runtime execution approval, validation и closure запрещены при active blocking edge со readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`. Исключение для `satisfied_for_draft` ограничено bootstrap implementation draft и должно быть явно отражено в scope/validation notes.
+QA и requirements dependent issue могут продолжаться, если им не нужен отсутствующий artifact. Runtime execution approval, validation и closure запрещены при active blocking edge со readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`. Existing terminal/validated legacy issue не reopen автоматически: сначала применяется chronology-aware normalization выше.
 
 ## Создание связи
 
@@ -196,6 +200,7 @@ Registry mirror:
 | Ситуация | Действие |
 |---|---|
 | Dependency стала ready | обновить edge readiness/status и dependent mirror |
+| Historical draft-only marker superseded by later final evidence | normalize to `ready`; не reopen validated issue |
 | Legacy `satisfied` доказан только для draft | сохранить `satisfied_for_draft`; не поднимать до ready |
 | Legacy evidence недостаточно | сохранить blocker до artifact/state verification |
 | Edge direction ошибочный | создать corrected edge и пометить old edge superseded/rejected, если policy есть |
@@ -213,6 +218,7 @@ Registry mirror:
 | Issue отсутствует в registry | `blocked_on_missing_issue` | создать/восстановить issue или отклонить связь |
 | Relation reason слабый | `needs_dependency_reason` | запросить concrete artifact/state |
 | Legacy `satisfied` не имеет достаточного evidence | `blocked_on_dependency_evidence` | не авторизовать execution; проверить required artifact/source validation |
+| Final и draft-only evidence конфликтуют | `blocked_on_dependency_evidence_conflict` | проверить chronology, required artifact и validation coverage |
 | Duplicate edge или duplicate issue risk | `needs_dedup_decision` | merge/split/link/defer decision |
 | Cycle detected | `cycle_blocked` | не активировать edge; предложить repair |
 | Required artifact отсутствует | `blocked_on_dependency_artifact` | block dependent или allow QA/requirements-only work |
@@ -221,7 +227,7 @@ Registry mirror:
 
 ## Completion signal
 
-Протокол завершён, когда dependency edge сохранён или отклонён с reason, registry mirror обновлён, affected issue state отражает blocker/readiness, а persistence transaction записана. Если edge blocked, stale или draft-only, next routing показывает dependent issue как неготовый к runtime execution approval, validation и closure.
+Протокол завершён, когда dependency edge сохранён или отклонён с reason, registry mirror обновлён, affected issue state отражает blocker/readiness, а persistence transaction записана. Если edge blocked, stale или draft-only, next routing показывает dependent issue как неготовый к runtime execution approval, validation и closure; later final evidence может нормализовать historical draft-only edge в `ready` без reopen validated issue.
 
 ## Связанные файлы
 
