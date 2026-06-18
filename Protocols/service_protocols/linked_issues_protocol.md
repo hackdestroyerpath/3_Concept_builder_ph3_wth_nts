@@ -5,7 +5,7 @@ Owner issue: `EXEC-010`
 Protocol ID: `service/linked_issues`  
 Источник истины: `Protocols/service_protocols/linked_issues_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T01:29:00Z`
+Updated: `2026-06-18T02:05:00Z`
 
 ## Назначение
 
@@ -213,7 +213,6 @@ Registry mirror:
 - [Catalog JSONL](../catalog.jsonl)
 - [Existing issue protocol](existing_issue_protocol.md)
 - [Complex Issue protocol](complex_issue_protocol.md)
-- [Requirements protocol](requirements_protocol.md)
 - [Solution / Contract / Output protocol](solution_contract_output_protocol.md)
 - [Issue Retention protocol](issue_retention_protocol.md)
 - [Issue registry](../../Issues/issue_registry.md)
