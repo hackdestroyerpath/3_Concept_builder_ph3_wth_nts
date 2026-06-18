@@ -5,7 +5,7 @@ Owner issue: `EXEC-007`
 Protocol ID: `service/existing_issue`  
 Источник истины: `Protocols/service_protocols/existing_issue_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T16:10:00Z`
+Updated: `2026-06-18T16:20:00Z`
 
 ## Назначение
 
@@ -120,101 +120,4 @@ Shortlist содержит только ID, title, status, phase, dependency rea
 | `active: validation` | подготовить validation packet | `common/final_validation` |
 | `closed` / `rejected` | read-only summary или retention routing | `service/issue_retention` |
 | `archived` / `tombstone` / `deleted` | read-only summary; не активировать без нового linked issue | none / retention |
-| `blocked` | показать blocker и условие снятия | source phase или dependency repair |
-| `deferred` | не активировать без revive reason | revive decision |
-
-Status/phase mismatch не чинится молча. Агент фиксирует inconsistency, показывает repair write set и не переходит к предметной работе.
-
-### 3. Dependency readiness
-
-Агент читает `dependency_refs` выбранного issue и direct graph edges. Проверка чистая для runtime execution/validation/closure, только если после chronology-aware legacy normalization нет active blocking edges с readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`, нет stale edge на несуществующий issue и parent/child/linked refs не требуют context lift.
-
-`ready` в registry не заменяет graph evidence. Generic legacy `status = satisfied` не заменяет artifact evidence. Позднее committed final validation/artifact evidence может нормализовать historical draft-only edge в `ready` без reopen validated issue. Если graph и registry расходятся, действует blocker `graph_registry_mismatch`.
-
-QA, requirements и explicitly scoped bootstrap implementation draft могут продолжаться при `satisfied_for_draft`, только если отсутствующий artifact не нужен текущему draft step. Это не разрешает runtime execution approval, validation или closure.
-
-### 4. Определить начальную phase
-
-Для `approved` issue с `phase = null` агент выбирает ровно одну начальную phase по первому подходящему условию сверху вниз:
-
-| Condition evidence | Initial phase | `next_protocol` |
-|---|---|---|
-| reason weak/missing или есть materially important unknowns, которые мешают requirements | `qa` | `service/question_answer` |
-| reason sufficient, но `requirements.md` отсутствует, draft/review или не approved | `requirements` | `service/requirements` |
-| requirements approved, но simple/complex type или decomposition boundary не подтверждены | `requalification` | `service/complex_issue` |
-| requirements approved, issue simple, но solution/contract отсутствуют, draft/review или reopened | `solution` | `service/solution_contract_output` |
-| solution и contract approved, но output отсутствует или contract coverage incomplete | `execution` | `service/solution_contract_output` |
-| output сохранён и contract coverage pass, но final validation не подтверждена | `validation` | `common/final_validation` |
-| final validation уже подтверждена | read-only terminal routing | retention/summary по status |
-
-Phase нельзя выбирать по наличию одного filename без проверки artifact status и approval log. Если evidence подходит нескольким строкам или расходится между registry/state/artifacts, agent возвращает `focus_evidence_conflict`, а не выбирает произвольную phase.
-
-Если выбранный `next_protocol` имеет status `planned`, agent не выполняет его как available и возвращает `next_protocol_planned`. Available routes берутся из [../catalog.md](../catalog.md), а не из предположения по имени файла.
-
-### 5. Return anchor и next protocol
-
-Focus packet обязан содержать:
-
-| Поле | Значение |
-|---|---|
-| `issue_id` | стабильный ID |
-| `title` | title из registry |
-| `mode` | `Service Mode` |
-| `scope_path` | `/` или иной registry scope |
-| `status` / `phase` | reconstructed lifecycle state |
-| `dependency_ready` | итог graph check после chronology-aware legacy normalization |
-| `reason_summary` | краткая сводка reason |
-| `loaded_files` | только реально прочитанные файлы |
-| `missing_expected_files` | отсутствующие expected paths с reason |
-| `return_anchor` | state marker, registry row или user command, куда возвращаться после next protocol |
-| `next_protocol` | available/planned/blocked protocol ID |
-| `next_action` | одно ближайшее действие |
-
-Если `next_protocol` имеет status `planned`, агент не исполняет его как available и возвращает blocker `next_protocol_planned`.
-
-### 6. Запись focus/state
-
-Запись требуется, если агент переводит issue в `active`, меняет phase, меняет active issue в state, фиксирует blocker/inconsistency или обновляет dependency readiness.
-
-Write set обычно включает `State/service_state.md`, registry JSONL/Markdown, dependency graph при edge changes и `State/persistence_log.jsonl`. Если запись не подтверждена, агент возвращает `blocked_on_persistence` и не заявляет active transition.
-
-## Failure behavior
-
-| Сбой | Статус | Действие |
-|---|---|---|
-| Issue ID не найден | `issue_not_found` | вернуть shortlist или route к new issue |
-| Найдено несколько candidates | `ambiguous_issue_reference` | показать shortlist |
-| Другой nonterminal issue уже покрывает запрос | `duplicate_issue_prevented` | продолжить existing issue или запросить merge/split/link decision |
-| Начальная phase неоднозначна | `focus_evidence_conflict` | показать конфликт registry/state/artifacts и repair write set |
-| Registry parse error | `blocked_on_registry_parse` | repair write set |
-| Graph/state/registry conflict | `focus_evidence_conflict` | blocker до repair |
-| Dependency cycle | `blocked_on_dependency_cycle` | не переводить в active/execution |
-| Draft-only dependency для runtime phase | `blocked_on_draft_only_dependency` | оставить draft-only work или получить full readiness evidence |
-| Final и draft-only evidence конфликтуют | `blocked_on_dependency_evidence_conflict` | проверить chronology, required artifact и validation coverage |
-| Blocking dependency unsatisfied/ambiguous | `blocked_on_dependency` | показать edge IDs и unblock/evidence condition |
-| Runtime file отсутствует | `missing_issue_artifact` | разрешить только registry-only bootstrap или repair blocker |
-| Следующий phase protocol planned | `next_protocol_planned` | остановиться после focus packet |
-| Persistence недоступен | `blocked_on_persistence` | не заявлять active transition |
-
-## Completion signal
-
-Протокол завершён, когда выбран ровно один existing issue, собран focus packet с return anchor, проверены blockers и выбран конкретный next protocol; либо пользователь получил shortlist; либо работа остановлена с честным blocker, write set и next required action.
-
-## Связанные файлы
-
-- [Catalog](../catalog.md)
-- [Context loading protocol](../common/context_loading_protocol.md)
-- [Persistence protocol](../common/persistence_protocol.md)
-- [Service start protocol](service_start_protocol.md)
-- [New issue protocol](new_issue_protocol.md)
-- [Question Answer protocol](question_answer_protocol.md)
-- [Requirements protocol](requirements_protocol.md)
-- [Solution / Contract / Output protocol](solution_contract_output_protocol.md)
-- [Complex Issue protocol](complex_issue_protocol.md)
-- [Linked Issues protocol](linked_issues_protocol.md)
-- [Issue Retention protocol](issue_retention_protocol.md)
-- [Service state](../../State/service_state.md)
-- [Issue registry](../../Issues/issue_registry.md)
-- [Issue registry JSONL](../../Issues/issue_registry.jsonl)
-- [Dependency graph](../../Issues/dependency_graph.jsonl)
-- [Page registry](../../State/page_registry.jsonl)
+| `blocked` | показать blocker и условие снятия | source phase
