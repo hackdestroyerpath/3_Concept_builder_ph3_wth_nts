@@ -5,7 +5,7 @@ Owner issue: `USER-006` / `EXEC-005`
 Protocol ID: `service/issue_retention`  
 Источник истины: `Protocols/service_protocols/issue_retention_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T02:05:00Z`
+Updated: `2026-06-18T12:15:00Z`
 
 ## Назначение
 
@@ -117,12 +117,16 @@ Packet сохраняется в runtime `state.md`, archive `decision_log.md` �
 3. Проверить parent/children: parent нельзя архивировать как completed, пока required children не closed/rejected/deferred with reason.
 4. Собрать retention decision packet.
 5. Если runtime issue folder существует, перенести или скопировать его в `Issues/_archive/<issue_id>/`.
-6. Archive entry содержит at least `state.md`, `reason.md` или equivalents, `decision_log.md`, output/validation refs если они были.
-7. Если runtime issue folder не существует, не создавать пустой `Issues/_archive/<issue_id>/`.
-8. Обновить registry JSONL: `status = archived`, `retention_status = archived_full_history`, `archive_path`, `updated_at`, `next_action`.
-9. Обновить [../../Issues/issue_registry.md](../../Issues/issue_registry.md), если human snapshot меняется.
-10. Обновить [../../State/page_registry.jsonl](../../State/page_registry.jsonl) для Markdown moved/created/deactivated.
-11. Добавить [../../State/persistence_log.jsonl](../../State/persistence_log.jsonl) entry.
+6. Синхронизировать phase-artifact paths в registry в той же transaction:
+   - если runtime folder перемещён, переписать каждый non-null `reason_path`, `requirements_path`, `solution_path`, `contract_path`, `output_path` и `validation_path` на соответствующий путь внутри `Issues/_archive/<issue_id>/`;
+   - если folder только скопирован и active originals намеренно сохраняются, оставить existing phase-artifact paths и записать `archive_path` как mirror location;
+   - не оставлять registry pointer на удалённый source path.
+7. Archive entry содержит at least `state.md`, `reason.md` или equivalents, `decision_log.md`, output/validation refs если они были.
+8. Если runtime issue folder не существует, не создавать пустой `Issues/_archive/<issue_id>/`.
+9. Обновить registry JSONL: `status = archived`, `retention_status = archived_full_history`, `archive_path`, synchronized phase-artifact paths, `updated_at`, `next_action`.
+10. Обновить [../../Issues/issue_registry.md](../../Issues/issue_registry.md), если human snapshot меняется.
+11. Обновить [../../State/page_registry.jsonl](../../State/page_registry.jsonl) для Markdown moved/created/deactivated.
+12. Добавить [../../State/persistence_log.jsonl](../../State/persistence_log.jsonl) entry.
 
 Archive сохраняет проверяемую историю до следующего batch cleanup.
 
