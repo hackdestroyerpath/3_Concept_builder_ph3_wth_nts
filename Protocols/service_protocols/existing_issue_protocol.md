@@ -5,7 +5,7 @@ Owner issue: `EXEC-007`
 Protocol ID: `service/existing_issue`  
 Источник истины: `Protocols/service_protocols/existing_issue_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T13:06:00Z`
+Updated: `2026-06-18T14:36:00Z`
 
 ## Назначение
 
@@ -71,7 +71,7 @@ Runtime-файлы `Issues/<issue_id>/state.md`, `reason.md`, `requirements.md`,
    - active issue state существует и совпадает с registry;
    - registry-only bootstrap continuation разрешён, потому что registry содержит explicit bootstrap reason и runtime files ещё не требуются.
 5. Dependency graph проверен: active blocking edges с readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied` запрещают routing в execution, validation и closure.
-6. Legacy edge со `status = satisfied` сначала нормализуется по [linked_issues_protocol.md](linked_issues_protocol.md); explicit draft-only evidence не может быть поднято до `ready`.
+6. Legacy edge со `status = satisfied` сначала нормализуется по [linked_issues_protocol.md](linked_issues_protocol.md): historical draft-only evidence остаётся draft-only, если только более позднее final validation/artifact evidence явно не supersedes его.
 7. Если registry, state и focus packet конфликтуют, агент останавливается с blocker `focus_evidence_conflict` и repair write set.
 
 ## Duplicate-prevention gate
@@ -125,9 +125,9 @@ Status/phase mismatch не чинится молча. Агент фиксиру�
 
 ### 3. Dependency readiness
 
-Агент читает `dependency_refs` выбранного issue и direct graph edges. Проверка чистая для runtime execution/validation/closure, только если после legacy normalization нет active blocking edges с readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`, нет stale edge на несуществующий issue и parent/child/linked refs не требуют context lift.
+Агент читает `dependency_refs` выбранного issue и direct graph edges. Проверка чистая для runtime execution/validation/closure, только если после chronology-aware legacy normalization нет active blocking edges с readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`, нет stale edge на несуществующий issue и parent/child/linked refs не требуют context lift.
 
-`ready` в registry не заменяет graph evidence. Generic legacy `status = satisfied` не заменяет artifact evidence. Если graph и registry расходятся, действует blocker `graph_registry_mismatch`.
+`ready` в registry не заменяет graph evidence. Generic legacy `status = satisfied` не заменяет artifact evidence. Позднее committed final validation/artifact evidence может нормализовать historical draft-only edge в `ready` без reopen validated issue. Если graph и registry расходятся, действует blocker `graph_registry_mismatch`.
 
 QA, requirements и explicitly scoped bootstrap implementation draft могут продолжаться при `satisfied_for_draft`, только если отсутствующий artifact не нужен текущему draft step. Это не разрешает runtime execution approval, validation или closure.
 
@@ -142,7 +142,7 @@ Focus packet обязан содержать:
 | `mode` | `Service Mode` |
 | `scope_path` | `/` или иной registry scope |
 | `status` / `phase` | reconstructed lifecycle state |
-| `dependency_ready` | итог graph check после legacy normalization |
+| `dependency_ready` | итог graph check после chronology-aware legacy normalization |
 | `reason_summary` | краткая сводка reason |
 | `loaded_files` | только реально прочитанные файлы |
 | `missing_expected_files` | отсутствующие expected paths с reason |
@@ -169,6 +169,7 @@ Write set обычно включает `State/service_state.md`, registry JSONL
 | Graph/state/registry conflict | `focus_evidence_conflict` | blocker до repair |
 | Dependency cycle | `blocked_on_dependency_cycle` | не переводить в active/execution |
 | Draft-only dependency для runtime phase | `blocked_on_draft_only_dependency` | оставить draft-only work или получить full readiness evidence |
+| Final и draft-only evidence конфликтуют | `blocked_on_dependency_evidence_conflict` | проверить chronology, required artifact и validation coverage |
 | Blocking dependency unsatisfied/ambiguous | `blocked_on_dependency` | показать edge IDs и unblock/evidence condition |
 | Runtime file отсутствует | `missing_issue_artifact` | разрешить только registry-only bootstrap или repair blocker |
 | Следующий phase protocol planned | `next_protocol_planned` | остановиться после focus packet |
