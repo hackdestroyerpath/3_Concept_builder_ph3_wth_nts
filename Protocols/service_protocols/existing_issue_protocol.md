@@ -5,7 +5,7 @@ Owner issue: `EXEC-007`
 Protocol ID: `service/existing_issue`  
 Источник истины: `Protocols/service_protocols/existing_issue_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T01:29:00Z`
+Updated: `2026-06-18T12:41:00Z`
 
 ## Назначение
 
@@ -80,7 +80,7 @@ Runtime-файлы `Issues/<issue_id>/state.md`, `reason.md`, `requirements.md`,
 | Проверка | Pass condition |
 |---|---|
 | Active state | `service_state.active_issue_id` отсутствует или совпадает с выбранным issue |
-| Registry overlap | нет open/approved/active/blocked issue с тем же scope и target paths |
+| Registry overlap | нет issue со status `creating`, `proposed`, `needs_discussion`, `approved`, `active`, `blocked` или `deferred` с тем же scope и target paths |
 | Focus packet | текущий focus не содержит pending user action по тому же issue |
 | Dependency graph | нет edge, который показывает, что текущая работа уже depends/informs новый запрос |
 | Return anchor | известно, куда вернуться после следующего протокола |
