@@ -4,7 +4,7 @@ Parent: [service_state.md](service_state.md)
 Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01` / `CB-STAGE-04`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-18T17:48:00Z`
+Updated: `2026-06-18T20:30:00Z`
 
 ## Вердикт
 
@@ -108,7 +108,6 @@ Stage 01 keeps `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` as the leader r
 
 Known blocker before final Stage 01 acceptance: `none`.
 
-
 ## Stage 01 second rework checkpoint
 
 Transaction: `tx-cb-stage-01-second-rework-step-06-20260617`  
@@ -150,7 +149,7 @@ Third narrow rework uses preferred option A: restore the root orientation sectio
 | Restored heading `Источники истины верхнего уровня` | `pass` | Navigation source row explicitly names `README.md`, [navigation_map.md](navigation_map.md) and [page_registry.jsonl](page_registry.jsonl). |
 | Restored heading `Текущий статус сборки` | `pass` | Current build status is restored without changing the Stage 01 boundary. |
 | Registry link impact | `pass` | Restored README sections reuse links already present in the registered README unique link set; [page_registry.jsonl](page_registry.jsonl) rows for [navigation_map.md](navigation_map.md) and [page_registry_guide.md](page_registry_guide.md) remain correct. |
-| Persistence truthfulness | `pass` | [persistence_log.jsonl](persistence_log.jsonl) records this third narrow rework transaction without claiming a final GitHub SHA inside the pre-response row. |
+| Persistence truthfulness | `pass` | [persistence_log.jsonl](persistence_log.jsonl) records this third narrow rework transaction without claiming final GitHub SHA inside the pre-response row. |
 
 ## Подтверждение style-fix
 
@@ -172,13 +171,13 @@ Transaction: `tx-cb-stage-04-service-issue-lifecycle-20260618`
 Branch: `agent/stage-04-service-issue-lifecycle-20260618-0129Z`  
 Pull request: `#18`  
 Base commit: `c5fb23251c0283294029f803b9361f2cf7e13912`  
-Validated protocol head before evidence writes: `cd5e42fc2e5be1af64c5912dcde420a6bc751b49`  
+Validated content head before evidence writes: `4beeb8b57c669f84d3890d11120166a5a53155b4`  
 Status: `pass_branch_scoped_pending_reviewer_merge_main_readback`  
-Updated: `2026-06-18T17:48:00Z`
+Updated: `2026-06-18T20:30:00Z`
 
 ### Scope
 
-Stage 04 hardens the existing Service Mode issue lifecycle without creating runtime issue folders, runtime concept folders or service scripts. The branch changes six service lifecycle protocols and the common final-validation closure gate. `ISSUE-005` remains the accepted Stage 01 style fix and is not reopened. `Issues/issue_registry.jsonl` and `Issues/dependency_graph.jsonl` remain unchanged because Stage 04 defines runtime semantics rather than rewriting historical bootstrap records.
+Stage 04 hardens the existing Service Mode issue lifecycle without creating runtime issue folders, runtime concept folders or service scripts. The branch changes six service lifecycle protocols and the common final-validation closure gate. Current-head validation includes the Russian attachment-manifest guidance in `solution_contract_output_protocol.md`. `ISSUE-005` remains the accepted Stage 01 style fix and is not reopened. `Issues/issue_registry.jsonl` and `Issues/dependency_graph.jsonl` remain unchanged because Stage 04 defines runtime semantics rather than rewriting historical bootstrap records.
 
 ### Coverage by archive issue ID
 
@@ -206,11 +205,12 @@ Stage 04 hardens the existing Service Mode issue lifecycle without creating runt
 | Dependency consistency | `pass` | Direction, normalized readiness, chronology, stale propagation, cycle block and parent/child closure are coherent across service and final-validation protocols. |
 | Historical graph treatment | `pass` | Legacy draft-only `satisfied` rows are normalized by later committed validation evidence; historical rows are not rewritten without a separate graph transaction. |
 | Retention and Inbox cleanup | `pass` | Cleanup is retention-only; archive/tombstone/delete operations preserve registry and graph traceability. |
-| JSONL syntax and scope | `pass` | Existing issue registry, dependency graph and page registry are unchanged baseline JSONL; the appended persistence record is parsed locally before write and read back after write. |
+| JSONL syntax and scope | `pass` | Existing issue registry, dependency graph and page registry are unchanged baseline JSONL; persistence markers parse independently by line. |
 | Page-registry impact | `pass` | Stage 04 introduces no new Markdown file and no new Markdown-link target; changed protocol paths already have registered rows. |
 | Production boundary | `pass` | No Stage 05 work, scripts, runtime concept folders, runtime issue folders, donor layout or development-only archive content enters production. |
-| Review state | `pending` | Final acceptance still requires reviewer approval, PR merge and post-merge `main` readback. |
+| Current-head revalidation | `pass` | Content head `4beeb8b57c669f84d3890d11120166a5a53155b4` прочитан после языкового исправления; attachment-manifest guidance находится на русском языке; последующие writes являются только evidence companions. |
+| Review state | `pending` | Final acceptance still requires clean review, PR merge and post-merge `main` readback. |
 
 ### Non-goals and remaining gate
 
-Stage 04 does not migrate historical registry or graph rows, does not create runtime artifacts, does not change the persistence protocol, and does not start Stage 05. Known content blocker on the task branch: `none`. Terminal acceptance remains pending reviewer approval, merge of PR `#18`, and readback of the merged files from `main`.
+Stage 04 does not migrate historical registry or graph rows, does not create runtime artifacts, does not change the persistence protocol, and does not start Stage 05. Validated content head: `4beeb8b57c669f84d3890d11120166a5a53155b4`; subsequent report/log writes are evidence-only and do not change lifecycle protocol semantics. Known content blocker on the task branch: `none`. Terminal acceptance remains pending clean review, merge of PR `#18`, and readback of the merged files from `main`.
