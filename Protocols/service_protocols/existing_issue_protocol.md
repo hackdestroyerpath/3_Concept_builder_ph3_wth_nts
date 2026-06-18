@@ -5,7 +5,7 @@ Owner issue: `EXEC-007`
 Protocol ID: `service/existing_issue`  
 Источник истины: `Protocols/service_protocols/existing_issue_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T15:20:00Z`
+Updated: `2026-06-18T16:10:00Z`
 
 ## Назначение
 
@@ -111,7 +111,7 @@ Shortlist содержит только ID, title, status, phase, dependency rea
 | `creating` | остановиться на intake/repair | `service/new_issue` или repair blocker |
 | `proposed` | показать reason summary и decision варианты | planned decision update |
 | `needs_discussion` | сфокусировать discussion на reason/scope/duplicate-risk | planned decision update |
-| `approved` без phase | проверить dependencies и выбрать phase | `service/existing_issue` routing |
+| `approved` без phase | проверить dependencies и применить initial-phase table ниже | конкретный available phase protocol |
 | `active: qa` | подготовить QA continuation | `service/question_answer` |
 | `active: requirements` | подготовить requirements packet | `service/requirements` |
 | `active: requalification` | проверить simple/complex boundary | `service/complex_issue` |
@@ -133,7 +133,25 @@ Status/phase mismatch не чинится молча. Агент фиксиру�
 
 QA, requirements и explicitly scoped bootstrap implementation draft могут продолжаться при `satisfied_for_draft`, только если отсутствующий artifact не нужен текущему draft step. Это не разрешает runtime execution approval, validation или closure.
 
-### 4. Return anchor и next protocol
+### 4. Определить начальную phase
+
+Для `approved` issue с `phase = null` агент выбирает ровно одну начальную phase по первому подходящему условию сверху вниз:
+
+| Condition evidence | Initial phase | `next_protocol` |
+|---|---|---|
+| reason weak/missing или есть materially important unknowns, которые мешают requirements | `qa` | `service/question_answer` |
+| reason sufficient, но `requirements.md` отсутствует, draft/review или не approved | `requirements` | `service/requirements` |
+| requirements approved, но simple/complex type или decomposition boundary не подтверждены | `requalification` | `service/complex_issue` |
+| requirements approved, issue simple, но solution/contract отсутствуют, draft/review или reopened | `solution` | `service/solution_contract_output` |
+| solution и contract approved, но output отсутствует или contract coverage incomplete | `execution` | `service/solution_contract_output` |
+| output сохранён и contract coverage pass, но final validation не подтверждена | `validation` | `common/final_validation` |
+| final validation уже подтверждена | read-only terminal routing | retention/summary по status |
+
+Phase нельзя выбирать по наличию одного filename без проверки artifact status и approval log. Если evidence подходит нескольким строкам или расходится между registry/state/artifacts, agent возвращает `focus_evidence_conflict`, а не выбирает произвольную phase.
+
+Если выбранный `next_protocol` имеет status `planned`, agent не выполняет его как available и возвращает `next_protocol_planned`. Available routes берутся из [../catalog.md](../catalog.md), а не из предположения по имени файла.
+
+### 5. Return anchor и next protocol
 
 Focus packet обязан содержать:
 
@@ -154,7 +172,7 @@ Focus packet обязан содержать:
 
 Если `next_protocol` имеет status `planned`, агент не исполняет его как available и возвращает blocker `next_protocol_planned`.
 
-### 5. Запись focus/state
+### 6. Запись focus/state
 
 Запись требуется, если агент переводит issue в `active`, меняет phase, меняет active issue в state, фиксирует blocker/inconsistency или обновляет dependency readiness.
 
@@ -167,6 +185,7 @@ Write set обычно включает `State/service_state.md`, registry JSONL
 | Issue ID не найден | `issue_not_found` | вернуть shortlist или route к new issue |
 | Найдено несколько candidates | `ambiguous_issue_reference` | показать shortlist |
 | Другой nonterminal issue уже покрывает запрос | `duplicate_issue_prevented` | продолжить existing issue или запросить merge/split/link decision |
+| Начальная phase неоднозначна | `focus_evidence_conflict` | показать конфликт registry/state/artifacts и repair write set |
 | Registry parse error | `blocked_on_registry_parse` | repair write set |
 | Graph/state/registry conflict | `focus_evidence_conflict` | blocker до repair |
 | Dependency cycle | `blocked_on_dependency_cycle` | не переводить в active/execution |
@@ -179,7 +198,7 @@ Write set обычно включает `State/service_state.md`, registry JSONL
 
 ## Completion signal
 
-Протокол завершён, когда выбран ровно один existing issue, собран focus packet с return anchor, проверены blockers и выбран next protocol; либо пользователь получил shortlist; либо работа остановлена с честным blocker, write set и next required action.
+Протокол завершён, когда выбран ровно один existing issue, собран focus packet с return anchor, проверены blockers и выбран конкретный next protocol; либо пользователь получил shortlist; либо работа остановлена с честным blocker, write set и next required action.
 
 ## Связанные файлы
 
