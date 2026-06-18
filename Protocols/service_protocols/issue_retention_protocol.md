@@ -5,7 +5,7 @@ Owner issue: `USER-006` / `EXEC-005`
 Protocol ID: `service/issue_retention`  
 Источник истины: `Protocols/service_protocols/issue_retention_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T12:15:00Z`
+Updated: `2026-06-18T12:25:00Z`
 
 ## Назначение
 
@@ -118,9 +118,12 @@ Packet сохраняется в runtime `state.md`, archive `decision_log.md` �
 4. Собрать retention decision packet.
 5. Если runtime issue folder существует, перенести или скопировать его в `Issues/_archive/<issue_id>/`.
 6. Синхронизировать phase-artifact paths в registry в той же transaction:
-   - если runtime folder перемещён, переписать каждый non-null `reason_path`, `requirements_path`, `solution_path`, `contract_path`, `output_path` и `validation_path` на соответствующий путь внутри `Issues/_archive/<issue_id>/`;
+   - проверить каждый non-null `reason_path`, `requirements_path`, `solution_path`, `contract_path`, `output_path` и `validation_path`;
+   - если path находится под реально перемещённым `Issues/<issue_id>/`, переписать его на соответствующий путь внутри `Issues/_archive/<issue_id>/`;
+   - если path указывает на внешний или глобальный artifact, например `State/service_validation_report.md`, сохранить его без изменений, если этот artifact не копируется и не меняет canonical location;
+   - если внешний artifact явно копируется в archive и canonical pointer должен измениться, записать copy action и новый path в retention decision packet;
    - если folder только скопирован и active originals намеренно сохраняются, оставить existing phase-artifact paths и записать `archive_path` как mirror location;
-   - не оставлять registry pointer на удалённый source path.
+   - не оставлять registry pointer на удалённый source path и не создавать pointer на несуществующую archive copy.
 7. Archive entry содержит at least `state.md`, `reason.md` или equivalents, `decision_log.md`, output/validation refs если они были.
 8. Если runtime issue folder не существует, не создавать пустой `Issues/_archive/<issue_id>/`.
 9. Обновить registry JSONL: `status = archived`, `retention_status = archived_full_history`, `archive_path`, synchronized phase-artifact paths, `updated_at`, `next_action`.
