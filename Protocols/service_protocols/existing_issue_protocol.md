@@ -5,7 +5,7 @@ Owner issue: `EXEC-007`
 Protocol ID: `service/existing_issue`  
 Источник истины: `Protocols/service_protocols/existing_issue_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T14:36:00Z`
+Updated: `2026-06-18T15:20:00Z`
 
 ## Назначение
 
@@ -81,10 +81,12 @@ Runtime-файлы `Issues/<issue_id>/state.md`, `reason.md`, `requirements.md`,
 | Проверка | Pass condition |
 |---|---|
 | Active state | `service_state.active_issue_id` отсутствует или совпадает с выбранным issue |
-| Registry overlap | нет issue со status `creating`, `proposed`, `needs_discussion`, `approved`, `active`, `blocked` или `deferred` с тем же scope и target paths |
+| Registry overlap | среди других rows (`issue_id != selected issue_id`) нет issue со status `creating`, `proposed`, `needs_discussion`, `approved`, `active`, `blocked` или `deferred`, чей scope или target paths materially пересекаются с выбранной работой |
 | Focus packet | текущий focus не содержит pending user action по тому же issue |
 | Dependency graph | нет edge, который показывает, что текущая работа уже depends/informs новый запрос |
 | Return anchor | известно, куда вернуться после следующего протокола |
+
+Material overlap не требует точного равенства списков. Он существует, если scope совпадает либо находится в отношении ancestor/descendant и одновременно есть общий target path, вложенный target path или один и тот же изменяемый объект. Registry row выбранного issue исключается из этой проверки: exact-ID continuation и явное переключение на выбранный issue не должны блокироваться собственной записью.
 
 Fail этого gate не означает, что работа невозможна. Он означает, что агент должен продолжить существующий issue, создать linked relation через [linked_issues_protocol.md](linked_issues_protocol.md), либо запросить user decision merge/split/defer.
 
@@ -164,7 +166,7 @@ Write set обычно включает `State/service_state.md`, registry JSONL
 |---|---|---|
 | Issue ID не найден | `issue_not_found` | вернуть shortlist или route к new issue |
 | Найдено несколько candidates | `ambiguous_issue_reference` | показать shortlist |
-| Nonterminal issue уже покрывает запрос | `duplicate_issue_prevented` | продолжить existing issue или запросить merge/split/link decision |
+| Другой nonterminal issue уже покрывает запрос | `duplicate_issue_prevented` | продолжить existing issue или запросить merge/split/link decision |
 | Registry parse error | `blocked_on_registry_parse` | repair write set |
 | Graph/state/registry conflict | `focus_evidence_conflict` | blocker до repair |
 | Dependency cycle | `blocked_on_dependency_cycle` | не переводить в active/execution |
