@@ -3,8 +3,8 @@
 Parent: [service_state.md](service_state.md)  
 Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01` / `CB-STAGE-04`  
 Источник истины: `State/service_validation_report.md`  
-Status: `pass_with_deferred_items`  
-Updated: `2026-06-18T20:30:00Z`
+Status: `rework_applied_pending_manual_reviewer`  
+Updated: `2026-06-19T18:38:45Z`
 
 ## Вердикт
 
@@ -161,56 +161,84 @@ Third narrow rework uses preferred option A: restore the root orientation sectio
 
 ## Итоговый статус
 
-Итоговый validation status: `pass_with_deferred_items`.  
-Нерешённые blockers: `none`.  
-Следующее действие: использовать [../README.md](../README.md), [service_state.md](service_state.md) и [../Protocols/service_protocols/service_start_protocol.md](../Protocols/service_protocols/service_start_protocol.md) для будущих service changes; использовать [execution_index.md](execution_index.md) и [../Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md) только после того, как пользователь предоставит concept scope.
+Текущий status Stage 04: `rework_applied_pending_manual_reviewer`.  
+`manual_reviewer_status = pending`.  
+PR `#18` не принят, не смержен и не объявлен готовым к merge. Все содержательные, navigation и persistence changes подтверждены на task branch; этот validation report записывается последним, а его resulting head сообщается после exact readback.
 
-## Stage 04 service issue lifecycle checkpoint
+## Stage 04 manual rework checkpoint
 
-Transaction: `tx-cb-stage-04-service-issue-lifecycle-20260618`  
+Transaction: `tx-cb-stage-04-manual-rework-20260619`  
+Repository: `hackdestroyerpath/3_Concept_builder_ph3_wth_nts`  
 Branch: `agent/stage-04-service-issue-lifecycle-20260618-0129Z`  
 Pull request: `#18`  
-Base commit: `c5fb23251c0283294029f803b9361f2cf7e13912`  
-Validated content head before evidence writes: `4beeb8b57c669f84d3890d11120166a5a53155b4`  
-Status: `pass_branch_scoped_pending_reviewer_merge_main_readback`  
-Updated: `2026-06-18T20:30:00Z`
+Base: `main`  
+Current content/registry/persistence head before report finalization: `5d1575d9270fc48de32ae488aee23de24f8ce555`  
+Status: `rework_applied_pending_manual_reviewer`  
+manual_reviewer_status = pending  
+Updated: `2026-06-19T18:38:45Z`
 
-### Scope
+### Exact changed scope
 
-Stage 04 hardens the existing Service Mode issue lifecycle without creating runtime issue folders, runtime concept folders or service scripts. The branch changes six service lifecycle protocols and the common final-validation closure gate. Current-head validation includes the Russian attachment-manifest guidance in `solution_contract_output_protocol.md`. `ISSUE-005` remains the accepted Stage 01 style fix and is not reopened. `Issues/issue_registry.jsonl` and `Issues/dependency_graph.jsonl` remain unchanged because Stage 04 defines runtime semantics rather than rewriting historical bootstrap records.
+| Path | Stage 04 role |
+|---|---|
+| [../Instructions/service_mode_project_instructions.md](../Instructions/service_mode_project_instructions.md) | GOV-001 for Service Mode. |
+| [../Instructions/execution_mode_project_instructions.md](../Instructions/execution_mode_project_instructions.md) | GOV-001 for Execution Mode. |
+| [../Protocols/common/final_validation_protocol.md](../Protocols/common/final_validation_protocol.md) | GOV-001 hard gate and canonical closure reference. |
+| [../Protocols/service_protocols/complex_issue_protocol.md](../Protocols/service_protocols/complex_issue_protocol.md) | Parent/child lifecycle and minimal normalized-readiness gate. |
+| [../Protocols/service_protocols/existing_issue_protocol.md](../Protocols/service_protocols/existing_issue_protocol.md) | Existing-issue routing and duplicate/overlap protection; retained after compliant readback. |
+| [../Protocols/service_protocols/issue_retention_protocol.md](../Protocols/service_protocols/issue_retention_protocol.md) | Retention traceability. |
+| [../Protocols/service_protocols/linked_issues_protocol.md](../Protocols/service_protocols/linked_issues_protocol.md) | Canonical dependency normalization source. |
+| [../Protocols/service_protocols/requirements_protocol.md](../Protocols/service_protocols/requirements_protocol.md) | Neutral operational readiness heading and approval/reopen discipline. |
+| [../Protocols/service_protocols/solution_contract_output_protocol.md](../Protocols/service_protocols/solution_contract_output_protocol.md) | Optional attachments manifest without empty placeholders. |
+| [page_registry.jsonl](page_registry.jsonl) | Actual links, reciprocal backlinks and parent/orphan consistency. |
+| [persistence_log.jsonl](persistence_log.jsonl) | Manual Stage 04 persistence evidence without bot-thread metadata. |
+| [service_validation_report.md](service_validation_report.md) | Manual validation checkpoint. |
 
-### Coverage by archive issue ID
-
-| Archive issue ID | Result | Production path |
-|---|---|---|
-| `ISSUE-001` | Runtime scaffold is created only when a phase artifact is required; empty issue folders are forbidden; QA is conditional. | `Protocols/service_protocols/existing_issue_protocol.md`, `Protocols/service_protocols/requirements_protocol.md`, `Protocols/service_protocols/solution_contract_output_protocol.md` |
-| `ISSUE-002` | Existing-issue continuation now validates registry/graph state, excludes the selected issue from duplicate matching, blocks material overlap and emits a durable focus packet. | `Protocols/service_protocols/existing_issue_protocol.md` |
-| `ISSUE-003` | `requirements.md` is the approved source of truth with source reason, QA trace or skip reason, stable IDs, acceptance notes, non-goals, approval history and reopen rules. | `Protocols/service_protocols/requirements_protocol.md` |
-| `ISSUE-004` | Solution, contract and output are separated; execution requires approved solution and contract except for the narrow committed and verifiable shortcut. | `Protocols/service_protocols/solution_contract_output_protocol.md` |
-| `ISSUE-006` | Complex-issue requalification, bounded decomposition, parent/child consistency, closure and rollback rules are explicit. | `Protocols/service_protocols/complex_issue_protocol.md` |
-| `ISSUE-007` | Dependency direction, edge schema, legacy normalization, stale/cycle handling and readiness propagation are explicit. | `Protocols/service_protocols/linked_issues_protocol.md` |
-| `ISSUE-008` | Archive, tombstone, deletion and Inbox cleanup require retention reasons and preserved traceability. | `Protocols/service_protocols/issue_retention_protocol.md` |
-| `ISSUE-009` | Common final validation normalizes legacy dependency evidence before closure and refuses draft-only readiness. | `Protocols/common/final_validation_protocol.md` |
-
-### Stage 04 validation gates
+### Readback and validation results
 
 | Gate | Result | Evidence |
 |---|---|---|
-| Branch/base isolation | `pass` | PR `#18` targets `main`; branch is based on accepted Stage 03 commit `c5fb23251c0283294029f803b9361f2cf7e13912`; no normal writes target `main`. |
-| Changed-file scope | `pass` | Seven protocol files implement lifecycle hardening; this report and `State/persistence_log.jsonl` are the only evidence companions. |
-| Runtime scaffold and no-empty-folder rule | `pass` | Folder creation is phase-driven; registry-only bootstrap remains allowed with an explicit reason. |
-| Duplicate and overlap protection | `pass` | Selected issue self-exclusion, material-overlap blocking, conflict evidence and return anchor are defined. |
-| Requirements discipline | `pass` | Approval, stable requirement IDs, QA traceability, non-goals, reopen and downstream invalidation are defined. |
-| Solution/contract/output gate | `pass` | Execution is blocked without approved artifacts except for the bounded shortcut that persists and verifies both artifacts. |
-| Dependency consistency | `pass` | Direction, normalized readiness, chronology, stale propagation, cycle block and parent/child closure are coherent across service and final-validation protocols. |
-| Historical graph treatment | `pass` | Legacy draft-only `satisfied` rows are normalized by later committed validation evidence; historical rows are not rewritten without a separate graph transaction. |
-| Retention and Inbox cleanup | `pass` | Cleanup is retention-only; archive/tombstone/delete operations preserve registry and graph traceability. |
-| JSONL syntax and scope | `pass` | Existing issue registry, dependency graph and page registry are unchanged baseline JSONL; persistence markers parse independently by line. |
-| Page-registry impact | `pass` | Stage 04 introduces no new Markdown file and no new Markdown-link target; changed protocol paths already have registered rows. |
-| Production boundary | `pass` | No Stage 05 work, scripts, runtime concept folders, runtime issue folders, donor layout or development-only archive content enters production. |
-| Current-head revalidation | `pass` | Content head `4beeb8b57c669f84d3890d11120166a5a53155b4` прочитан после языкового исправления; attachment-manifest guidance находится на русском языке; последующие writes являются только evidence companions. |
-| Review state | `pending` | Final acceptance still requires clean review, PR merge and post-merge `main` readback. |
+| Branch/base isolation | `pass` | PR `#18` remains open against `main`; merge was not performed. |
+| GOV-001 | `pass` | Both project instructions prohibit agent use of Codex; final validation contains the hard gate. |
+| Stage-specific debris | `pass` | Runtime Requirements protocol uses `Проверка готовности requirements packet`. |
+| Attachments model | `pass` | Manifest and attachments folder are optional, created only for real referenced items; absence is recorded as `Attachments: none`. |
+| Canonical dependency semantics | `pass` | Full normalization remains in `linked_issues_protocol.md`; other affected protocols use a short reference and transition gate. |
+| Existing Issue | `pass_no_rewrite` | Branch readback already satisfied self-exclusion, overlap protection and canonical dependency reference, so no redundant rewrite was performed. |
+| Stage 04 evidence cleanup | `pass` | The replacement Stage 04 row/report use manual file, JSONL, navigation and boundary evidence; no bot-thread identifiers are used. |
+| Page registry | `pass` | `State/page_registry.jsonl` has 36 unique rows, reciprocal backlinks, no orphan rows and observed blob `493ec1b5f038605c52733484e7bb95b7607825b0`. |
+| Persistence log | `pass` | `State/persistence_log.jsonl` has 21 parseable rows and observed blob `50c5e31a2918a166da479896fef4017b7ff97112`. |
+| JSONL | `pass` | Frozen page registry and persistence log parse independently by line. |
+| Boundary | `pass` | PR scope is exactly the twelve allowed paths; no runtime issue/concept folders or service scripts were created. |
+| Manual reviewer | `pending` | Only the manual reviewer may accept the current head. |
+| Merge/main | `not_performed` | Merge, post-merge `main` readback and branch deletion require later explicit approval. |
 
-### Non-goals and remaining gate
+### Content readback map
 
-Stage 04 does not migrate historical registry or graph rows, does not create runtime artifacts, does not change the persistence protocol, and does not start Stage 05. Validated content head: `4beeb8b57c669f84d3890d11120166a5a53155b4`; subsequent report/log writes are evidence-only and do not change lifecycle protocol semantics. Known content blocker on the task branch: `none`. Terminal acceptance remains pending clean review, merge of PR `#18`, and readback of the merged files from `main`.
+| Path | Observed blob |
+|---|---|
+| `Instructions/service_mode_project_instructions.md` | `5d7260a9a5c5f564fec9e6cc1317b7e13238095b` |
+| `Instructions/execution_mode_project_instructions.md` | `9e240a75304f2bfb0f3c971fab8fe9801f32daa9` |
+| `Protocols/common/final_validation_protocol.md` | `86e46cabb31babae86db3ff227b883ef5b207364` |
+| `Protocols/service_protocols/complex_issue_protocol.md` | `4cd9575286cd57669f439290e3bfb4e3f66c5bf5` |
+| `Protocols/service_protocols/existing_issue_protocol.md` | `886246a2c38e92eaf09c4fb9a56a60c6e2db79dd` |
+| `Protocols/service_protocols/issue_retention_protocol.md` | `5f7aae672db5c09533d87248f30b03d2c30eb900` |
+| `Protocols/service_protocols/linked_issues_protocol.md` | `e06c5588f65e08f789d89310a88f7be0568d5e51` |
+| `Protocols/service_protocols/requirements_protocol.md` | `f379ead71bc3774a27532986de9c698b06989612` |
+| `Protocols/service_protocols/solution_contract_output_protocol.md` | `c354ce6e724dab66ba9189d6ed6c392f8dbeeabd` |
+| `State/page_registry.jsonl` | `493ec1b5f038605c52733484e7bb95b7607825b0` |
+| `State/persistence_log.jsonl` | `50c5e31a2918a166da479896fef4017b7ff97112` |
+
+The persistence marker was written and read back before this report. The resulting report commit head is therefore reported in the executor handoff after exact `fetch_file` readback rather than self-reported inside this file.
+
+### Remaining acceptance gates
+
+1. Manual reviewer examines the current PR head and records acceptance or further rework.
+2. Only after acceptance, perform the explicitly approved squash merge.
+3. Read back all merged paths from `main`.
+4. Delete the task branch only after accepted merge and `main` verification.
+
+Codex agent usage: `false`.  
+Stage 05 started: `false`.  
+Runtime issue folders created: `false`.  
+Runtime concept folders created: `false`.  
+Service scripts created: `false`.
