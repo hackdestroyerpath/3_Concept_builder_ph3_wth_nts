@@ -5,7 +5,7 @@ Owner issue: `EXEC-009`
 Protocol ID: `service/solution_contract_output`  
 Источник истины: `Protocols/service_protocols/solution_contract_output_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T20:00:00Z`
+Updated: `2026-06-19T11:50:00Z`
 
 ## Назначение
 
@@ -54,10 +54,7 @@ Updated: `2026-06-18T20:00:00Z`
 2. `status = active`, `phase = solution` или `phase = execution`.
 3. `requirements.md` существует, сохранён и approved.
 4. Issue подтверждён как `simple`, либо requalification не выявила complex scope.
-5. Dependency edges нормализованы по [linked_issues_protocol.md](linked_issues_protocol.md):
-   - solution/contract draft допускается при `satisfied_for_draft`, только если отсутствующий artifact не нужен для текущего design step и risk записан;
-   - approval, переход к execution, runtime execution и validation запрещены при active blocking readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`;
-   - generic legacy `status = satisfied` не считается `ready` без artifact/state evidence.
+5. Dependency readiness вычисляется только по canonical semantics из [linked_issues_protocol.md](linked_issues_protocol.md). Для approval, перехода к execution, runtime execution и validation допустим только normalized `ready`; `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` и `unsatisfied` блокируют transition. Scoped draft разрешён лишь в границах, явно допускаемых canonical protocol.
 6. Affected files и scope перечислены или могут быть перечислены в `solution.md`.
 7. Persistence доступен. Если запись невозможна, agent не заявляет, что artifacts стали источником истины.
 
@@ -73,10 +70,11 @@ Issues/<issue_id>/
     ├── report.md
     ├── changed_files.md
     ├── contract_coverage.md
-    └── attachments_manifest.jsonl
+    ├── attachments_manifest.jsonl   # optional
+    └── attachments/                 # optional
 ```
 
-Папка `output/attachments/` создаётся только если есть реальные attachments. Пустые runtime/output folders не создаются заранее.
+`attachments_manifest.jsonl` создаётся только когда output содержит хотя бы один attachment, generated file или external ref. Папка `output/attachments/` создаётся только при наличии реальных файлов. Пустой manifest или пустая attachments-папка ради структуры запрещены. Пустые runtime/output folders заранее не создаются.
 
 ## Phase routing
 
@@ -186,7 +184,7 @@ Solution: solution.md
 - report.md: required
 - changed_files.md: required
 - contract_coverage.md: required
-- attachments_manifest.jsonl: required, may be empty
+- attachments_manifest.jsonl: optional; required only when attachments, generated files or external refs exist; an empty placeholder is forbidden
 
 ## Метод проверки
 - manual check / file check / link check / protocol check / user confirmation
@@ -212,7 +210,7 @@ Contract нельзя вынести на review, если он:
 Перед execution агент обязан:
 
 1. перечитать approved `solution.md`, approved `contract.md`, registry, dependency graph и relevant target files;
-2. нормализовать direct blocking edges и остановиться при `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft`, `unsatisfied` или ambiguous legacy `satisfied` без required evidence;
+2. получить normalized readiness по [linked_issues_protocol.md](linked_issues_protocol.md): execution разрешён только при `ready`; любое другое blocking readiness останавливает transition;
 3. проверить, что affected files находятся в approved scope;
 4. сформировать work set и write set;
 5. выполнить только действия, покрытые solution и contract;
@@ -227,7 +225,8 @@ Issues/<issue_id>/output/
 ├── report.md
 ├── changed_files.md
 ├── contract_coverage.md
-└── attachments_manifest.jsonl
+├── attachments_manifest.jsonl   # optional; only when referenced items exist
+└── attachments/                 # optional; only when real files exist
 ```
 
 ### `output/report.md`
@@ -260,7 +259,8 @@ Contract: ../contract.md
 - ...
 
 ## Attachments
-- none / ...
+Attachments: none
+# либо перечислить реальные attachments/generated files/external refs
 
 ## Отклонения от solution
 - none / ...
@@ -302,7 +302,7 @@ Parent: [report.md](report.md)
 {"path":"Issues/<issue_id>/output/attachments/<file>","purpose":"...","source":"...","related_requirement":"REQ-...","related_contract_check":"...","status":"kept|generated|external_ref"}
 ```
 
-Если attachments не нужны, manifest может быть пустым. Если output ссылается на attachment, соответствующая строка manifest обязательна.
+Manifest создаётся только если есть хотя бы один attachment, generated file или external ref. Для каждого такого объекта требуется отдельная строка. Если таких объектов нет, `attachments_manifest.jsonl` не создаётся, а `output/report.md` содержит точную отметку `Attachments: none`. Пустой manifest как placeholder запрещён.
 
 ## Registry и State updates
 
