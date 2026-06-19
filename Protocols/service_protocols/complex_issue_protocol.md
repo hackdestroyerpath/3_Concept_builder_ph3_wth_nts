@@ -5,7 +5,7 @@ Owner issue: `EXEC-010`
 Protocol ID: `service/complex_issue`  
 Источник истины: `Protocols/service_protocols/complex_issue_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T14:50:00Z`
+Updated: `2026-06-19T11:50:00Z`
 
 ## Назначение
 
@@ -49,7 +49,7 @@ Updated: `2026-06-18T14:50:00Z`
 1. Issue выбран через existing issue protocol или уже active в state.
 2. Requirements approved, либо пользователь явно просит preliminary decomposition draft без child creation.
 3. Reason requalification записан: independent outputs, owners, dependency sequencing, scope conflict, large execution package или separate validation criteria.
-4. Parent blocking dependencies проверены и нормализованы по graph; draft-only/unsatisfied readiness не разрешает validation или closure.
+4. Parent blocking dependencies нормализованы по [linked_issues_protocol.md](linked_issues_protocol.md); только `ready` разрешает execution, validation и closure.
 5. Пользователь утвердил смену `type = simple` на `complex`, если issue уже был approved как simple.
 6. Persistence доступен. Без подтверждённой записи child issue не считаются созданными.
 7. Runtime folders для child issue не создаются пустыми; создаются только при реальном phase artifact.
@@ -127,11 +127,13 @@ Child наследует parent context summary, но не копирует ве
 
 ## Dependency readiness для parent / children
 
+Canonical source для normalization — [linked_issues_protocol.md](linked_issues_protocol.md). Parent/child-specific gate:
+
 | Ситуация | Правило |
 |---|---|
-| Child нужен для parent closure | parent не идёт в validation, пока child не closed или явно deferred/rejected с approved reason |
-| Child A нужен для Child B | graph edge blocks Child B execution до normalized `ready` |
-| Direct blocking edge normalized as `satisfied_for_draft` or `unsatisfied` | parent/child может выполнять только допустимый draft; validation и closure запрещены |
+| Child нужен для parent closure | parent не идёт в validation, пока child не closed либо явно deferred/rejected с approved reason |
+| Child A нужен для Child B | graph edge блокирует Child B до normalized `ready` |
+| Blocking edge имеет `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied` | execution, validation и closure соответствующего dependent issue запрещены |
 | Child output изменился после использования parent | parent получает `dependency_ready = stale` до recheck contract coverage |
 | Edge создаёт cycle | active blocking edge не сохраняется; affected issue получает `cycle_blocked` / `needs_discussion` |
 | Child стал самостоятельной темой | child переводится в linked/detached issue с reason; parent scope обновляется |
@@ -169,8 +171,7 @@ Complex issue можно закрыть только если:
 
 - все required child issue terminal `closed`, либо scope explicitly non-goal/deferred/rejected with reason;
 - parent contract coverage показывает child outputs per requirement;
-- chronology-aware graph normalization для parent scope не содержит active `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied` edges;
-- historical draft-only edge повышен до `ready` только при достаточном later final validation/artifact evidence;
+- все direct blocking edges parent scope имеют normalized `ready` по [linked_issues_protocol.md](linked_issues_protocol.md);
 - parent validation report сохранён;
 - registry, parent state и page registry согласованы.
 
@@ -183,7 +184,7 @@ Complex issue можно закрыть только если:
 | Budget исчерпан | `blocked_on_decomposition_budget` | запросить расширение budget или scope decision |
 | Child scope дублирует existing issue | `needs_dedup_decision` | use linked/merge/defer decision |
 | Dependency cycle | `cycle_blocked` | не сохранять active blocking edge; предложить repair |
-| Draft-only или unsatisfied dependency перед validation/closure | `blocked_on_dependency_readiness` | получить normalized `ready` evidence или оставить parent в draft/execution |
+| Dependency readiness не `ready` перед execution/validation/closure | `blocked_on_dependency_readiness` | получить normalized `ready` evidence |
 | Stale child/parent dependency | `blocked_on_stale_dependency` | recheck affected requirements/contract/output |
 | Нельзя записать registry/state | `blocked_on_persistence` | не считать children созданными |
 | Parent closure без children coverage | `blocked_on_parent_contract_coverage` | вернуть parent к solution/execution/validation |
