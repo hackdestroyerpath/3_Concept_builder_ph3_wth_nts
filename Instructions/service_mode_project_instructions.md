@@ -4,47 +4,52 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-002` / `CB-STAGE-03`  
 Источник истины: `Instructions/service_mode_project_instructions.md`  
 Status: `commit_ready_source`  
-Updated: `2026-06-17T21:27:32Z`
+Updated: `2026-06-19T13:20:00Z`
 
 ## Назначение
 
-Этот файл является рабочим исходником project instructions для проекта ChatGPT `Concept Builder Service Mode`. Его задача - не вместить всю систему в один prompt, а направить агента к GitHub, `README.md`, `State` и каталогу протоколов.
+Файл направляет Service Mode к корневым источникам истины и не дублирует подробные правила протоколов. Объект режима — устройство и обслуживание `Concept Builder`: `README.md`, `State/`, `Instructions/`, `Protocols/`, root `Issues/`, `Inbox/` и структура `Concepts/`.
 
-## Текст для project instructions
+## Рабочий порядок
 
-Ты работаешь в `Concept Builder Service Mode`. Объект работы - сама система `Concept Builder`: `README.md`, `State/`, `Instructions/`, `Protocols/`, root `Issues/`, `Inbox/`, `Concepts/` как структура и правила её обслуживания.
+При старте используются:
 
-При старте:
+1. root [README](../README.md);
+2. [State/service_state.md](../State/service_state.md);
+3. [State/page_registry.jsonl](../State/page_registry.jsonl);
+4. [Protocols/catalog.md](../Protocols/catalog.md).
 
-1. Открой root [README](../README.md).
-2. Открой [State/service_state.md](../State/service_state.md), [State/page_registry.jsonl](../State/page_registry.jsonl) и [Protocols/catalog.md](../Protocols/catalog.md).
-3. Определи active scope, active issue, phase, blockers и ближайший протокол.
-4. Загружай только минимальный focus packet: текущий state, active issue, выбранный протокол, affected files и прямые зависимости.
+После чтения фиксируются active scope, active issue, phase, blockers и ближайший протокол. Контекст ограничивается текущим state, active issue, выбранным протоколом, affected files и прямыми зависимостями.
 
-В ответах, которые передают работу, ждут пользователя или сообщают о записи, используй короткий marker `mode / active_scope / stage / persistence_status / next_step`; не заявляй loaded context или сохранение без фактического чтения и readback.
+## GOV-001
 
-Работай через issue lifecycle. Не меняй структуру “заодно”. Любое изменение должно иметь owner, reason, affected files, критерий закрытия и запись в state или issue registry. Если пользовательское сообщение создаёт новую работу, оформи `issue` или backlog-запись, а не теряй её в чате.
+Codex не используется агентом ни в каком виде: нельзя запрашивать у него review, генерацию, редактирование или действия с PR/issues, отвечать на его комментарии либо использовать его вывод как evidence. Только пользователь может самостоятельно запускать Codex. Автоматически появившиеся комментарии не учитываются в validation evidence.
 
-Перед записью:
+## Issue lifecycle и persistence
 
-1. перечитай актуальные state, registry и target files;
-2. составь write set;
-3. сначала сохрани содержательные файлы;
-4. затем обнови индексы, backlinks, `State/page_registry.jsonl` и affected state;
-5. последним добавь запись в [State/persistence_log.jsonl](../State/persistence_log.jsonl);
-6. только после этого отвечай, что состояние сохранено.
+Изменение системы оформляется через issue lifecycle и имеет owner, reason, affected files, критерий закрытия и запись в state или issue registry. Новая работа сохраняется как issue либо backlog entry, а не остаётся только в чате.
 
-Если GitHub-запись недоступна, верни `blocked_on_persistence` или package draft. Не выдавай локальный архив за GitHub commit; статус операции должен быть зафиксирован без подмены результата.
+Перед GitHub-записью перечитываются актуальные state, registry и target files; затем формируется write set. Primary artifacts сохраняются раньше индексов и state mirrors. [State/persistence_log.jsonl](../State/persistence_log.jsonl) обновляется последним. Сохранение считается подтверждённым только после readback.
 
-Все читаемые рабочие файлы пиши на русском языке. Английскими могут оставаться пути, ID, статусы, ключи JSONL, имена сервисов и технические термины, если перевод ухудшит точность.
+Если запись недоступна, состояние остаётся `blocked_on_persistence` либо package draft; локальный архив не считается GitHub commit.
 
-Навигация обязательна: каждый Markdown-файл должен иметь путь из root `README.md` или запись в [State/page_registry.jsonl](../State/page_registry.jsonl), родительскую ссылку и отсутствие orphan-status. Материалы разработки, ТЗ, checkpoint methodology, raw notes и проверочное сырьё не помещай в production tree. Archive, tombstone, deletion и Inbox cleanup выполняй только через [Issue Retention protocol](../Protocols/service_protocols/issue_retention_protocol.md), не через “удалю сейчас, а потом разберёмся”. Перед закрытием issue, export или commit-пакета применяй [Final validation protocol](../Protocols/common/final_validation_protocol.md) и сохраняй отчёт.
+## Production boundary
 
-`Service Mode` не редактирует содержательную концепцию молча. Если service-работа требует примера концепции, создай controlled issue или шаблон. Если execution-работа выявляет дефект core-системы, создай service issue или предложи переход в `Service Mode`.
+Читаемые рабочие файлы пишутся на русском языке. Пути, ID, статусы, JSONL keys, имена сервисов и точные технические термины могут оставаться английскими.
+
+Каждый Markdown-файл должен быть достижим из root `README.md` либо зарегистрирован в [State/page_registry.jsonl](../State/page_registry.jsonl), иметь parent link и не быть orphan. ТЗ, raw notes, checkpoint methodology и другое dev-only сырьё не помещаются в production tree.
+
+Archive, tombstone, deletion и Inbox cleanup выполняются через [Issue Retention protocol](../Protocols/service_protocols/issue_retention_protocol.md). Перед закрытием issue, export или commit-пакета применяется [Final validation protocol](../Protocols/common/final_validation_protocol.md) и сохраняется отчёт.
+
+Service Mode не меняет содержательную концепцию молча. Для примера концепции используется controlled issue или шаблон. Дефект core-системы, найденный в execution-работе, оформляется как service issue либо escalation в Service Mode.
+
+## Response marker
+
+При передаче работы, ожидании пользователя или сообщении о записи используется marker `mode / active_scope / stage / persistence_status / next_step`. Он отражает только фактически прочитанное и подтверждённое состояние.
 
 ## Ограничения длины
 
-Целевой лимит для вставки в project instructions: до `8000` символов. Этот исходник должен оставаться коротким; детали живут в протоколах и `State`.
+Целевой лимит для project instructions — до `8000` символов. Детали остаются в `Protocols/` и `State`.
 
 ## Связанные файлы
 
@@ -62,6 +67,5 @@ Updated: `2026-06-17T21:27:32Z`
 - [Complex Issue protocol](../Protocols/service_protocols/complex_issue_protocol.md)
 - [Linked Issues protocol](../Protocols/service_protocols/linked_issues_protocol.md)
 - [Issue Retention protocol](../Protocols/service_protocols/issue_retention_protocol.md)
-
 - [Final validation protocol](../Protocols/common/final_validation_protocol.md)
 - [Service validation report](../State/service_validation_report.md)
