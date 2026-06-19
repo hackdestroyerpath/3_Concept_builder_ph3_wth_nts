@@ -4,7 +4,7 @@ Parent: [Каталог протоколов](../catalog.md)
 Owner issue: `EXEC-012`  
 Источник истины: `Protocols/common/final_validation_protocol.md`  
 Status: `available`  
-Updated: `2026-06-18T15:22:00Z`
+Updated: `2026-06-19T11:50:00Z`
 
 ## Назначение
 
@@ -43,25 +43,27 @@ Updated: `2026-06-18T15:22:00Z`
 13. metadata статусы одного и того же протокола расходятся между Markdown-шапкой, [catalog.jsonl](../catalog.jsonl) и [page_registry.jsonl](../../State/page_registry.jsonl);
 14. production Markdown содержит разговорные, оценочные или саркастические фразы, не имеющие операционной роли;
 15. production metadata ссылается на development-only материалы как на рабочие пути репозитория;
-16. direct blocking dependency после evidence- и chronology-aware normalization имеет readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`;
-17. legacy edge имеет raw `status = satisfied`, но required artifact/final validation evidence не подтверждает readiness или reason сохраняет draft-only boundary без более позднего superseding evidence.
+16. агент вызывал или использовал Codex bot, запрашивал у него review, генерацию, редактирование либо действия с PR/issues, отвечал на его комментарии или использовал его вывод как evidence;
+17. direct blocking dependency после нормализации имеет readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`.
 
 `pass_with_deferred_items` разрешён только когда deferred items явно неблокирующие, имеют owner, reason и next action.
 
+## GOV-001 — hard gate Codex
+
+Только пользователь может самостоятельно запускать Codex. Это не даёт агенту права взаимодействовать с Codex или использовать его результат. Автоматически появившиеся комментарии Codex игнорируются: агент не отвечает на них, не включает их IDs или статусы в validation/persistence evidence и не считает их проверкой.
+
+Если агент нарушил GOV-001, текущая проверка получает `blocked`, а все изменения после точки нарушения требуют отдельного ручного аудита. Codex-derived evidence удаляется из production report/log до повторной проверки.
+
 ## Dependency normalization для closure
 
-Final validation не использует raw graph status как готовый verdict. Перед validation/closure каждый direct blocking edge нормализуется по семантике `service/linked_issues` из `Protocols/service_protocols/linked_issues_protocol.md`:
+Canonical source для dependency normalization — [Linked Issues protocol](../service_protocols/linked_issues_protocol.md). Этот протокол не дублирует legacy chronology table, а использует уже нормализованный результат и его evidence.
 
-| Evidence | Normalized readiness | Closure rule |
-|---|---|---|
-| explicit `ready` с существующим required artifact/state | `ready` | разрешено продолжать |
-| legacy `satisfied` без draft-only qualifier, при наличии required artifact и подходящего final evidence | `ready` | разрешено продолжать |
-| historical `satisfied for draft` / `satisfied_for_draft` без более позднего final evidence | `satisfied_for_draft` | validation и closure запрещены |
-| historical draft-only marker, superseded более поздним committed final validation/artifact coverage по этому edge condition | `ready` | не reopen уже validated issue |
-| `blocked`, `stale`, `cycle_blocked`, `unsatisfied` | сохранить readiness | validation и closure запрещены |
-| ambiguous или конфликтующее legacy evidence | `blocked` с evidence-conflict reason | validation и closure запрещены |
+Для execution, validation и closure действует минимальный gate:
 
-Chronology определяется по edge `updated_at`, registry state/`updated_at`, validation records и existence/coverage required artifacts. Один terminal label или generic `status = satisfied` не заменяет evidence. Нормализованный результат и использованные evidence фиксируются в validation report; изменение самого edge выполняется отдельной graph transaction, если lifecycle требует persistence.
+- только normalized `ready` разрешает переход;
+- `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` и `unsatisfied` блокируют переход;
+- raw legacy `status = satisfied` не равен `ready` без required artifact/state evidence;
+- observed readiness и evidence каждого direct blocking edge фиксируются в validation report.
 
 ## Процедура проверки
 
@@ -89,11 +91,9 @@ Chronology определяется по edge `updated_at`, registry state/`upda
 3. `dependency_graph.jsonl` содержит metadata record и edge records.
 4. Все `dependency_refs` у issue существуют в graph.
 5. Blocking edges не создают cycles.
-6. Для каждого direct blocking edge вычисли normalized readiness по status, reason, chronology и artifact/validation evidence.
-7. Не считай raw legacy `satisfied` эквивалентом `ready` без required evidence.
-8. Не понижай historical draft-only edge, если более поздняя committed final validation явно покрывает его condition; normalize to `ready`.
-9. Зависимая задача не marked ready и не закрывается, если normalized readiness равна `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`.
-10. Graph/registry mismatch или evidence conflict делает validation `blocked` до repair.
+6. Нормализуй каждый direct blocking edge строго по [Linked Issues protocol](../service_protocols/linked_issues_protocol.md).
+7. Разрешай execution, validation и closure только при normalized `ready`.
+8. Graph/registry mismatch или evidence conflict делает validation `blocked` до repair.
 
 ### 4. Protocol catalog check
 
@@ -102,7 +102,7 @@ Chronology определяется по edge `updated_at`, registry state/`upda
 3. Planned protocol не исполняется как available.
 4. Для новых protocol-файлов есть запись в page registry и parent link.
 
-### 5. Language, style и boundary check
+### 5. Language, style, governance и boundary check
 
 1. Читаемые Markdown-файлы проверяются на русский основной язык.
 2. Английский допускается для путей, ID, статусов, JSONL keys, service names и устойчивых технических терминов.
@@ -110,6 +110,7 @@ Chronology определяется по edge `updated_at`, registry state/`upda
 4. Production tree проверяется против верхних директорий: `README.md`, `State/`, `Instructions/`, `Protocols/`, `Issues/`, `Inbox/`, `Concepts/`.
 5. Dev-only материалы остаются вне production tree.
 6. Metadata может ссылаться на исходный handoff как на внешний источник происхождения, но не должна указывать development-only файлы как рабочие target paths.
+7. Execution history и production evidence проверяются на GOV-001; автоматически появившиеся Codex comments не учитываются.
 
 ### 6. Metadata, issue и contract coverage
 
@@ -123,7 +124,7 @@ Chronology определяется по edge `updated_at`, registry state/`upda
 ### 7. Report и persistence
 
 1. Сохрани validation report: [State/service_validation_report.md](../../State/service_validation_report.md) для root scope.
-2. Обнови [State/page_registry.jsonl](../../State/page_registry.jsonl), если report или protocol добавлены.
+2. Обнови [State/page_registry.jsonl](../../State/page_registry.jsonl), если report или protocol добавлены либо изменили links/backlinks.
 3. Обнови [Issues/issue_registry.jsonl](../../Issues/issue_registry.jsonl), если проверка закрывает bootstrap issue.
 4. Добавь запись в [State/persistence_log.jsonl](../../State/persistence_log.jsonl).
 5. Если normalized edge state должен стать новым operational source of truth, обнови graph и registry mirrors одной controlled transaction до closure.
@@ -135,7 +136,7 @@ Chronology определяется по edge `updated_at`, registry state/`upda
 |---|---|---|
 | `pass` | blockers и deferred items отсутствуют | пакет готов к commit |
 | `pass_with_deferred_items` | blockers отсутствуют, но есть явно deferred non-blocking items | пакет готов к commit, deferred items перечислены |
-| `blocked` | есть broken links, orphan, graph cycle, dependency readiness/evidence failure, boundary breach, language failure или blocking issue | пакет не готов, нужен repair checkpoint |
+| `blocked` | есть broken links, orphan, graph cycle, dependency readiness/evidence failure, GOV-001 violation, boundary breach, language failure или blocking issue | пакет не готов, нужен repair checkpoint |
 
 ## Связанные файлы
 
@@ -146,6 +147,7 @@ Chronology определяется по edge `updated_at`, registry state/`upda
 - [Persistence protocol](persistence_protocol.md)
 - [Persistence log](../../State/persistence_log.jsonl)
 - [Protocol catalog](../catalog.md)
+- [Linked Issues protocol](../service_protocols/linked_issues_protocol.md)
 - [Issue registry](../../Issues/issue_registry.md)
 - [Dependency graph](../../Issues/dependency_graph.jsonl)
 - [Service validation report](../../State/service_validation_report.md)
