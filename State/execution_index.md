@@ -1,10 +1,10 @@
 # Индекс execution-объектов
 
 Parent: [README](../README.md)  
-Owner issue: `EXEC-001` … `EXEC-007`  
+Owner issue: `EXEC-004`  
 Источник истины: `State/execution_index.md`  
 Status: `active`  
-Updated: `2026-06-20T19:24:43Z`
+Updated: `2026-06-20T20:55:35Z`
 
 ## Назначение
 
@@ -16,7 +16,7 @@ Updated: `2026-06-20T19:24:43Z`
 |---|---|
 | Mode | `Execution Mode` |
 | Bootstrap contract revision | `execution-bootstrap-v1` |
-| Service base | `State/service_state.md / Stage 04 accepted` |
+| Service base | `State/service_state.md; validation=pass_with_deferred_items; blocking=none` |
 | Active concept | `none` |
 | Active concept slug | `none` |
 | Startup case | `no_active_concept` |
