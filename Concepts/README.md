@@ -4,11 +4,11 @@ Parent: [Concept Builder README](../README.md)
 Owner issue: `EXEC-001` … `EXEC-007`  
 Источник истины: `Concepts/README.md`  
 Status: `available-empty-layer`  
-Updated: `2026-06-20T17:58:28Z`
+Updated: `2026-06-20T19:24:43Z`
 
 ## Назначение
 
-`Concepts/` хранит реальные концепции, развиваемые в `Concept Builder / Execution Mode`. Этот файл является human entry map слоя, но не является концепцией сам по себе и не создаёт runtime scope без утверждённого intent.
+`Concepts/` хранит реальные концепции, развиваемые в `Concept Builder / Execution Mode`. Этот файл является human entry map слоя, но не является concept state и не создаёт runtime scope без утверждённого intent.
 
 ## Текущий статус
 
@@ -17,21 +17,21 @@ Updated: `2026-06-20T17:58:28Z`
 | Concepts created | `0` |
 | Active concept | `none` |
 | Startup case | `no_active_concept` |
-| Bootstrap contract revision | `stage_05a-r1` |
-| Stage 05A status | `stage_05a_branch_result_pending_manual_reviewer` |
+| Bootstrap contract revision | `execution-bootstrap-v1` |
+| Layer status | `available-empty-layer` |
 | Template | [Concepts/_template/README.md](_template/README.md) |
 | Execution protocols | [Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md) |
 | Root index | [State/execution_index.md](../State/execution_index.md) |
 
-Конкретные концепции не созданы. `Concepts/<concept_slug>/` появляется только после явного пользовательского запроса или approved issue и полного creation gate.
+Конкретные концепции не созданы. `Concepts/<concept_slug>/` появляется только после user intent или approved issue и полного creation gate.
 
 ## Реестр концепций
 
-| Slug | Title | Lifecycle | Readiness | Active issue | State path | Local page registry | Local issue registry | Export status | Last validation ref | Blocking status |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `none` | Концепции ещё не созданы | `not_applicable` | `ready_for_concept_selection_or_creation` | `none` | `none` | `none` | `none` | `none` | `none` | `none` |
+| Slug | Title | Lifecycle | Readiness mirror | Integrity mirror | Active issue | State path | Local page registry | Local issue registry | Export status | Last validation ref | Blocking status |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `none` | Концепции ещё не созданы | `not_applicable` | `ready_for_concept_selection_or_creation` | `verified` | `none` | `none` | `none` | `none` | `none` | `none` | `none` |
 
-Root source of truth для active concept и полного registry contract: [State/execution_index.md](../State/execution_index.md).
+Root source of truth для active concept и registry contract: root execution index. Для concrete concept authoritative readiness/integrity хранит `State/concept_state.md`; таблица выше является derived mirror и обновляется с local state одной transaction.
 
 ## Creation gate
 
@@ -43,11 +43,11 @@ Root source of truth для active concept и полного registry contract: 
 4. получить `concept_slug`, title, reason, initial scope и boundary;
 5. подтвердить отсутствие path conflict;
 6. перечислить exact write set;
-7. сохранить operational files и registry updates одной transaction.
+7. выполнить bootstrap persistence/readback transition.
 
-## Минимальный committed bootstrap
+## Минимальный bootstrap contract
 
-Первая transaction создаёт только пять реально используемых files:
+Bootstrap готовит пять operational files:
 
 ```text
 Concepts/<concept_slug>/README.md
@@ -57,21 +57,60 @@ Concepts/<concept_slug>/Issues/issue_registry.jsonl
 Concepts/<concept_slug>/Issues/dependency_graph.jsonl
 ```
 
-`Pages/`, `Output/` и `Exports/` — логические области. Они появляются с первым реальным artifact, а не как заранее созданные пустые directories. `Issues/_archive/README.md` и `Issues/_tombstones/README.md` создаются только при фактической retention-потребности или отдельном approved bootstrap. Пустые Markdown placeholders запрещены.
+`Pages/`, `Output/` и `Exports/` — logical areas. Они появляются с первым реальным artifact, а не как empty directories. Retention entrypoints создаются только при retention-потребности или отдельном approved bootstrap. Empty Markdown placeholders запрещены.
 
-Initial local issue registry может быть пустым. Initial dependency graph может содержать одну metadata row с нулём edges. Concept issue не создаётся для заполнения структуры.
+Initial local issue registry может быть пустым. Initial dependency graph может содержать одну metadata row с нулём edges. Concept issue не создаётся ради заполнения структуры.
 
 ## Structure map
 
-`Concepts/<concept_slug>/State/page_registry.jsonl` — canonical machine-readable structure map и перечисляет только реально существующие files. Concept README содержит human entry tables/links. Optional `State/page_map.md` допустим как derived artifact для большой сети или export.
+`Concepts/<concept_slug>/State/page_registry.jsonl` — canonical machine-readable structure map и перечисляет только реально существующие files. Concept README содержит human entry links. Optional `State/page_map.md` допустим как derived artifact для большой сети или export.
 
-Обязательные `manifest.jsonl`, `structure.md` и `state.json` не входят в bootstrap contract.
+Mandatory `manifest.jsonl`, `structure.md` и `state.json` не входят в bootstrap contract.
+
+## Readiness transition
+
+`State/concept_state.md` является authoritative source.
+
+До persistence/readback:
+
+```text
+Lifecycle status: draft
+Readiness status: bootstrap_incomplete
+Integrity status: unverified
+Last persisted at: null
+Next status: needs_bootstrap_persistence
+```
+
+Разрешено только complete/recover bootstrap.
+
+После существования всех пяти files, JSONL parse, identity check, successful persistence и readback:
+
+```text
+Lifecycle status: draft
+Readiness status: ready_for_issue_or_page
+Integrity status: verified
+Integrity basis: exact five files + state revision + persistence/readback ref
+Last persisted at: <factual timestamp>
+Next status: needs_first_issue_or_page
+```
+
+`unverified`, `stale` или `conflict` блокируют issue/page mutation, кроме bounded recovery. Default concept README не хранит dynamic readiness metadata; если human mirror добавляется позже, он явно помечается derived и обновляется с state одной transaction.
 
 ## State, issues и dependencies
 
-`State/concept_state.md` разделяет lifecycle, readiness и integrity. Local issue ID имеет формат `<concept_slug>-ISS-0001`. Concept-internal issue rows и dependency edges остаются локальными; root registry не зеркалит их.
+Local issue ID имеет формат `<concept_slug>-ISS-0001`. Concept-internal issue rows и dependency edges остаются local; root registry не зеркалит их.
 
-При core-дефекте Execution Mode сохраняет local service-escalation packet, устанавливает `service_escalation_required`, останавливает затронутую root mutation и просит переход в Service Mode. Root issue и bidirectional refs создаются после переключения режима.
+## Service escalation
+
+Canonical anchor:
+
+```text
+Concepts/<concept_slug>/State/concept_state.md#pending-service-escalation
+```
+
+Local state хранит `service_escalation_status`, `service_escalation_ref`, `service_issue_id`, `created_at` и `updated_at`. Anchor содержит source concept/issue, defect summary, affected root paths, evidence, safe workaround, requested service action и return anchor.
+
+При local issue его registry/state хранит тот же `service_escalation_ref` и `return_anchor`. Execution Mode записывает только concept-local records и прекращает затронутую root mutation. Service Mode создаёт root issue; затем root и concept scopes получают bidirectional refs одной transaction. Resolution/cancellation обновляет тот же anchor.
 
 ## Scope boundaries
 
@@ -80,7 +119,7 @@ Initial local issue registry может быть пустым. Initial dependenc
 | Root `README.md` | вход в систему и route к этому слою |
 | Root execution index | active concept, registry contract и startup case |
 | `Concepts/<concept_slug>/README.md` | human entry конкретной концепции |
-| `Concepts/<concept_slug>/State/` | local state и canonical local page registry |
+| `Concepts/<concept_slug>/State/` | authoritative local state и canonical local page registry |
 | `Concepts/<concept_slug>/Issues/` | local issue registry, dependency graph и реальные issue artifacts |
 | `Concepts/<concept_slug>/Pages/` | реальные содержательные pages после их появления |
 | `Concepts/<concept_slug>/Output/` | реальные concept-level results |
@@ -92,16 +131,16 @@ Lifecycle statuses: `draft`, `active`, `ready_for_closure_review`, `closed`, `ex
 
 Readiness statuses: `bootstrap_incomplete`, `ready_for_issue_or_page`, `active`, `ready_for_closure_review`, `validated_for_export`, `blocked`.
 
-Одинаково названный lifecycle/readiness status не делает поля взаимозаменяемыми: lifecycle описывает положение концепции, readiness — допустимость следующего действия.
+Lifecycle описывает положение concept, readiness — допустимость следующего действия, integrity — доверие к state/registry evidence.
 
 ## Export
 
-Экспорт выполняется только через [concept_export_protocol.md](../Protocols/execution_protocols/concept_export_protocol.md). Stage 05A не меняет export protocol, naming или blocker matrix. При open issue допустим только `work_in_progress`; closed export требует validation и user approval.
+Экспорт выполняется только через [concept_export_protocol.md](../Protocols/execution_protocols/concept_export_protocol.md). При open issue допустим только `work_in_progress`; closed export требует validation, verified integrity и user approval.
 
 ## Связанные файлы
 
 - [Root README](../README.md)
-- [Execution index](../State/execution_index.md)
+- root execution index
 - [Page registry](../State/page_registry.jsonl)
 - [Execution protocols](../Protocols/execution_protocols/README.md)
 - [Concept export protocol](../Protocols/execution_protocols/concept_export_protocol.md)
