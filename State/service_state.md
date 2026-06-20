@@ -4,7 +4,7 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-004`  
 Источник истины: `State/service_state.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-16T16:48:11Z`
+Updated: `2026-06-20T12:42:43Z`
 
 ## Назначение
 
@@ -21,13 +21,29 @@ Updated: `2026-06-16T16:48:11Z`
 | Repository | `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` |
 | Production root | `/` |
 | Default branch | `main` |
-| Write status | `github_direct_main_root_flatten_committed` |
-| GitHub metadata | `write_mode=direct_main; target_branch=main; production_root=/; source_wrapper=Concept Builder/; transaction=tx-cb-root-flatten-20260616; final_commit_sha=reported_in_executor_response_after_readback` |
+| Write status | `stage_04_squash_merged_main_verified` |
+| GitHub metadata | `write_mode=direct_main_post_merge_evidence_sync; target_branch=main; transaction=tx-cb-stage-04-post-merge-closure-sync-20260620` |
 | Validation status | `pass_with_deferred_items` |
 | Validation report | [service_validation_report.md](service_validation_report.md) |
 | Blocking status | `none` |
+| Latest accepted service stage | `Stage 04` |
+| Verified squash commit | `13286558775897f400d6d53862e95bd61d6f2457` |
+| PR | `18` |
+| Branch deleted | `true` |
+| Stage 05 | `not_started` |
+| Next status | `ready_for_stage_05_or_new_service_issue` |
 
-`Write status` означает: root-flatten repair записан напрямую в `main` через GitHub connector. Production root: корень репозитория `/`; бывшая wrapper-папка `Concept Builder/` вынесена в корень и не является production boundary. Проверять это состояние нужно по фактическому repo ref, read-back целевых файлов и transaction-like строке в [persistence_log.jsonl](persistence_log.jsonl). Commit marker, JSONL row или self-report сами по себе не являются достаточным доказательством; доказательство состоит из root manifest, wrapper deletion, semantic JSONL gates, navigation checks, issue/dependency evidence, production-boundary gate и readback после записи.
+`Write status` означает: Stage 04 принят через squash merge PR `#18`, commit `13286558775897f400d6d53862e95bd61d6f2457` подтверждён как `main` head до closure sync, все 12 merged paths прочитаны из `main`, а task branch удалена. Post-merge closure sync обновляет только [service_validation_report.md](service_validation_report.md), этот файл и [persistence_log.jsonl](persistence_log.jsonl). `USER-001` остаётся deferred/non-blocking. Stage 05 этим sync не запускается.
+
+## Accepted Stage 04 capabilities
+
+- issue continuation и duplicate prevention;
+- requirements approval и reopen;
+- разделение solution / contract / output;
+- complex/linked readiness;
+- retention lifecycle;
+- `GOV-001`;
+- optional attachment artifacts.
 
 ## Минимальная загрузка при старте `Service Mode`
 
@@ -132,13 +148,13 @@ Updated: `2026-06-16T16:48:11Z`
 
 Неблокирующие deferred items:
 
-- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует commit-ready package.
+- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует accepted Stage 04 state.
 - Concrete concept folders не созданы: пользователь не задавал concept slug и initial scope.
 
 <a id="next-step-marker"></a>
 
 ## Next-step marker
 
-Next status: `ready_for_runtime_use_or_new_service_issue`.
+Next status: `ready_for_stage_05_or_new_service_issue`.
 
-Следующий рабочий шаг в `Service Mode`: открывать новый service issue через lifecycle. Следующий рабочий шаг в `Execution Mode`: запросить у пользователя `concept_slug`, title, reason и initial scope перед созданием runtime concept folders.
+Следующий рабочий шаг: отдельной задачей запустить Stage 05 либо открыть новый service issue. Этот closure sync Stage 05 не запускает.
