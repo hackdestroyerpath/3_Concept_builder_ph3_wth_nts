@@ -1,62 +1,48 @@
 # Протокол Requirements
 
 Parent: [Каталог протоколов](../catalog.md)  
-Owner issue: `EXEC-008`  
+Owner issue: `EXEC-008` / `USER-005`  
 Protocol ID: `service/requirements`  
 Источник истины: `Protocols/service_protocols/requirements_protocol.md`  
 Status: `available`  
-Updated: `2026-06-05T09:52:50Z`
+Updated: `2026-06-19T13:20:00Z`
 
 ## Назначение
 
-`Requirements` — обязательный checkpoint перед requalification, solution, contract, execution и closure выбранного issue. QA помогает уточнить требования, но не является финальным источником истины. Финальный источник истины перед solution — утверждённый `Issues/<issue_id>/requirements.md`.
+`Requirements` — обязательный checkpoint перед requalification, solution, contract, execution, validation и closure выбранного service issue. Финальным источником истины перед solution является сохранённый `Issues/<issue_id>/requirements.md`; чат, QA и agent analysis выступают только источниками требований.
 
-Требования создаются даже если [Question Answer](question_answer_protocol.md) был пропущен. Это предотвращает расхождение между чатовым обсуждением и файловым источником истины.
-
-Протокол применяется в `Service Mode`. Для будущего `Execution Mode` структура требований будет использовать concept-local issue paths после создания execution-слоя.
-
-## Когда использовать
-
-| Состояние | Действие |
-|---|---|
-| `active: requirements` | создать, обновить или вынести requirements на утверждение |
-| `qa` завершён или пропущен | подготовить draft requirements |
-| Пользователь изменил требования | обновить `requirements.md` и approval log |
-| Materially important изменение найдено после approval | вернуть phase к `requirements` |
-| Requirements уже approved | не менять молча; перейти к requalification/solution routing |
+Требования сохраняются и при пропущенном QA, чтобы scope и критерии оставались проверяемыми вне чата.
 
 ## Обязательные входы
 
 | Вход | Источник |
 |---|---|
-| Выбранный issue | [../../Issues/issue_registry.jsonl](../../Issues/issue_registry.jsonl) и, если есть, `Issues/<issue_id>/state.md` |
-| Reason | registry `reason_summary` или `Issues/<issue_id>/reason.md` |
-| Input refs | `input_ref`, Inbox manifest или source material |
-| QA trace | `Issues/<issue_id>/qa/` или `qa_skipped_with_reason` |
+| Выбранный issue | [../../Issues/issue_registry.jsonl](../../Issues/issue_registry.jsonl) и существующий `Issues/<issue_id>/state.md` |
+| Reason | `Issues/<issue_id>/reason.md` или registry `reason_summary` |
+| Input refs | registry `input_ref`, Inbox manifest или source material |
+| QA trace | `Issues/<issue_id>/qa/`, QA summary или `qa_skipped_with_reason` |
 | Dependency status | [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl) |
-| Page registry | [../../State/page_registry.jsonl](../../State/page_registry.jsonl) |
+| Existing focus | [existing_issue_protocol.md](existing_issue_protocol.md) |
 | Persistence rules | [../common/persistence_protocol.md](../common/persistence_protocol.md) |
-| Protocol catalog | [../catalog.md](../catalog.md) |
 
 ## Preconditions
 
-1. Issue выбран и имеет `status = active`, `phase = requirements`, либо перевод в эту phase уже записан через [existing_issue_protocol.md](existing_issue_protocol.md).
-2. QA либо завершён, либо явно пропущен с reason, либо не нужен для первого draft.
-3. Blocking dependencies не мешают формулированию requirements.
-4. Требования можно сохранить в runtime issue folder или честно зафиксировать невозможность записи.
-5. Нет другого утверждённого `requirements.md`, который агент собирается молча заменить; история изменений должна фиксироваться в approval log.
+1. Issue выбран и имеет `status = active`, `phase = requirements`, либо такой переход уже сохранён.
+2. Reason/source существует; иначе применяется `blocked_on_missing_source`.
+3. QA завершён, пропущен с reason или признан ненужным для первого draft.
+4. Stale dependency, влияющий на требования, блокирует approval.
+5. Approved requirements не заменяются без reopen и нового решения пользователя.
+6. Runtime folder создаётся только при фактической записи phase artifact; пустая папка запрещена.
 
-## Источник истины
-
-Основной файл:
+## Source of truth
 
 ```text
 Issues/<issue_id>/requirements.md
 ```
 
-Дополнительный machine mirror `requirements.jsonl` допустим только если дерево требований стало слишком большим для удобного Markdown. `requirements.md` остаётся главным читаемым источником истины.
+`requirements.jsonl` допустим только как derived mirror. Downstream artifacts используют approved Markdown, а не чатовые формулировки. Неподтверждённая запись не считается review или approval state.
 
-## Минимальная структура `requirements.md`
+## Минимальная структура
 
 ```text
 # Требования — <issue_id>
@@ -71,12 +57,13 @@ Source issue: <issue_id>
 - Issue state: ...
 - Reason: ...
 - Input: ...
-- QA summary: ...
+- QA trace: completed | skipped | not_required
+- QA skip reason: ...
 
 ## Дерево требований
 | REQ-ID | Parent | Requirement | Source | Status | Acceptance note |
 |---|---|---|---|---|---|
-| REQ-001 | none | ... | reason/input/QA/user/agent_analysis | draft | ... |
+| REQ-001 | none | ... | reason/input/QA/user/agent_analysis/dependency | draft | ... |
 
 ## Исключения и нецели
 - ...
@@ -89,115 +76,64 @@ Source issue: <issue_id>
 |---|---|---|---|
 ```
 
-Каждое требование должно быть проверяемым. Непроверяемые формулировки вроде “сделать нормально” не являются requirement.
+## Проверка готовности requirements packet
 
-## Поля requirement
-
-| Field | Значение |
+| Gate | Pass condition |
 |---|---|
-| `REQ-ID` | стабильный ID, например `REQ-001` |
-| `Parent` | parent requirement или `none` |
-| `Requirement` | проверяемая формулировка |
-| `Source` | `issue`, `reason`, `input`, `QA`, `user_assertion`, `agent_analysis`, `dependency` |
-| `Status` | `draft`, `review`, `approved`, `removed`, `changed` |
-| `Acceptance note` | как понять, что requirement учтён |
+| Source reason | каждое top-level требование связано с reason, input, QA, user decision или dependency |
+| QA trace | указан QA summary либо explicit skip reason с risk note |
+| Requirement IDs | каждый requirement имеет стабильный `REQ-...`; ID не переиспользуется |
+| Acceptance notes | каждое требование имеет проверяемый acceptance note |
+| Non-goals | границы scope записаны явно |
+| Approval log | approval, reopen, change и removal фиксируются в журнале |
+| Reopen behavior | materially important change возвращает status к `reopened` и phase к `requirements` |
 
-ID требования не переиспользуется после удаления. Removed requirement остаётся в журнале или таблице со status `removed`, если на него уже ссылались QA, solution или contract.
+Непроверяемая формулировка превращается в вопрос, risk или blocker, а не в requirement.
 
-## Порядок создания draft
+## Создание и обновление
 
-1. **Focus read**: прочитать issue entry, reason, input refs, QA summary и dependency status.
-2. **Source map**: перечислить, откуда берётся каждое требование.
-3. **Draft tree**: сформировать requirements tree с ID, source и acceptance note.
-4. **Non-goals**: явно вынести исключения, чтобы scope не расширялся без approval.
-5. **Risk assumptions**: записать допущения, которые не блокируют draft, но могут вернуть phase к requirements позже.
-6. **Persistence**: сохранить `requirements.md`, обновить issue registry paths/status и [../../State/page_registry.jsonl](../../State/page_registry.jsonl), если файл создан.
-7. **Review packet**: показать пользователю краткое дерево требований на утверждение.
+1. Читаются registry row, state, reason, input refs, QA trace и dependency status.
+2. Для каждого requirement фиксируются source, stable ID и acceptance note.
+3. Non-goals и assumptions отделяются от обязательных требований.
+4. `requirements.md` сохраняется раньше registry/page-registry mirrors.
+5. После подтверждённой записи packet получает status `review`.
 
-## Утверждение требований
+При изменении существующего файла сохраняется approval history. Использованные downstream IDs не удаляются: прежняя формулировка получает `changed` или `removed`, а новая версия фиксируется отдельно.
 
-Пользователь может:
+## Approval и reopen
 
-| Ответ | Действие агента |
-|---|---|
-| `утверждаю requirements` / `утвердить` | перевести `requirements.md` в `approved` |
-| `добавить REQ ...` | добавить requirement и снова вынести на review |
-| `изменить REQ-...` | пометить старую формулировку `changed`, записать новую версию |
-| `убрать REQ-...` | пометить requirement `removed` с reason |
-| `вопрос по REQ-...` | ответить локально или вернуть phase к QA, если нужен новый materially important answer |
+Approval переводит файл в `Status: approved`, заполняет actor/time, сохраняет `requirements_path` и направляет issue к requalification либо solution. Тип issue не меняется молча.
 
-После утверждения:
+Materially important изменение approved scope, acceptance note, non-goal или risk:
 
-1. `requirements.md` получает `Status: approved`;
-2. registry поле `requirements_path` указывает на файл;
-3. issue phase переходит к `requalification` или `solution` по [catalog](../catalog.md);
-4. агент не меняет requirements молча;
-5. materially important изменение возвращает phase к `requirements` и добавляет запись в approval log.
-
-## Правило пропуска QA
-
-Если [question_answer_protocol.md](question_answer_protocol.md) не запускался, в `requirements.md` обязательно фиксируется:
-
-```text
-QA: skipped
-Skip reason: <почему вопросов не требовалось>
-Risk: <какие допущения остаются, если есть>
-```
-
-Пропуск без reason запрещён. Иначе contract coverage теряет проверяемое основание для отсутствующих QA-ответов.
-
-## Обновление уже существующих требований
-
-Если `requirements.md` существует:
-
-1. перечитать текущий файл и issue state;
-2. определить, меняется ли scope, acceptance note, non-goals или risk;
-3. сохранить изменение в approval log;
-4. не удалять старые requirement IDs, если на них ссылаются downstream artifacts;
-5. если approved requirements меняются, вернуть phase к `requirements` и запросить новое утверждение.
+- переводит файл в `reopened`;
+- возвращает issue в phase `requirements`;
+- останавливает downstream execution;
+- добавляет строку approval log;
+- требует нового approval.
 
 ## Requalification handoff
 
-После approved requirements агент проверяет тип issue:
-
-| Условие | Действие |
+| Условие | Routing |
 |---|---|
-| Requirements можно выполнить одним work package | оставить `type = simple` и перейти к solution |
-| Requirements требуют независимых children, разные outputs или dependency sequencing | предложить requalification в `complex` через [complex_issue_protocol.md](complex_issue_protocol.md) |
-| Тип меняется | запросить утверждение пользователя, не менять молча |
-| Нужна dependency-связь без parent/child | route к [linked_issues_protocol.md](linked_issues_protocol.md) |
-
-На этом шаге `solution/contract/output` не выполняются. Этот протокол доводит issue только до approved requirements и next routing к [complex_issue_protocol.md](complex_issue_protocol.md), [linked_issues_protocol.md](linked_issues_protocol.md) или [solution_contract_output_protocol.md](solution_contract_output_protocol.md), если issue остаётся simple.
-
-## Формат ответа на review
-
-```text
-Сохранено: Issues/<issue_id>/requirements.md.
-Status: review.
-Краткое дерево требований:
-| ID | Requirement | Acceptance note |
-|---|---|---|
-| REQ-001 | ... | ... |
-
-Доступные ответы: утвердить / добавить / изменить / убрать / вопрос по REQ-ID.
-```
-
-Если запись не подтверждена, агент возвращает `blocked_on_persistence` или `package_draft_not_committed` с write set и не заявляет, что requirements вынесены на утверждение.
+| Один work package, один output и один contract | simple issue → [solution_contract_output_protocol.md](solution_contract_output_protocol.md) |
+| Независимые outputs, children или sequencing | предложение complex через [complex_issue_protocol.md](complex_issue_protocol.md) |
+| Внешняя dependency без parent/child | [linked_issues_protocol.md](linked_issues_protocol.md) |
 
 ## Failure behavior
 
 | Сбой | Статус | Действие |
 |---|---|---|
-| QA содержит unresolved blocking unknown | `blocked_on_qa_unknown` | вернуться к [question_answer_protocol.md](question_answer_protocol.md) |
-| Нет reason/source | `blocked_on_missing_source` | вернуться к intake/reason repair |
-| Dependency stale влияет на requirements | `blocked_on_stale_dependency` | обновить dependency readiness и запросить required artifact |
-| Requirements conflict | `needs_requirements_decision` | показать конфликт и варианты merge/split/defer |
-| User approval ambiguous | `needs_confirmation` | сохранить draft, запросить точное решение |
-| Нельзя записать файл | `blocked_on_persistence` | не считать requirements источником истины |
+| Unresolved blocking QA unknown | `blocked_on_qa_unknown` | вернуться к [question_answer_protocol.md](question_answer_protocol.md) |
+| Нет reason/source | `blocked_on_missing_source` | repair intake/reason |
+| Dependency stale | `blocked_on_stale_dependency` | обновить readiness и required artifact |
+| Requirements conflict | `needs_requirements_decision` | merge/split/defer decision |
+| Approval ambiguous | `needs_confirmation` | сохранить review state без approval |
+| Persistence недоступен | `blocked_on_persistence` | не объявлять requirements source of truth |
 
 ## Completion signal
 
-Протокол завершён, когда `requirements.md` сохранён и вынесен на review, утверждён пользователем, либо работа остановлена с честным blocker. При approval следующий routing — requalification или solution по [catalog](../catalog.md); для simple issue следующий phase-протокол — [solution_contract_output_protocol.md](solution_contract_output_protocol.md).
+Протокол завершён после подтверждённой записи review/approved state либо после сохранения честного blocker. После approval применяется requalification или [Solution / Contract / Output protocol](solution_contract_output_protocol.md).
 
 ## Связанные файлы
 
@@ -207,7 +143,6 @@ Status: review.
 - [Solution / Contract / Output protocol](solution_contract_output_protocol.md)
 - [Complex Issue protocol](complex_issue_protocol.md)
 - [Linked Issues protocol](linked_issues_protocol.md)
-- [New issue protocol](new_issue_protocol.md)
 - [Service state](../../State/service_state.md)
 - [Issue registry](../../Issues/issue_registry.md)
 - [Issue registry JSONL](../../Issues/issue_registry.jsonl)

@@ -4,7 +4,7 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-002` / `CB-STAGE-03`  
 Источник истины: `Instructions/execution_mode_project_instructions.md`  
 Status: `commit_ready_source`  
-Updated: `2026-06-17T21:27:32Z`
+Updated: `2026-06-19T11:50:00Z`
 
 ## Назначение
 
@@ -21,6 +21,8 @@ Updated: `2026-06-17T21:27:32Z`
 3. Открой [Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md).
 4. Определи active concept, active issue, phase, blockers и ближайший execution/common protocol.
 5. Если active concept не выбран, не придумывай папку концепции. Используй [Concepts/_template/README.md](../Concepts/_template/README.md) только после явного пользовательского запроса или approved issue.
+
+Агенту запрещено вызывать или использовать Codex bot, запрашивать у него review, генерацию, редактирование или действия с PR/issues, отвечать на его комментарии и использовать его вывод как evidence. Только пользователь может самостоятельно запускать Codex. Автоматически появившиеся комментарии Codex игнорируются и не включаются в validation evidence.
 
 Загружай минимальный focus packet: concept README, локальный concept state, local page registry, active issue, выбранный протокол, affected concept pages и прямые зависимости. Не загружай весь репозиторий без причины.
 
@@ -51,5 +53,4 @@ Updated: `2026-06-17T21:27:32Z`
 - [Protocol catalog](../Protocols/catalog.md)
 - [Context loading protocol](../Protocols/common/context_loading_protocol.md)
 - [Persistence protocol](../Protocols/common/persistence_protocol.md)
-
 - [Final validation protocol](../Protocols/common/final_validation_protocol.md)

@@ -4,7 +4,7 @@ Parent: [Каталог протоколов](../catalog.md)
 Owner issue: `EXEC-012`  
 Источник истины: `Protocols/common/final_validation_protocol.md`  
 Status: `available`  
-Updated: `2026-06-05T11:45:45Z`
+Updated: `2026-06-19T11:50:00Z`
 
 ## Назначение
 
@@ -42,9 +42,28 @@ Updated: `2026-06-05T11:45:45Z`
 12. persistence log не содержит записи о проверяемой операции или честного `package_draft_not_committed` статуса;
 13. metadata статусы одного и того же протокола расходятся между Markdown-шапкой, [catalog.jsonl](../catalog.jsonl) и [page_registry.jsonl](../../State/page_registry.jsonl);
 14. production Markdown содержит разговорные, оценочные или саркастические фразы, не имеющие операционной роли;
-15. production metadata ссылается на development-only материалы как на рабочие пути репозитория.
+15. production metadata ссылается на development-only материалы как на рабочие пути репозитория;
+16. агент вызывал или использовал Codex bot, запрашивал у него review, генерацию, редактирование либо действия с PR/issues, отвечал на его комментарии или использовал его вывод как evidence;
+17. direct blocking dependency после нормализации имеет readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`.
 
 `pass_with_deferred_items` разрешён только когда deferred items явно неблокирующие, имеют owner, reason и next action.
+
+## GOV-001 — hard gate Codex
+
+Только пользователь может самостоятельно запускать Codex. Это не даёт агенту права взаимодействовать с Codex или использовать его результат. Автоматически появившиеся комментарии Codex игнорируются: агент не отвечает на них, не включает их IDs или статусы в validation/persistence evidence и не считает их проверкой.
+
+Если агент нарушил GOV-001, текущая проверка получает `blocked`, а все изменения после точки нарушения требуют отдельного ручного аудита. Codex-derived evidence удаляется из production report/log до повторной проверки.
+
+## Dependency normalization для closure
+
+Canonical source для dependency normalization — [Linked Issues protocol](../service_protocols/linked_issues_protocol.md). Этот протокол не дублирует legacy chronology table, а использует уже нормализованный результат и его evidence.
+
+Для execution, validation и closure действует минимальный gate:
+
+- только normalized `ready` разрешает переход;
+- `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` и `unsatisfied` блокируют переход;
+- raw legacy `status = satisfied` не равен `ready` без required artifact/state evidence;
+- observed readiness и evidence каждого direct blocking edge фиксируются в validation report.
 
 ## Процедура проверки
 
@@ -65,14 +84,16 @@ Updated: `2026-06-05T11:45:45Z`
 6. Проверь, что каждый дочерний Markdown-файл содержит parent link в шапке.
 7. Для каждого orphan-кандидата выбери одно действие: добавить ссылку, добавить registry entry или удалить лишний файл.
 
-### 3. JSONL и registry check
+### 3. JSONL, registry и dependency readiness check
 
 1. Каждый `.jsonl` парсится как независимые JSON objects, по строке за раз.
 2. `issue_registry.jsonl` содержит стабильные `issue_id`, `status`, `phase`, `dependency_refs`, `validation_path`, `next_action`.
 3. `dependency_graph.jsonl` содержит metadata record и edge records.
 4. Все `dependency_refs` у issue существуют в graph.
 5. Blocking edges не создают cycles.
-6. Зависимая задача не marked ready, если blocking dependency не satisfied/deferred/rejected/not_applicable.
+6. Нормализуй каждый direct blocking edge строго по [Linked Issues protocol](../service_protocols/linked_issues_protocol.md).
+7. Разрешай execution, validation и closure только при normalized `ready`.
+8. Graph/registry mismatch или evidence conflict делает validation `blocked` до repair.
 
 ### 4. Protocol catalog check
 
@@ -81,7 +102,7 @@ Updated: `2026-06-05T11:45:45Z`
 3. Planned protocol не исполняется как available.
 4. Для новых protocol-файлов есть запись в page registry и parent link.
 
-### 5. Language, style и boundary check
+### 5. Language, style, governance и boundary check
 
 1. Читаемые Markdown-файлы проверяются на русский основной язык.
 2. Английский допускается для путей, ID, статусов, JSONL keys, service names и устойчивых технических терминов.
@@ -89,6 +110,7 @@ Updated: `2026-06-05T11:45:45Z`
 4. Production tree проверяется против верхних директорий: `README.md`, `State/`, `Instructions/`, `Protocols/`, `Issues/`, `Inbox/`, `Concepts/`.
 5. Dev-only материалы остаются вне production tree.
 6. Metadata может ссылаться на исходный handoff как на внешний источник происхождения, но не должна указывать development-only файлы как рабочие target paths.
+7. Execution history и production evidence проверяются на GOV-001; автоматически появившиеся Codex comments не учитываются.
 
 ### 6. Metadata, issue и contract coverage
 
@@ -97,14 +119,16 @@ Updated: `2026-06-05T11:45:45Z`
 3. Для каждого deferred item есть reason и next action.
 4. Контракт проверяется по пунктам: рабочая сеть, связи, no orphan, no dev materials, state/protocol/issue/concept sources of truth, русский язык, checkpoint continuity и финальный report.
 5. Runtime requirements проверяются только для реально существующих runtime issue. Если runtime issue не создавались, статус requirements coverage — `not_applicable_for_bootstrap`.
+6. Для закрываемого issue validation report перечисляет normalized direct dependency readiness и evidence для каждого blocking edge.
 
 ### 7. Report и persistence
 
 1. Сохрани validation report: [State/service_validation_report.md](../../State/service_validation_report.md) для root scope.
-2. Обнови [State/page_registry.jsonl](../../State/page_registry.jsonl), если report или protocol добавлены.
+2. Обнови [State/page_registry.jsonl](../../State/page_registry.jsonl), если report или protocol добавлены либо изменили links/backlinks.
 3. Обнови [Issues/issue_registry.jsonl](../../Issues/issue_registry.jsonl), если проверка закрывает bootstrap issue.
 4. Добавь запись в [State/persistence_log.jsonl](../../State/persistence_log.jsonl).
-5. Только после этого отвечай пользователю финальным статусом.
+5. Если normalized edge state должен стать новым operational source of truth, обнови graph и registry mirrors одной controlled transaction до closure.
+6. Только после этого отвечай пользователю финальным статусом.
 
 ## Формат результата
 
@@ -112,7 +136,7 @@ Updated: `2026-06-05T11:45:45Z`
 |---|---|---|
 | `pass` | blockers и deferred items отсутствуют | пакет готов к commit |
 | `pass_with_deferred_items` | blockers отсутствуют, но есть явно deferred non-blocking items | пакет готов к commit, deferred items перечислены |
-| `blocked` | есть broken links, orphan, graph cycle, boundary breach, language failure или blocking issue | пакет не готов, нужен repair checkpoint |
+| `blocked` | есть broken links, orphan, graph cycle, dependency readiness/evidence failure, GOV-001 violation, boundary breach, language failure или blocking issue | пакет не готов, нужен repair checkpoint |
 
 ## Связанные файлы
 
@@ -123,6 +147,7 @@ Updated: `2026-06-05T11:45:45Z`
 - [Persistence protocol](persistence_protocol.md)
 - [Persistence log](../../State/persistence_log.jsonl)
 - [Protocol catalog](../catalog.md)
+- [Linked Issues protocol](../service_protocols/linked_issues_protocol.md)
 - [Issue registry](../../Issues/issue_registry.md)
 - [Dependency graph](../../Issues/dependency_graph.jsonl)
 - [Service validation report](../../State/service_validation_report.md)

@@ -5,69 +5,68 @@ Owner issue: `EXEC-010`
 Protocol ID: `service/linked_issues`  
 Источник истины: `Protocols/service_protocols/linked_issues_protocol.md`  
 Status: `available`  
-Updated: `2026-06-05T09:52:44Z`
+Updated: `2026-06-18T14:34:00Z`
 
 ## Назначение
 
-Этот протокол управляет связями между `issue`, которые не образуют parent/child-дерево. Связь нужна, когда один issue зависит от результата, решения, файла, output, contract, validation или контекста другого issue.
+Этот протокол управляет связями между `issue`, которые не образуют parent/child tree. Связь нужна, когда один issue зависит от результата, решения, файла, output, contract, validation или контекста другого issue.
 
-Источник истины для root service scope — [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl). Registry хранит только краткие поля `linked_issue_ids`, `dependency_refs`, `dependency_ready` и `blocking_reason`; полная логика связи живёт в graph.
+Источник истины для root service scope — [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl). Registry хранит только mirror-поля: `linked_issue_ids`, `dependency_refs`, `dependency_ready`, `blocking_reason`. Полная логика edge живёт в graph.
 
-Для parent/child-разложения используется [complex_issue_protocol.md](complex_issue_protocol.md). Linked issue не должен маскировать complex decomposition, а complex issue не должен притворяться простой ссылкой, если есть настоящие blocking dependencies.
+Parent/child decomposition выполняется через [complex_issue_protocol.md](complex_issue_protocol.md). Linked edge не должен маскировать complex issue, а complex issue не должен притворяться простой ссылкой, если есть real blocking dependencies.
 
 ## Когда использовать
 
 | Состояние | Действие |
 |---|---|
 | Issue зависит от output другого issue | создать blocking edge `requires_output` |
-| Issue зависит от attachment или source material другого issue | создать blocking edge `requires_attachment` |
+| Issue зависит от attachment/source другого issue | создать blocking edge `requires_attachment` |
 | Issue зависит от approved contract другого issue | создать blocking edge `requires_contract` |
 | Issue можно закрыть только после validation другого issue | создать blocking edge `requires_validation` |
-| Issue полезен как контекст, но не блокирует выполнение | создать non-blocking edge `informs` |
-| Два issue дублируют или пересекают scope | создать `duplicates_or_overlaps` и запросить merge/split decision |
-| Requirements или solution конфликтуют | создать `conflicts_with` и заблокировать closure до решения |
-| Target изменился после использования source | отметить dependent issue как `stale` |
+| Issue использует другой issue только как context | создать non-blocking edge `informs` |
+| Issue пересекаются или дублируются | создать `duplicates_or_overlaps` и запросить merge/split/defer decision |
+| Requirements/solution/output конфликтуют | создать `conflicts_with` и block closure до resolution |
+| Source artifact изменился после использования | отметить dependent as `stale` |
 
 ## Обязательные входы
 
 | Вход | Источник |
 |---|---|
-| Source / target issue entries | [../../Issues/issue_registry.jsonl](../../Issues/issue_registry.jsonl) |
+| Source/target issue rows | [../../Issues/issue_registry.jsonl](../../Issues/issue_registry.jsonl) |
 | Current graph | [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl) |
 | Active focus | [existing_issue_protocol.md](existing_issue_protocol.md) и [../../State/service_state.md](../../State/service_state.md) |
-| Requirements / solution / output pointers | registry paths и issue artifacts, если они существуют |
+| Requirements/solution/output pointers | registry paths и issue artifacts, если существуют |
 | Parent/child summary | [complex_issue_protocol.md](complex_issue_protocol.md), если связь внутри complex scope |
 | Page registry | [../../State/page_registry.jsonl](../../State/page_registry.jsonl) |
 | Persistence rules | [../common/persistence_protocol.md](../common/persistence_protocol.md) |
-| Protocol catalog | [../catalog.md](../catalog.md) и [../catalog.jsonl](../catalog.jsonl) |
+| Catalog | [../catalog.md](../catalog.md) и [../catalog.jsonl](../catalog.jsonl) |
 
 ## Preconditions
 
 1. Оба issue существуют в registry текущего scope или создаются одной controlled transaction.
 2. Reason связи понятен: какой artifact, decision или state требуется и почему.
-3. Агент проверил duplicate/overlap risk перед созданием нового edge.
-4. Blocking edge не создаёт цикл в текущем graph.
+3. Duplicate/overlap risk проверен перед созданием edge.
+4. Blocking edge не создаёт cycle в текущем graph.
 5. Registry и graph можно обновить в одной persistence transaction.
-6. Если связь меняет scope или блокирует active issue, пользовательское решение требуется до execution.
+6. Если связь меняет scope или блокирует active issue, user decision требуется до execution.
+7. Runtime issue folders не создаются для одной лишь связи; state update выполняется только если issue folder уже существует или phase требует state artifact.
 
-## Направление edge
+## Direction convention
 
-В текущем root graph используется convention: `source_issue_id` — issue, который предоставляет prerequisite или required artifact; `target_issue_id` — issue, который зависит от source. Metadata graph прямо фиксирует: edge идёт от dependency/source к dependent/target.
-
-Чтобы runtime edge не был двусмысленным, новые записи должны также указывать смысл связи в `reason` и, при необходимости, добавлять mirror-поля:
+В root graph используется convention:
 
 | Поле | Значение |
 |---|---|
-| `source_issue_id` | issue, от которого зависит другой issue в текущей graph convention |
-| `target_issue_id` | issue, который blocked или informed |
-| `dependent_issue_id` | optional mirror: issue, который зависит |
-| `dependency_issue_id` | optional mirror: issue, который предоставляет dependency |
+| `source_issue_id` | dependency issue, которое предоставляет prerequisite |
+| `target_issue_id` | dependent issue, которое blocked или informed |
+| `dependent_issue_id` | optional mirror для читабельности |
+| `dependency_issue_id` | optional mirror для читабельности |
 
-Если future migration поменяет convention, graph metadata должен быть обновлён вместе со всеми edge readers. До этого агент не смешивает две семантики в одном graph.
+Если future migration поменяет convention, graph metadata должен быть обновлён вместе со всеми edge readers. В одном graph нельзя смешивать две direction semantics.
 
 ## Минимальная запись edge
 
-Новые runtime edges должны быть богаче bootstrap-записей. Минимальная нормализованная запись:
+Новые runtime edges должны быть богаче bootstrap-записей:
 
 ```json
 {
@@ -75,11 +74,13 @@ Updated: `2026-06-05T09:52:44Z`
   "edge_id": "EDGE-<dependency>-TO-<dependent>",
   "source_issue_id": "<dependency_issue_id>",
   "target_issue_id": "<dependent_issue_id>",
+  "dependent_issue_id": "<dependent_issue_id>",
+  "dependency_issue_id": "<dependency_issue_id>",
   "relation_type": "requires_output | requires_attachment | requires_contract | requires_validation | informs | duplicates_or_overlaps | conflicts_with",
   "relation": "<legacy mirror if needed>",
   "blocking": true,
   "required_artifacts": ["output/report.md"],
-  "readiness": "ready | blocked | stale | cycle_blocked",
+  "readiness": "ready | blocked | stale | cycle_blocked | satisfied_for_draft | unsatisfied",
   "status": "ready | blocked | stale | cycle_blocked | satisfied_for_draft | unsatisfied",
   "stale_reason": null,
   "reason": "почему dependent issue не может двигаться без dependency",
@@ -88,74 +89,92 @@ Updated: `2026-06-05T09:52:44Z`
 }
 ```
 
-Bootstrap edges могут сохранять старые поля `relation` и `status`, но linked issue protocol при чтении нормализует их в `relation_type` и `readiness` для принятия решения.
+Bootstrap edges могут сохранять legacy `relation` и `status`, но protocol при чтении обязан нормализовать их по совокупности status, reason, chronology и artifact/validation evidence перед lifecycle decision.
 
-## Типы связей
+### Legacy normalization
+
+| Legacy input / evidence | Normalized readiness | Lifecycle meaning |
+|---|---|---|
+| `status = satisfied`, reason содержит исторический `satisfied for draft`, но более поздние registry/validation records показывают source и dependent как terminal/validated, а required artifact или validation coverage существует | `ready` | позднее финальное evidence supersedes ранний draft-only marker; закрытые/валидированные legacy issue не понижаются обратно |
+| `status = satisfied`, reason/notes явно говорят `satisfied for draft` или `draft-only`, и более позднее final evidence отсутствует | `satisfied_for_draft` | разрешены analysis, requirements и explicitly scoped implementation draft; runtime execution approval, validation и closure заблокированы |
+| `status = satisfied`, draft-only qualifier отсутствует, source issue terminal/validated и required artifact существует и подходит dependent issue | `ready` | prerequisite подтверждён artifact/state evidence; dependent может продолжать |
+| `status = satisfied`, но evidence недостаточно, противоречиво или required artifact не проверен | `blocked` с `blocking_reason = legacy_satisfied_requires_evidence` | слово `satisfied` само по себе не авторизует execution/validation/closure |
+| `status = satisfied_for_draft`, но после него есть committed final validation/artifact evidence, которое явно покрывает edge condition | `ready` | later final evidence upgrades the historical draft-only state |
+| `status = satisfied_for_draft` без более позднего final evidence | `satisfied_for_draft` | сохранить draft-only boundary |
+| `status = unsatisfied` | `unsatisfied` | prerequisite отсутствует, dependent blocked |
+| missing `relation_type` with known legacy `relation` | map to equivalent specific relation when evidence exists; otherwise keep legacy relation and record normalization note | semantics не выдумываются без reason/artifact evidence |
+
+Chronology определяется по `updated_at`, validation records, registry terminal state и artifact existence. Финальное evidence должно быть более поздним или явно охватывать edge condition; один terminal label без required artifact/coverage недостаточен. При конфликте evidence действует conservative `blocked`, а не автоматическое повышение или понижение.
+
+Нормализация является read-time decision и не требует массовой migration bootstrap graph. Если edge изменяется по существу, write transaction сохраняет normalized fields, не удаляя нужные legacy mirrors.
+
+## Relation types
 
 | `relation_type` | Когда использовать | Blocking по умолчанию |
 |---|---|---|
 | `requires_output` | dependent использует output dependency issue | да |
-| `requires_attachment` | dependent использует attachment/source file dependency issue | да |
+| `requires_attachment` | dependent использует attachment/source dependency issue | да |
 | `requires_contract` | dependent требует approved contract dependency issue | да |
 | `requires_validation` | dependent можно продолжать только после validation dependency issue | да |
-| `informs` | dependency полезен как context reference, но не блокирует выполнение | нет |
-| `duplicates_or_overlaps` | issue пересекаются и нужен merge/split/defer decision | да до решения |
-| `conflicts_with` | requirements, solution или outputs конфликтуют | да до разрешения |
+| `informs` | dependency полезен как context reference | нет |
+| `duplicates_or_overlaps` | нужен merge/split/defer decision | да до решения |
+| `conflicts_with` | requirements/solution/outputs конфликтуют | да до resolution |
 
-Relation `blocks_until_ready` допустима для bootstrap implementation edges. Для новых runtime issue предпочтительны конкретные relation types выше.
+Legacy `blocks_until_ready` допустима для bootstrap implementation edges. Новые runtime edges используют конкретные relation types.
 
 ## Readiness rule
 
 | Readiness | Значение | Что делать |
 |---|---|---|
-| `ready` | required artifact/state доступен и подходит dependent issue | dependent может продолжать |
-| `blocked` | dependency ещё не дала нужный artifact/state | dependent не идёт в execution/validation/closed |
+| `ready` | required artifact/state доступен и подходит dependent issue или подтверждён later final validation evidence | dependent может продолжать |
+| `blocked` | dependency ещё не дала нужный artifact/state или legacy evidence недостаточно | dependent не идёт в execution/validation/closed |
 | `stale` | dependency изменилась после использования dependent issue | dependent возвращается к affected requirements/contract check |
-| `cycle_blocked` | blocking edge создал бы цикл | edge не активируется; нужен user/parent decision |
-| `satisfied_for_draft` | bootstrap dependency достаточно закрыта для draft-реализации | можно двигать implementation draft, но финальная validation ещё нужна |
-| `unsatisfied` | prerequisite ещё не реализован | dependent остаётся blocked |
+| `cycle_blocked` | blocking edge создал бы cycle | active edge не сохраняется; нужен decision/repair |
+| `satisfied_for_draft` | prerequisite достаточно закрыта только для явно ограниченного draft | разрешить draft work; не разрешать runtime execution approval, validation или closure до `ready` |
+| `unsatisfied` | prerequisite не реализован | dependent remains blocked |
 
-QA и requirements dependent issue могут продолжаться, если им не нужен отсутствующий artifact. Execution, validation и closure запрещены при active blocking edge со status `blocked`, `stale`, `cycle_blocked` или `unsatisfied`.
+QA и requirements dependent issue могут продолжаться, если им не нужен отсутствующий artifact. Runtime execution approval, validation и closure запрещены при active blocking edge со readiness `blocked`, `stale`, `cycle_blocked`, `satisfied_for_draft` или `unsatisfied`. Existing terminal/validated legacy issue не reopen автоматически: сначала применяется chronology-aware normalization выше.
 
 ## Создание связи
 
-1. **Выбрать direction**: определить dependency issue и dependent issue по текущей graph convention.
-2. **Определить relation**: выбрать конкретный `relation_type` и required artifacts.
-3. **Проверить duplicate**: убедиться, что edge не повторяет существующую active связь.
-4. **Проверить cycle**: смоделировать добавление blocking edge в graph.
-5. **Если cycle найден**: не сохранять active blocking edge; dependent получает `dependency_ready = cycle_blocked` или `needs_discussion`.
-6. **Записать edge**: добавить строку в [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl), обновить metadata `edge_count`, `cycle_check`, `updated_at`.
-7. **Обновить registry**: добавить `dependency_refs`, `linked_issue_ids`, итог `dependency_ready`, `blocking_reason`.
-8. **Обновить state**: если runtime `state.md` существует, показать `blocked_by`, required artifact, safe actions и next step.
-9. **Сохранить transaction**: добавить запись в [../../State/persistence_log.jsonl](../../State/persistence_log.jsonl).
+1. **Выбрать direction**: определить dependency/source и dependent/target.
+2. **Определить relation**: выбрать конкретный `relation_type`, blocking flag и required artifacts.
+3. **Проверить duplicate**: existing active edge с тем же reason не дублируется.
+4. **Проверить overlap**: если scope совпадает, route к duplicate decision, а не создавать параллельный issue.
+5. **Проверить cycle**: смоделировать candidate blocking edge.
+6. **Если cycle найден**: не сохранять active blocking edge; dependent получает `cycle_blocked` или `needs_discussion`.
+7. **Записать edge**: добавить строку в graph, обновить metadata `edge_count`, `cycle_check`, `updated_at`.
+8. **Обновить registry**: `dependency_refs`, `linked_issue_ids`, `dependency_ready`, `blocking_reason`.
+9. **Обновить state**: если runtime `state.md` существует, показать blocker, required artifact, safe actions и next step.
+10. **Сохранить transaction**: добавить [../../State/persistence_log.jsonl](../../State/persistence_log.jsonl) entry.
 
-Edge не считается действующим, пока graph и registry не сохранены. Устная зависимость в чате не блокирует lifecycle, потому что чат не является graph.
+Edge не считается действующим, пока graph и registry mirror не сохранены.
 
 ## Cycle detection
 
-Cycle check выполняется только по blocking edges текущего scope. Non-blocking `informs` не создаёт blocking cycle.
+Cycle check выполняется только по active blocking edges текущего scope. Non-blocking `informs` не создаёт blocking cycle.
 
-Алгоритм:
+Algorithm:
 
-1. Построить directed graph по активным blocking edges.
-2. Добавить candidate edge.
-3. Проверить, появляется ли путь от dependent обратно к dependency.
-4. Если путь есть, candidate edge не записывается как active blocking.
-5. Сохранить blocker или discussion marker для dependent issue.
-6. Предложить варианты: убрать связь, поменять direction, сделать `informs`, объединить issue, создать parent complex issue через [complex_issue_protocol.md](complex_issue_protocol.md).
+1. Построить directed graph по active blocking edges.
+2. Добавить candidate edge dependency -> dependent.
+3. Проверить, появляется ли path от dependent обратно к dependency.
+4. Если path есть, candidate edge не записывается как active blocking.
+5. Сохранить blocker/discussion marker для dependent.
+6. Предложить repair: убрать связь, поменять direction, сделать `informs`, объединить issue, создать parent complex issue через [complex_issue_protocol.md](complex_issue_protocol.md).
 
-## Propagation при изменении dependency
+## Stale propagation
 
-Если dependency issue изменил requirements, solution, contract, output или validation после того, как dependent issue использовал его результат:
+Если dependency issue изменил requirements, solution, contract, output или validation после того, как dependent использовал его result:
 
 1. Найти direct dependents через graph.
 2. Для blocking dependents поставить `dependency_ready = stale`.
 3. В `blocking_reason` указать changed artifact и required recheck.
 4. Не закрывать dependent issue до повторной проверки affected requirements, solution или contract.
-5. Если dependency закрыт с notes, dependent должен явно принять notes как риск или превратить их в blocker.
+5. Если dependency closed with notes, dependent принимает notes как risk или blocker.
 6. Если dependency rejected/deferred/tombstone, blocking dependents получают `blocked` до пересмотра solution.
 
-Propagation не требует загрузки всего repository. Для локального шага достаточно edges выбранного issue, direct dependencies и parent summary.
+Propagation не требует repository-wide context. Достаточно edges selected issue, direct dependencies и parent summary.
 
 ## Blocked-status handling
 
@@ -172,22 +191,23 @@ Next step: wait / switch to dependency / change edge / ask user decision
 
 Registry mirror:
 
-- `dependency_refs`: список edge IDs;
-- `dependency_ready`: `blocked`, `stale` или `cycle_blocked`;
-- `blocking_reason`: короткое условие снятия блока.
+- `dependency_refs`: edge IDs;
+- `dependency_ready`: `blocked`, `stale`, `cycle_blocked` или `satisfied_for_draft`;
+- `blocking_reason`: short unblock condition, включая `legacy_satisfied_requires_evidence` при ambiguous legacy edge.
 
 ## Repair и удаление связи
 
-Связь можно изменить только с reason:
-
 | Ситуация | Действие |
 |---|---|
-| Dependency стала ready | обновить edge readiness/status и dependent `dependency_ready` |
-| Edge direction ошибочный | записать corrected edge и пометить старый как superseded/rejected, если такая политика уже есть |
+| Dependency стала ready | обновить edge readiness/status и dependent mirror |
+| Historical draft-only marker superseded by later final evidence | normalize to `ready`; не reopen validated issue |
+| Legacy `satisfied` доказан только для draft | сохранить `satisfied_for_draft`; не поднимать до ready |
+| Legacy evidence недостаточно | сохранить blocker до artifact/state verification |
+| Edge direction ошибочный | создать corrected edge и пометить old edge superseded/rejected, если policy есть |
 | Связь стала non-blocking | сменить relation to `informs`, `blocking = false`, снять blocker |
 | Issue объединяются | создать merge decision в affected issue state/registry |
 | Issue разделяются | использовать [complex_issue_protocol.md](complex_issue_protocol.md) или new linked issue |
-| Target удалён/tombstone | dependent получает blocker до пересмотра |
+| Target deleted/tombstone | dependent получает blocker до пересмотра |
 
 Полное удаление edge без следа запрещено, если на него уже ссылался registry или output. Минимум должен остаться reason в graph или affected issue state.
 
@@ -196,15 +216,18 @@ Registry mirror:
 | Сбой | Статус | Действие |
 |---|---|---|
 | Issue отсутствует в registry | `blocked_on_missing_issue` | создать/восстановить issue или отклонить связь |
-| Relation reason слабый | `needs_dependency_reason` | запросить конкретный required artifact/state |
-| Cycle detected | `cycle_blocked` | не активировать blocking edge; предложить repair options |
-| Required artifact отсутствует | `blocked_on_dependency_artifact` | заблокировать dependent или разрешить QA/requirements-only work |
-| Graph/status расходится с registry | `blocked_on_graph_registry_mismatch` | выполнить repair transaction |
+| Relation reason слабый | `needs_dependency_reason` | запросить concrete artifact/state |
+| Legacy `satisfied` не имеет достаточного evidence | `blocked_on_dependency_evidence` | не авторизовать execution; проверить required artifact/source validation |
+| Final и draft-only evidence конфликтуют | `blocked_on_dependency_evidence_conflict` | проверить chronology, required artifact и validation coverage |
+| Duplicate edge или duplicate issue risk | `needs_dedup_decision` | merge/split/link/defer decision |
+| Cycle detected | `cycle_blocked` | не активировать edge; предложить repair |
+| Required artifact отсутствует | `blocked_on_dependency_artifact` | block dependent или allow QA/requirements-only work |
+| Graph/status расходится с registry | `blocked_on_graph_registry_mismatch` | repair transaction |
 | Persistence недоступен | `blocked_on_persistence` | не считать edge созданным |
 
 ## Completion signal
 
-Протокол завершён, когда dependency edge сохранён или отклонён с reason, registry mirror обновлён, affected issue state отражает blocker/readiness, а [../../State/persistence_log.jsonl](../../State/persistence_log.jsonl) содержит transaction entry. Если edge blocked или stale, следующий routing показывает dependent issue как неготовый к execution/validation/closure.
+Протокол завершён, когда dependency edge сохранён или отклонён с reason, registry mirror обновлён, affected issue state отражает blocker/readiness, а persistence transaction записана. Если edge blocked, stale или draft-only, next routing показывает dependent issue как неготовый к runtime execution approval, validation и closure; later final evidence может нормализовать historical draft-only edge в `ready` без reopen validated issue.
 
 ## Связанные файлы
 

@@ -5,13 +5,13 @@ Owner issue: `USER-006` / `EXEC-005`
 Protocol ID: `service/issue_retention`  
 Источник истины: `Protocols/service_protocols/issue_retention_protocol.md`  
 Status: `available`  
-Updated: `2026-06-05T09:52:51Z`
+Updated: `2026-06-18T15:50:00Z`
 
 ## Назначение
 
-Этот протокол управляет хранением, архивированием, tombstone-свёрткой и допустимым удалением файлов `issue` и связанных `Inbox`-пакетов. Его цель — уменьшать рабочий шум без потери traceability.
+Этот протокол управляет archive, tombstone, delete semantics и Inbox cleanup для service-level issue. Его цель — уменьшать рабочий шум без потери traceability.
 
-Главное правило: cleanup не равен забыванию. `issue_id`, reason, decision, dependency refs, input refs и итоговые output refs должны оставаться проверяемыми даже после tombstone. Полное исчезновение истории запрещено, кроме временных и тяжёлых файлов, которые явно разрешены к удалению после tombstone-проверки.
+Основное правило: cleanup не равен забыванию. `issue_id`, reason, decision, dependency refs, input refs, output refs и validation evidence должны оставаться проверяемыми даже после tombstone. Полное исчезновение истории запрещено, кроме temporary/nonhistorical files, явно разрешённых к удалению после tombstone check.
 
 ## Политика по умолчанию
 
@@ -19,25 +19,25 @@ Updated: `2026-06-05T09:52:51Z`
 
 | Вариант | Когда допустим | Ограничение |
 |---|---|---|
-| `no_cleanup` | issue активен, blocked, deferred или нужен как dependency context | ничего не удалять и не перемещать |
-| `archive_full` | issue closed/rejected и полная история ещё нужна | переместить или сохранить runtime artifacts в `_archive` |
-| `tombstone_only` | полная история больше не нужна, но traceability нужна всегда | оставить минимальный tombstone и registry pointer |
-| `delete_nonhistorical` | временные, тяжёлые или дублирующие attachments после tombstone | удалить только после сохранения manifest/hash/reason |
-| `external_reference` | файл хранится вне репозитория | оставить ссылку, статус проверки и reason |
+| `no_cleanup` | issue active, approved, blocked, deferred или нужен как dependency context | ничего не удалять и не перемещать |
+| `archive_full` | issue closed/rejected и full history ещё нужна | сохранить runtime artifacts в `_archive` |
+| `tombstone_only` | full history больше не нужна, но traceability нужна всегда | оставить tombstone и registry pointer |
+| `delete_nonhistorical` | temporary/heavy/duplicate attachments после tombstone | удалить только после manifest/hash/reason |
+| `external_reference` | файл хранится вне repo | оставить ссылку, status проверки и reason |
 
-Immediate cleanup допустим только для явно временного файла, который не является source, reason, requirements, contract, output, validation, dependency evidence или user attachment с активной ссылкой.
+Immediate cleanup допустим только для явно temporary file, который не является source, reason, requirements, contract, output, validation, dependency evidence или active user attachment.
 
 ## Когда использовать
 
 | Trigger | Действие |
 |---|---|
-| Issue получил status `closed` | проверить archive-readiness и перенести историю в `_archive` при необходимости |
-| Issue получил status `rejected` | сохранить decision reason, затем archive или tombstone |
-| Нужно очистить закрытый issue от тяжёлых attachments | создать tombstone и удалить только разрешённые файлы |
-| Пользователь просит удалить, очистить, архивировать или уплотнить issue | выполнить retention decision, не удалять без traceability |
-| `Inbox/<input_id>/` связан только с закрытыми/rejected/tombstone issue | свернуть input packet до tombstone manifest или оставить archive reason |
+| Issue получил `closed` | проверить archive-readiness |
+| Issue получил `rejected` | сохранить rejection reason, затем archive/tombstone decision |
+| Нужно очистить closed issue от heavy attachments | создать tombstone/manifest, затем delete_nonhistorical |
+| Пользователь просит удалить/очистить/архивировать | выполнить retention decision, не удалять без traceability |
+| `Inbox/<input_id>/` связан только с rejected/tombstone/deleted issue | свернуть input packet до tombstone manifest или external/archive reference |
 | Dependency graph указывает на archived/tombstone issue | проверить, достаточно ли tombstone для dependents |
-| Page registry показывает устаревший runtime Markdown после archive/move | обновить registry и backlinks |
+| Page registry показывает устаревший runtime Markdown | обновить registry/backlinks через retention transaction |
 
 ## Обязательные входы
 
@@ -48,88 +48,99 @@ Immediate cleanup допустим только для явно временно
 | Archive entry point | [../../Issues/_archive/README.md](../../Issues/_archive/README.md) |
 | Tombstone entry point | [../../Issues/_tombstones/README.md](../../Issues/_tombstones/README.md) |
 | Inbox rules | [../../Inbox/README.md](../../Inbox/README.md) |
-| Active focus / state | [../../State/service_state.md](../../State/service_state.md) и [existing_issue_protocol.md](existing_issue_protocol.md) |
+| Active focus/state | [../../State/service_state.md](../../State/service_state.md) и [existing_issue_protocol.md](existing_issue_protocol.md) |
 | Dependency rules | [linked_issues_protocol.md](linked_issues_protocol.md) |
 | Page registry | [../../State/page_registry.jsonl](../../State/page_registry.jsonl) |
 | Persistence rules | [../common/persistence_protocol.md](../common/persistence_protocol.md) |
-| Protocol catalog | [../catalog.md](../catalog.md) и [../catalog.jsonl](../catalog.jsonl) |
+| Catalog | [../catalog.md](../catalog.md) и [../catalog.jsonl](../catalog.jsonl) |
 
 ## Preconditions
 
 1. Target issue существует в [../../Issues/issue_registry.jsonl](../../Issues/issue_registry.jsonl).
-2. Status issue допускает retention-действие: `closed`, `rejected`, `archived`, `tombstone` или явный cleanup для временных файлов.
-3. Для `active`, `approved`, `blocked`, `needs_discussion`, `creating` и `proposed` retention-действие запрещено, кроме read-only анализа.
-4. Для `deferred` cleanup запрещён без отдельного user/system decision, потому что deferred остаётся backlog-записью.
-5. Все active blocking dependencies из [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl) проверены.
-6. Сохранение tombstone или archive packet возможно в той же persistence transaction, что и обновление registry.
-7. Для удаления любого файла есть cleanup reason, список affected paths и проверка отсутствия active refs.
+2. Status допускает retention action: `closed`, `rejected`, `archived`, `tombstone` или explicit cleanup for temporary files.
+3. Для `active`, `approved`, `blocked`, `needs_discussion`, `creating` и `proposed` retention запрещён, кроме read-only analysis.
+4. Для `deferred` cleanup запрещён без separate user/system decision, потому что deferred остаётся backlog candidate.
+5. Active blocking dependencies проверены.
+6. Tombstone/archive packet сохраняется в той же transaction, что registry update.
+7. Для deletion есть cleanup reason, affected paths и proof отсутствия active refs.
+8. Empty archive/tombstone/runtime folders не создаются. Registry-only issue остаётся registry-only, если нет actual retained artifact.
 
 ## Retention states
 
-`status` в registry остаётся lifecycle-статусом. Для более точной политики runtime issue может дополнительно использовать optional поля `retention_status`, `archive_path`, `tombstone_path`, `cleanup_reason`, `cleanup_at` и `deleted_paths`.
+`status` в registry остаётся lifecycle status. Optional retention fields уточняют cleanup policy: `retention_status`, `archive_path`, `tombstone_path`, `cleanup_reason`, `cleanup_at`, `deleted_paths`.
 
 | `retention_status` | Значение |
 |---|---|
 | `active_runtime` | issue живёт в основной очереди, cleanup запрещён |
-| `closed_full_history` | issue закрыт, но полный context ещё нужен |
-| `archived_full_history` | полная история сохранена в `_archive` |
-| `tombstone_summary` | полная история свёрнута до tombstone |
-| `deleted_nonhistorical_files` | удалены только разрешённые временные/тяжёлые файлы |
-| `external_reference_only` | исходные тяжёлые файлы хранятся вне репозитория, в tombstone есть ссылка/status |
+| `closed_full_history` | issue закрыт, но full context ещё нужен |
+| `archived_full_history` | full history сохранена в `_archive` как canonical retained location |
+| `tombstone_summary` | history свёрнута до tombstone |
+| `deleted_nonhistorical_files` | удалены только temporary/heavy duplicate files |
+| `external_reference_only` | heavy files outside repo, tombstone содержит ref/status |
 
 ## Разрешённые переходы
 
 | From | To | Условие |
 |---|---|---|
-| `closed` | `archived` | validation/contract pass сохранён, active blockers отсутствуют или не требуют full runtime folder |
-| `rejected` | `archived` | rejection reason и decision сохранены |
-| `closed` / `rejected` | `tombstone` | tombstone содержит минимальную историю и active dependencies не требуют полного архива |
-| `archived` | `tombstone` | archive больше не нужен для active dependents |
-| `tombstone` | `deleted` | удаляются только nonhistorical files; tombstone, registry row и graph history остаются |
-| `deferred` | `archived` | только после отдельного decision, что issue больше не является backlog-кандидатом |
+| `closed` | `archived` | validation/contract pass сохранён, blockers не требуют active folder, archive становится canonical retained location |
+| `rejected` | `archived` | rejection reason и decision сохранены, archive становится canonical retained location |
+| `closed` / `rejected` | `tombstone` | tombstone содержит minimum history; dependents не требуют full archive |
+| `archived` | `tombstone` | archive больше не нужен active dependents |
+| `tombstone` | `deleted` | удаляются только nonhistorical files; tombstone/registry/graph remain |
+| `deferred` | `archived` | только после decision, что issue больше не backlog candidate |
 
-Переходы `active -> archived`, `blocked -> tombstone` и `approved -> deleted` запрещены. Если пользователь просит такое действие, агент возвращает blocker и объясняет, какие зависимости или статусы мешают.
+Copy-only archive mirror без retirement runtime source не является переходом в lifecycle `archived`: issue сохраняет terminal status `closed` или `rejected`, `retention_status = closed_full_history`, а `archive_path` помечается как mirror location.
+
+`active -> archived`, `blocked -> tombstone`, `approved -> deleted` запрещены. Если пользователь просит такое действие, agent возвращает blocker и условия, которые мешают.
 
 ## Retention decision packet
 
-Перед любым archive/tombstone/delete действием агент собирает короткий packet:
+Перед archive/tombstone/delete agent собирает packet:
 
 | Поле | Что записать |
 |---|---|
 | `issue_id` | target issue |
-| `current_status` | status и phase до действия |
-| `requested_action` | archive, tombstone, cleanup или delete_nonhistorical |
+| `current_status` | status/phase до действия |
+| `requested_action` | archive, tombstone, cleanup, delete_nonhistorical |
 | `reason` | зачем действие нужно сейчас |
 | `history_required_by` | active dependents, parent, children, linked issues или `none` |
-| `input_refs` | `Inbox` refs и attachment refs |
+| `input_refs` | Inbox refs and attachment refs |
 | `artifact_refs` | reason/requirements/solution/contract/output/validation refs |
-| `decision` | выполнить, отложить, заблокировать или запросить user decision |
-| `write_set` | файлы, которые будут созданы, изменены, перемещены или удалены |
+| `dependency_refs` | direct graph edges and dependent conditions |
+| `decision` | execute, defer, block или ask user decision |
+| `write_set` | files created/changed/moved/deleted |
 
-Packet сохраняется в runtime `state.md`, archive `decision_log.md` или tombstone-файле. Если issue registry-only и отдельной папки нет, packet отражается в registry `notes` и persistence log.
+Packet сохраняется в runtime `state.md`, archive `decision_log.md` или tombstone file. Если issue registry-only, packet отражается в registry notes и persistence log.
 
 ## Archive transaction
 
 1. Проверить target issue в registry.
 2. Проверить inbound/outbound dependencies через [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl).
-3. Проверить parent/children: parent нельзя закрывать и архивировать как завершённый, пока children не закрыты, не rejected или не deferred с reason.
+3. Проверить parent/children: parent нельзя архивировать как completed, пока required children не closed/rejected/deferred with reason.
 4. Собрать retention decision packet.
-5. Если runtime issue folder существует, перенести или скопировать его в `Issues/_archive/<issue_id>/`.
-6. Убедиться, что archive entry содержит как минимум `state.md`, `reason.md` или их краткие equivalents, `decision_log.md`, output/validation refs, если они существовали.
-7. Если runtime issue folder не существует, не создавать пустой `Issues/_archive/<issue_id>/`. Registry-only bootstrap issue остаётся registry-only.
-8. Обновить [../../Issues/issue_registry.jsonl](../../Issues/issue_registry.jsonl): `status = archived`, `retention_status = archived_full_history`, `archive_path`, `updated_at`, `next_action`.
-9. Обновить [../../Issues/issue_registry.md](../../Issues/issue_registry.md) summary, если меняется bootstrap snapshot или lifecycle documentation.
-10. Обновить [../../State/page_registry.jsonl](../../State/page_registry.jsonl) для всех Markdown-файлов, которые были созданы, перемещены или сняты с active navigation.
-11. Добавить запись в [../../State/persistence_log.jsonl](../../State/persistence_log.jsonl).
+5. Если runtime issue folder существует, выбрать и записать один режим: `move_to_canonical_archive` или `copy_as_archive_mirror`.
+6. Для `move_to_canonical_archive` перенести folder в `Issues/_archive/<issue_id>/` и синхронизировать phase-artifact paths в той же transaction:
+   - проверить каждый non-null `reason_path`, `requirements_path`, `solution_path`, `contract_path`, `output_path` и `validation_path`;
+   - если path находится под реально перемещённым `Issues/<issue_id>/`, переписать его на соответствующий путь внутри `Issues/_archive/<issue_id>/`;
+   - если path указывает на внешний или глобальный artifact, например `State/service_validation_report.md`, сохранить его без изменений, если этот artifact не копируется и не меняет canonical location;
+   - если внешний artifact явно копируется в archive и canonical pointer должен измениться, записать copy action и новый path в retention decision packet;
+   - не оставлять registry pointer на удалённый source path и не создавать pointer на несуществующую archive copy.
+7. Для `copy_as_archive_mirror` скопировать folder, сохранить source paths canonical, оставить lifecycle status `closed`/`rejected`, установить `retention_status = closed_full_history` и записать `archive_path` как mirror location.
+8. Archive entry содержит at least `state.md`, `reason.md` или equivalents, `decision_log.md`, output/validation refs если они были.
+9. Если runtime issue folder не существует, не создавать пустой `Issues/_archive/<issue_id>/`.
+10. Для canonical move обновить registry JSONL: `status = archived`, `retention_status = archived_full_history`, `archive_path`, synchronized phase-artifact paths, `updated_at`, `next_action`.
+11. Обновить [../../Issues/issue_registry.md](../../Issues/issue_registry.md), если human snapshot меняется.
+12. Обновить [../../State/page_registry.jsonl](../../State/page_registry.jsonl) для Markdown moved/created/deactivated.
+13. Добавить [../../State/persistence_log.jsonl](../../State/persistence_log.jsonl) entry.
 
-Archive не обязан быть компактным. Его задача — сохранить проверяемую историю до следующего batch cleanup.
+Archive сохраняет проверяемую историю до следующего batch cleanup.
 
 ## Tombstone transaction
 
-1. Проверить, что issue имеет status `closed`, `rejected` или `archived`, либо есть отдельное решение о tombstone для registry-only записи.
+1. Проверить status `closed`, `rejected`, `archived`, либо отдельное decision о tombstone для registry-only entry.
 2. Проверить, что active dependents не требуют full archive artifacts.
-3. Создать `Issues/_tombstones/<issue_id>.md` или обновить существующий tombstone.
-4. Tombstone должен содержать минимальные поля:
+3. Создать `Issues/_tombstones/<issue_id>.md` или обновить existing tombstone.
+4. Tombstone содержит minimum fields:
    - `issue_id`;
    - title;
    - previous status;
@@ -144,97 +155,91 @@ Archive не обязан быть компактным. Его задача —
    - cleanup reason;
    - deleted paths или `none`.
 5. Обновить registry: `status = tombstone`, `retention_status = tombstone_summary`, `tombstone_path`, `updated_at`, `next_action`.
-6. Сохранить historical edges в [../../Issues/dependency_graph.jsonl](../../Issues/dependency_graph.jsonl). Edge не удаляется только потому, что issue свёрнут.
-7. Если archive folder после tombstone больше не нужен, удалить только после отдельного шага `delete_nonhistorical` и записи `deleted_paths`.
-8. Обновить [../../State/page_registry.jsonl](../../State/page_registry.jsonl) для tombstone Markdown.
+6. Сохранить historical edges в graph. Edge не удаляется из-за tombstone.
+7. Archive folder после tombstone удаляется только отдельным `delete_nonhistorical` step и `deleted_paths` record.
+8. Обновить page registry для tombstone Markdown.
 9. Добавить persistence entry.
 
-Tombstone — минимальный исторический объект. Он должен быть достаточно информативным, чтобы агент будущего чата понял, почему ID нельзя переиспользовать и какие решения уже были приняты.
+Tombstone должен быть достаточен, чтобы future agent понял, почему ID нельзя переиспользовать и какие decisions уже приняты.
 
 ## Deletion transaction
 
-Удаление допустимо только после tombstone transaction и только для файлов, которые не являются обязательной историей.
+Deletion допустим только после tombstone transaction и только для nonhistorical files.
 
 | Объект | Можно удалить? | Условие |
 |---|---|---|
-| `issue_registry.jsonl` row | нет | row остаётся всегда |
-| dependency graph edge | нет | edge может быть помечен historical/superseded, но не исчезает без migration issue |
-| tombstone file | нет | это минимальный след |
-| `reason.md` | только после tombstone | reason summary должен быть в tombstone |
-| `requirements.md`, `contract.md`, `validation_report.md` | только если tombstone содержит summary и refs | для спорных или audit-critical issue лучше оставить archive |
-| `output/` | осторожно | итоговые refs должны сохраняться; удалять только тяжёлые attachments или дубликаты |
-| temporary files | да | после `deleted_paths` и cleanup reason |
-| binary/heavy attachments | да | если manifest/hash/external ref сохранены и active refs отсутствуют |
+| `issue_registry.jsonl` row | нет | row remains always |
+| dependency graph edge | нет | edge can be historical/superseded, but not disappear silently |
+| tombstone file | нет | minimum trace |
+| `reason.md` | только после tombstone | reason summary must remain in tombstone |
+| `requirements.md`, `contract.md`, validation | только если tombstone contains summary/refs | audit-critical issues should keep archive |
+| `output/` | cautiously | final refs must remain; delete only heavy duplicates/attachments |
+| temporary files | да | after `deleted_paths` and cleanup reason |
+| binary/heavy attachments | да | if manifest/hash/external ref saved and no active refs |
 
-После deletion registry может иметь `status = deleted`, но это не означает исчезновение `issue_id`. Это означает, что разрешённые nonhistorical files удалены, а tombstone/registry/graph остались.
+После deletion registry может иметь `status = deleted`, но `issue_id` не исчезает. Это значит, что разрешённые nonhistorical files удалены, а tombstone/registry/graph остались.
 
 ## Inbox cleanup
 
-`Inbox` очищается отдельно от issue folder, но только через те же traceability gates.
+Inbox cleanup выполняется через те же traceability gates и не сокращает packet раньше, чем разрешает [../../Inbox/README.md](../../Inbox/README.md):
 
-1. Найти `Inbox/<input_id>/manifest.md` и все `linked_issue_ids`.
-2. Если хотя бы один linked issue имеет status `creating`, `proposed`, `needs_discussion`, `approved`, `active`, `blocked`, `deferred`, `closed` или `archived`, input packet остаётся.
-3. Если все linked issue имеют status `rejected`, `tombstone` или `deleted`, можно свернуть input packet до tombstone manifest.
-4. Tombstone manifest в `Inbox/<input_id>/manifest.md` должен сохранить `input_id`, linked issue IDs, source summary, attachment refs/status, cleanup reason и timestamp.
-5. Heavy attachments можно удалить только если они отражены в tombstone manifest или issue tombstone через filename, role, hash/checksum if available, storage status и reason.
-6. `input_id` не переиспользуется после cleanup.
-7. Если input содержит приватные, секретные или внешние материалы, cleanup decision должен явно сказать, что именно остаётся в репозитории.
-
-Этот протокол не создаёт отдельную папку `Inbox/_tombstones/` по умолчанию. Минимальный след input остаётся в runtime packet manifest или в issue tombstone, чтобы не плодить новый верхний маршрут без отдельного решения.
+1. Найти `Inbox/<input_id>/manifest.md` и `linked_issue_ids`.
+2. Если хотя бы один linked issue имеет status `creating`, `proposed`, `needs_discussion`, `approved`, `active`, `blocked`, `deferred`, `closed` или `archived`, cleanup запрещён и input packet остаётся доступным.
+3. Если все linked issue имеют status `rejected`, `tombstone` или `deleted` и input больше не нужен, создать/обновить tombstone manifest.
+4. Rejected status сам по себе не удаляет packet: retention decision должен подтвердить отсутствие required context/dependency refs.
+5. Heavy attachments удаляются только после manifest/hash/external ref.
+6. Registry/graph refs на input сохраняются или указывают на tombstone/external ref.
+7. Page registry и persistence log обновляются при Markdown changes.
 
 ## Registry update rules
 
-При retention-действии registry обновляется в той же transaction:
+При любом retention action registry обновляется в той же transaction:
 
 | Поле | Правило |
 |---|---|
-| `status` | lifecycle status после действия |
-| `phase` | обычно `null`, кроме active validation repair |
-| `dependency_ready` | пересчитать с учётом archived/tombstone dependencies |
-| `blocking_reason` | указать blocker, если archive/tombstone невозможен |
-| `reason_path` / phase paths | обновить при move в archive или сохранить `null` для registry-only issue |
-| `archive_path` | optional path к `Issues/_archive/<issue_id>/` |
-| `tombstone_path` | optional path к `Issues/_tombstones/<issue_id>.md` |
+| `status` | lifecycle status после действия; copy-only mirror не переводит issue в `archived` |
+| `phase` | обычно `null`, кроме explicit validation repair |
+| `dependency_ready` | пересчитать с учётом archived/tombstone/deleted dependencies |
+| `blocking_reason` | сохранить blocker или условие снятия блока |
+| `reason_path`, `requirements_path`, `solution_path`, `contract_path`, `output_path`, `validation_path` | remap только если canonical artifact реально moved; external refs сохранять; deleted source path retarget/null only with retained tombstone/archive/external evidence |
+| `archive_path` | canonical archive или explicitly marked mirror path |
+| `tombstone_path` | path к retained tombstone summary |
 | `retention_status` | точное состояние хранения |
-| `next_action` | что должен сделать следующий агент |
+| `cleanup_reason`, `cleanup_at`, `deleted_paths` | сохранять для destructive actions |
+| `next_action` | ближайший safe follow-up |
 | `updated_at` | timestamp transaction |
 
-Если schema consumer не знает optional retention fields, он должен игнорировать их, но не удалять.
+Если schema consumer не знает optional retention fields, он должен игнорировать их, но не удалять. Registry не должен содержать dangling artifact path после move/delete.
 
-## Dependency handling
+## Dependency impact
 
-Перед archive/tombstone/delete агент проверяет три группы связей:
+Перед retention agent проверяет direct dependents:
 
-| Связь | Проверка |
+| Dependency state | Rule |
 |---|---|
-| Parent/child | parent не считается завершённым, если child ещё active/blocked без explicit reason |
-| Blocking dependency | dependent issue не должен потерять required artifact |
-| Non-blocking link | tombstone должен сохранить related context summary |
+| Dependent active and requires full artifact | archive/tombstone/delete blocked |
+| Dependent only needs summary | tombstone allowed if summary contains required fields |
+| Edge stale/blocked | retention action не скрывает blocker; graph keeps evidence |
+| Dependency rejected/deleted | dependent gets blocker until solution/requirements recheck |
 
-Если archived/tombstone issue является dependency для active issue, dependent получает одно из решений:
-
-- `dependency_ready = ready`, если tombstone/архив содержит нужный artifact/ref;
-- `dependency_ready = stale`, если dependent должен перепроверить использованный artifact;
-- `dependency_ready = blocked`, если full artifact удалён или недоступен;
-- `dependency_ready = cycle_blocked`, если repair создаёт цикл.
-
-Обновление связей выполняется по [linked_issues_protocol.md](linked_issues_protocol.md), а не вручную через одно поле registry.
+Retention не снимает dependency blocker автоматически. Dependency changes выполняются через [linked_issues_protocol.md](linked_issues_protocol.md), а не только одним registry field.
 
 ## Failure behavior
 
-| Сбой | Status | Действие |
+| Сбой | Статус | Действие |
 |---|---|---|
-| Issue отсутствует в registry | `blocked_on_missing_issue` | восстановить registry или отклонить cleanup request |
-| Нет cleanup reason | `blocked_on_missing_retention_reason` | запросить конкретную причину или выбрать `no_cleanup` |
-| Active dependency требует artifact | `blocked_on_active_dependency` | оставить archive/full history до снятия dependency |
-| Tombstone не содержит required fields | `blocked_on_incomplete_tombstone` | не удалять archive/runtime folder |
-| Page registry не обновлён после move/delete | `blocked_on_page_registry_mismatch` | выполнить repair transaction |
-| Inbox packet связан с active issue | `blocked_on_active_input_refs` | не чистить input packet |
-| Persistence недоступен | `blocked_on_persistence` | не заявлять cleanup выполненным |
+| Issue active/approved/blocked | `retention_not_allowed_for_active_issue` | read-only summary and blocker |
+| Inbox связан с `closed` или `archived` issue | `blocked_on_inbox_retention_policy` | сохранить input packet доступным до tombstone/rejected/deleted terminal set |
+| Нет cleanup reason | `blocked_on_missing_cleanup_reason` | request reason / decision |
+| Active dependent needs artifact | `blocked_on_active_dependency_ref` | keep full archive/no_cleanup |
+| Tombstone insufficient | `blocked_on_tombstone_coverage` | add summary/refs before deletion |
+| Registry path указывает на removed/missing artifact | `blocked_on_registry_path_mismatch` | repair path or restore retained evidence before completion |
+| Page registry cannot be updated | `blocked_on_page_registry_update` | do not move/delete Markdown |
+| Persistence unavailable | `blocked_on_persistence` | do not claim archive/tombstone/delete committed |
 
 ## Completion signal
 
-Протокол завершён, когда retention decision сохранён, registry отражает новый lifecycle/retention state, dependency graph проверен, page registry обновлён для Markdown-перемещений или tombstone, Inbox refs не потеряны, а [../../State/persistence_log.jsonl](../../State/persistence_log.jsonl) содержит запись transaction. Если любой gate не пройден, результатом является явный blocker, а не частично удалённая история.
+Протокол завершён, когда retention decision packet saved, registry lifecycle/retention fields and artifact paths agree with retained files, dependency graph checked, page registry updated as required, tombstone/archive/delete action committed, or work stopped with honest blocker. Inbox cleanup is complete only when linked issues, Inbox policy, manifest/tombstone and deleted_paths evidence agree.
 
 ## Связанные файлы
 
@@ -247,8 +252,7 @@ Tombstone — минимальный исторический объект. Он
 - [Dependency graph](../../Issues/dependency_graph.jsonl)
 - [Issue archive](../../Issues/_archive/README.md)
 - [Issue tombstones](../../Issues/_tombstones/README.md)
-- [Inbox](../../Inbox/README.md)
+- [Inbox rules](../../Inbox/README.md)
 - [Service state](../../State/service_state.md)
 - [Page registry](../../State/page_registry.jsonl)
 - [Persistence protocol](../common/persistence_protocol.md)
-- [Persistence log](../../State/persistence_log.jsonl)
