@@ -1,10 +1,10 @@
 # Project instructions для `Execution Mode`
 
 Parent: [README](../README.md)  
-Owner issue: `EXEC-002` / `EXEC-007`  
+Owner issue: `EXEC-002`  
 Источник истины: `Instructions/execution_mode_project_instructions.md`  
-Status: `available`  
-Updated: `2026-06-20T19:24:43Z`
+Status: `commit_ready_source`  
+Updated: `2026-06-20T20:55:35Z`
 
 ## Назначение
 
