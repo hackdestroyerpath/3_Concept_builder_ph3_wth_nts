@@ -3,8 +3,8 @@
 Parent: [service_state.md](service_state.md)  
 Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01` / `CB-STAGE-04`  
 Источник истины: `State/service_validation_report.md`  
-Status: `rework_applied_pending_manual_reviewer`  
-Updated: `2026-06-19T18:38:45Z`
+Status: `pending_manual_reviewer`  
+Updated: `2026-06-20T00:45:58Z`
 
 ## Вердикт
 
@@ -161,84 +161,89 @@ Third narrow rework uses preferred option A: restore the root orientation sectio
 
 ## Итоговый статус
 
-Текущий status Stage 04: `rework_applied_pending_manual_reviewer`.  
-`manual_reviewer_status = pending`.  
-PR `#18` не принят, не смержен и не объявлен готовым к merge. Все содержательные, navigation и persistence changes подтверждены на task branch; этот validation report записывается последним, а его resulting head сообщается после exact readback.
+Текущий status Stage 04: `pending_manual_reviewer`.  
+`manual_reaudit_status = pending`.  
+PR `#18` остаётся открытым и несмерженным. Final narrow rework ограничен тремя production files; `State/page_registry.jsonl` не меняется, потому что ссылка/обратная ссылка Existing Issue остаются прежними. PR body обновляется после file writes и report readback, чтобы зафиксировать фактический current head, а не предсказанный SHA.
 
-## Stage 04 manual rework checkpoint
+## Stage 04 final narrow rework checkpoint
 
-Transaction: `tx-cb-stage-04-manual-rework-20260619`  
+Transaction: `tx-cb-stage-04-final-narrow-rework-20260620`  
 Repository: `hackdestroyerpath/3_Concept_builder_ph3_wth_nts`  
 Branch: `agent/stage-04-service-issue-lifecycle-20260618-0129Z`  
 Pull request: `#18`  
 Base: `main`  
-Current content/registry/persistence head before report finalization: `5d1575d9270fc48de32ae488aee23de24f8ce555`  
-Status: `rework_applied_pending_manual_reviewer`  
-manual_reviewer_status = pending  
-Updated: `2026-06-19T18:38:45Z`
+Input head: `f290a1e6ffd419c2e87481fd558d14cc43c18620`  
+Status: `pending_manual_reviewer`  
+manual_reaudit_status: `pending`  
+Updated: `2026-06-20T00:45:58Z`
 
-### Exact changed scope
+### Final narrow production write-set
 
-| Path | Stage 04 role |
+| Path | Изменение |
 |---|---|
-| [../Instructions/service_mode_project_instructions.md](../Instructions/service_mode_project_instructions.md) | GOV-001 for Service Mode. |
-| [../Instructions/execution_mode_project_instructions.md](../Instructions/execution_mode_project_instructions.md) | GOV-001 for Execution Mode. |
-| [../Protocols/common/final_validation_protocol.md](../Protocols/common/final_validation_protocol.md) | GOV-001 hard gate and canonical closure reference. |
-| [../Protocols/service_protocols/complex_issue_protocol.md](../Protocols/service_protocols/complex_issue_protocol.md) | Parent/child lifecycle and minimal normalized-readiness gate. |
-| [../Protocols/service_protocols/existing_issue_protocol.md](../Protocols/service_protocols/existing_issue_protocol.md) | Existing-issue routing and duplicate/overlap protection; retained after compliant readback. |
-| [../Protocols/service_protocols/issue_retention_protocol.md](../Protocols/service_protocols/issue_retention_protocol.md) | Retention traceability. |
-| [../Protocols/service_protocols/linked_issues_protocol.md](../Protocols/service_protocols/linked_issues_protocol.md) | Canonical dependency normalization source. |
-| [../Protocols/service_protocols/requirements_protocol.md](../Protocols/service_protocols/requirements_protocol.md) | Neutral operational readiness heading and approval/reopen discipline. |
-| [../Protocols/service_protocols/solution_contract_output_protocol.md](../Protocols/service_protocols/solution_contract_output_protocol.md) | Optional attachments manifest without empty placeholders. |
-| [page_registry.jsonl](page_registry.jsonl) | Actual links, reciprocal backlinks and parent/orphan consistency. |
-| [persistence_log.jsonl](persistence_log.jsonl) | Manual Stage 04 persistence evidence without bot-thread metadata. |
-| [service_validation_report.md](service_validation_report.md) | Manual validation checkpoint. |
+| [../Protocols/service_protocols/existing_issue_protocol.md](../Protocols/service_protocols/existing_issue_protocol.md) | Только runtime scaffold: manifest/folder optional; создаются для attachments, generated files или external refs; при отсутствии объектов report фиксирует `Attachments: none`; пустые placeholders запрещены. |
+| [persistence_log.jsonl](persistence_log.jsonl) | Последняя unmerged Stage 04 row получает scoped Codex facts и pending manual re-audit; исторические merged rows не переписываются. |
+| [service_validation_report.md](service_validation_report.md) | Этот truthful final-narrow checkpoint. |
+
+`State/page_registry.jsonl` не входит в write-set: Existing Issue не добавляет Markdown target и сохраняет прежний набор относительных ссылок.
+
+### Exact PR scope
+
+PR должен сохранять ровно 12 paths:
+
+1. `Instructions/execution_mode_project_instructions.md`
+2. `Instructions/service_mode_project_instructions.md`
+3. `Protocols/common/final_validation_protocol.md`
+4. `Protocols/service_protocols/complex_issue_protocol.md`
+5. `Protocols/service_protocols/existing_issue_protocol.md`
+6. `Protocols/service_protocols/issue_retention_protocol.md`
+7. `Protocols/service_protocols/linked_issues_protocol.md`
+8. `Protocols/service_protocols/requirements_protocol.md`
+9. `Protocols/service_protocols/solution_contract_output_protocol.md`
+10. `State/page_registry.jsonl`
+11. `State/persistence_log.jsonl`
+12. `State/service_validation_report.md`
 
 ### Readback and validation results
 
 | Gate | Result | Evidence |
 |---|---|---|
-| Branch/base isolation | `pass` | PR `#18` remains open against `main`; merge was not performed. |
-| GOV-001 | `pass` | Both project instructions prohibit agent use of Codex; final validation contains the hard gate. |
-| Stage-specific debris | `pass` | Runtime Requirements protocol uses `Проверка готовности requirements packet`. |
-| Attachments model | `pass` | Manifest and attachments folder are optional, created only for real referenced items; absence is recorded as `Attachments: none`. |
-| Canonical dependency semantics | `pass` | Full normalization remains in `linked_issues_protocol.md`; other affected protocols use a short reference and transition gate. |
-| Existing Issue | `pass_no_rewrite` | Branch readback already satisfied self-exclusion, overlap protection and canonical dependency reference, so no redundant rewrite was performed. |
-| Stage 04 evidence cleanup | `pass` | The replacement Stage 04 row/report use manual file, JSONL, navigation and boundary evidence; no bot-thread identifiers are used. |
-| Page registry | `pass` | `State/page_registry.jsonl` has 36 unique rows, reciprocal backlinks, no orphan rows and observed blob `493ec1b5f038605c52733484e7bb95b7607825b0`. |
-| Persistence log | `pass` | `State/persistence_log.jsonl` has 21 parseable rows and observed blob `50c5e31a2918a166da479896fef4017b7ff97112`. |
-| JSONL | `pass` | Frozen page registry and persistence log parse independently by line. |
-| Boundary | `pass` | PR scope is exactly the twelve allowed paths; no runtime issue/concept folders or service scripts were created. |
-| Manual reviewer | `pending` | Only the manual reviewer may accept the current head. |
-| Merge/main | `not_performed` | Merge, post-merge `main` readback and branch deletion require later explicit approval. |
+| Branch/base isolation | `pass_before_write` | PR `#18` открыт против `main`, input head `f290a1e6...`, merged=`false`. |
+| Attachments cross-file model | `pass_frozen` | Existing Issue и Solution/Contract/Output scaffolds оба делают `attachments_manifest.jsonl` и `attachments/` optional, запрещают пустые placeholders и используют `Attachments: none` при отсутствии объектов. |
+| Historical Codex fact | `pass_frozen` | Historical agent-triggered Codex activity before GOV-001 is recorded as `true`; no Codex use after GOV-001 is recorded as `false`; derived evidence removal is recorded as `true`. |
+| Manual re-audit | `pending` | Reviewer decision не получен и не симулируется executor-ом. |
+| Page registry | `pass_no_write` | Existing Issue link set не изменён; текущий registry содержит 36 parseable unique rows, reciprocal backlink parity и orphan count `0`; observed blob `493ec1b5f038605c52733484e7bb95b7607825b0`. |
+| Persistence JSONL | `pass_frozen` | 21 независимая JSON row; final row содержит scoped facts и не содержит unqualified `codex_used_by_agent=false`. |
+| PR boundary | `pass_before_write` | Current PR scope содержит ровно 12 разрешённых paths. |
+| Stage 05 | `not_started` | Runtime concept folders и service scripts не создаются. |
+| Merge | `not_performed` | Squash merge, main readback и branch deletion требуют последующего explicit reviewer acceptance. |
 
-### Content readback map
+### Frozen content map
 
-| Path | Observed blob |
+| Path | Expected Git blob after update |
 |---|---|
-| `Instructions/service_mode_project_instructions.md` | `5d7260a9a5c5f564fec9e6cc1317b7e13238095b` |
-| `Instructions/execution_mode_project_instructions.md` | `9e240a75304f2bfb0f3c971fab8fe9801f32daa9` |
-| `Protocols/common/final_validation_protocol.md` | `86e46cabb31babae86db3ff227b883ef5b207364` |
-| `Protocols/service_protocols/complex_issue_protocol.md` | `4cd9575286cd57669f439290e3bfb4e3f66c5bf5` |
-| `Protocols/service_protocols/existing_issue_protocol.md` | `886246a2c38e92eaf09c4fb9a56a60c6e2db79dd` |
-| `Protocols/service_protocols/issue_retention_protocol.md` | `5f7aae672db5c09533d87248f30b03d2c30eb900` |
-| `Protocols/service_protocols/linked_issues_protocol.md` | `e06c5588f65e08f789d89310a88f7be0568d5e51` |
-| `Protocols/service_protocols/requirements_protocol.md` | `f379ead71bc3774a27532986de9c698b06989612` |
-| `Protocols/service_protocols/solution_contract_output_protocol.md` | `c354ce6e724dab66ba9189d6ed6c392f8dbeeabd` |
-| `State/page_registry.jsonl` | `493ec1b5f038605c52733484e7bb95b7607825b0` |
-| `State/persistence_log.jsonl` | `50c5e31a2918a166da479896fef4017b7ff97112` |
+| `Protocols/service_protocols/existing_issue_protocol.md` | `fc3b8d7fb543d2e801f602938ceeb07357b3e491` |
+| `State/persistence_log.jsonl` | `7acb5613ed36b7899a0e2b5c83684c553b6d7962` |
+| `State/page_registry.jsonl` | unchanged observed blob `493ec1b5f038605c52733484e7bb95b7607825b0` |
+| `Protocols/service_protocols/solution_contract_output_protocol.md` | unchanged observed blob `c354ce6e724dab66ba9189d6ed6c392f8dbeeabd` |
 
-The persistence marker was written and read back before this report. The resulting report commit head is therefore reported in the executor handoff after exact `fetch_file` readback rather than self-reported inside this file.
+Report write выполняется только после exact readback первых двух updated files. Resulting report blob/head и обновлённый PR body подтверждаются отдельным post-write readback.
+
+### Scoped governance facts
+
+- `historical_codex_use_before_gov_001: true`
+- `codex_used_after_gov_001: false`
+- `codex_derived_evidence_removed: true`
+- `manual_reaudit_status: pending`
+- `stage_05_started: false`
+- `merge_performed: false`
+- `runtime_issue_folders_created: false`
+- `runtime_concept_folders_created: false`
+- `service_scripts_created: false`
 
 ### Remaining acceptance gates
 
-1. Manual reviewer examines the current PR head and records acceptance or further rework.
-2. Only after acceptance, perform the explicitly approved squash merge.
-3. Read back all merged paths from `main`.
-4. Delete the task branch only after accepted merge and `main` verification.
-
-Codex agent usage: `false`.  
-Stage 05 started: `false`.  
-Runtime issue folders created: `false`.  
-Runtime concept folders created: `false`.  
-Service scripts created: `false`.
+1. Apply the three frozen production files through high-level `update_file` and exact `fetch_file` readback.
+2. Update PR body with the confirmed resulting current head, exact 12-path scope, scoped historical/post-policy facts and `pending_manual_reviewer` status.
+3. Manual reviewer examines that current head.
+4. Squash merge, `main` readback and branch deletion remain prohibited until explicit reviewer acceptance.
