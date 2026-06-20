@@ -26,8 +26,11 @@ Issues/<issue_id>/
     ├── report.md
     ├── changed_files.md
     ├── contract_coverage.md
-    └── attachments_manifest.jsonl
+    ├── attachments_manifest.jsonl   # optional
+    └── attachments/                 # optional
 ```
+
+`attachments_manifest.jsonl` и `output/attachments/` создаются только при наличии реальных attachments, generated files или external refs. Если таких объектов нет, `output/report.md` содержит точную отметку `Attachments: none`; пустые manifest и attachments folder как placeholders запрещены.
 
 QA artifacts создаются только после фактического QA или explicit QA-trace requirement. Bootstrap issue могут оставаться registry-only, если registry содержит sufficient reason, target paths и next action.
 
