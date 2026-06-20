@@ -1,10 +1,10 @@
 # Шаблон концепции
 
 Parent: [Слой концепций](../README.md)  
-Owner issue: `EXEC-001` … `EXEC-007`  
+Owner issue: `EXEC-011`  
 Источник истины: `Concepts/_template/README.md`  
 Status: `template`  
-Updated: `2026-06-20T19:24:43Z`
+Updated: `2026-06-20T20:55:35Z`
 
 ## Назначение
 
