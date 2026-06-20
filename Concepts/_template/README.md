@@ -4,22 +4,25 @@ Parent: [Слой концепций](../README.md)
 Owner issue: `EXEC-001` … `EXEC-007`  
 Источник истины: `Concepts/_template/README.md`  
 Status: `template`  
-Updated: `2026-06-20T17:58:28Z`
+Updated: `2026-06-20T19:24:43Z`
 
 ## Назначение
 
-Этот файл задаёт минимальный bootstrap и state contract будущей concrete concept. Он не является рабочей концепцией и не получает issue, pages, output или export как живой runtime object.
+Этот файл задаёт минимальный bootstrap и state contract будущей concrete concept. Он не является рабочей концепцией и не получает issue, pages, output или export как live runtime object.
 
 ## Как использовать
 
 1. Открыть [execution protocols](../../Protocols/execution_protocols/README.md).
 2. Получить user intent или approved issue, `concept_slug`, title, reason, initial scope и boundary.
 3. Проверить [State/execution_index.md](../../State/execution_index.md) и root [page_registry.jsonl](../../State/page_registry.jsonl).
-4. Создать только пять operational files из bootstrap set ниже.
-5. Заполнить local state и local registries фактическими данными.
-6. Обновить root index/root registry и применить [persistence protocol](../../Protocols/common/persistence_protocol.md) одной transaction.
+4. Подготовить пять operational files из bootstrap set ниже.
+5. Заполнить local state в prewrite состоянии `bootstrap_incomplete + unverified`.
+6. Записать files/root companions через [persistence protocol](../../Protocols/common/persistence_protocol.md), выполнить readback и JSONL/identity checks.
+7. Только после успешной проверки обновить concept state до verified readiness, применить [persistence protocol](../../Protocols/common/persistence_protocol.md) и прочитать state повторно.
 
 ## Минимальные metadata concept README
+
+Default concept README намеренно не хранит dynamic readiness/integrity metadata. Authoritative значения находятся в `State/concept_state.md`.
 
 ```text
 # <Название концепции>
@@ -28,8 +31,7 @@ Parent: [Concepts](../README.md)
 Concept slug: <concept_slug>
 Owner mode: `Execution Mode`
 Источник истины: `Concepts/<concept_slug>/README.md`
-Lifecycle status: `draft`
-Readiness status: `ready_for_issue_or_page`
+State source: `State/concept_state.md`
 Updated: <timestamp>
 
 ## Назначение
@@ -56,12 +58,11 @@ Local registry: `Issues/issue_registry.jsonl`.
 
 ## Exports
 <Ссылки появляются после реального export package.>
-
-## Next-step marker
-Next status: `needs_first_issue_or_page`.
 ```
 
-## Минимальный committed bootstrap
+Если human-facing readiness mirror позже добавляется в README, он маркируется как derived from `State/concept_state.md` и обновляется с state одной transaction.
+
+## Минимальный bootstrap contract
 
 ```text
 Concepts/<concept_slug>/README.md
@@ -71,9 +72,9 @@ Concepts/<concept_slug>/Issues/issue_registry.jsonl
 Concepts/<concept_slug>/Issues/dependency_graph.jsonl
 ```
 
-`Pages/`, `Output/` и `Exports/` не создаются как empty placeholders. `Issues/_archive/README.md` и `Issues/_tombstones/README.md` создаются только при фактической retention-потребности или отдельном approved bootstrap.
+`Pages/`, `Output/` и `Exports/` не создаются как empty placeholders. Retention entrypoints создаются только при фактической retention-потребности или отдельном approved bootstrap.
 
-## `State/concept_state.md` schema
+## `State/concept_state.md` prewrite schema
 
 ```text
 # State концепции — <concept_slug>
@@ -91,57 +92,80 @@ Updated: <timestamp>
 | State revision | 1 |
 | Active issue | none |
 | Active phase | not_started |
-| Blocking status | none |
-| Readiness status | ready_for_issue_or_page |
-| Page registry status | parseable_current |
-| Issue registry status | parseable_empty |
-| Dependency readiness | ready_no_edges |
+| Blocking status | bootstrap_persistence_required |
+| Readiness status | bootstrap_incomplete |
+| Page registry status | pending_persistence |
+| Issue registry status | pending_persistence |
+| Dependency readiness | pending_persistence |
 | Export status | none |
 | Integrity status | unverified |
-| Integrity basis | README.md; State/concept_state.md@revision=1; State/page_registry.jsonl; Issues/issue_registry.jsonl; Issues/dependency_graph.jsonl |
+| Integrity basis | pending bootstrap readback |
 | Last validation ref | none |
-| Last persisted at | <timestamp> |
-
-## Context budget
-
-| Level | Files |
-|---|---|
-| entry | README, concept_state, local page registry, local issue registry |
-| focused | active issue, selected protocol, affected pages |
-| expanded | linked issue and direct dependency summaries |
+| Last persisted at | null |
+| Service escalation status | none |
+| Service escalation ref | none |
+| Service issue ID | none |
 
 ## Next-step marker
 
-Next status: `needs_first_issue_or_page`.
+Next status: needs_bootstrap_persistence.
+
+<a id="pending-service-escalation"></a>
+## Pending service escalation
+
+Status: none
 ```
 
-Lifecycle status и readiness status хранят разные факты. `Integrity basis` перечисляет реально проверенные files/revisions; hash не требуется и не выдумывается.
+В prewrite состоянии разрешены только bootstrap completion/recovery.
+
+## Post-persistence verified state
+
+После существования всех пяти files, line-by-line JSONL parse, identity agreement, successful persistence и readback обновить state:
+
+```text
+| Lifecycle status | draft |
+| Blocking status | none |
+| Readiness status | ready_for_issue_or_page |
+| Page registry status | parseable_current |
+| Issue registry status | parseable_current |
+| Dependency readiness | ready_no_blocking_edges |
+| Integrity status | verified |
+| Integrity basis | README.md; State/concept_state.md@revision=<n>; State/page_registry.jsonl; Issues/issue_registry.jsonl; Issues/dependency_graph.jsonl; persistence/readback=<ref> |
+| Last validation ref | <persistence/readback ref> |
+| Last persisted at | <factual timestamp> |
+
+Next status: needs_first_issue_or_page.
+```
+
+После update state читается повторно. `ready_for_issue_or_page` допустим только при `Integrity status = verified`. `unverified`, `stale` или `conflict` блокируют issue/page mutation, кроме bounded recovery.
 
 ## Readiness semantics
 
 | Status | Условие |
 |---|---|
-| `bootstrap_incomplete` | один из operational files отсутствует или registry не parseable |
-| `ready_for_issue_or_page` | bootstrap complete, registries parse, blocker отсутствует |
-| `active` | active issue или page work выполняется |
+| `bootstrap_incomplete` | operational files ещё не persisted/read back либо registry/identity check не прошёл |
+| `ready_for_issue_or_page` | five-file bootstrap persisted, JSONL/identity/readback pass и integrity verified |
+| `active` | active issue или page work выполняется при verified integrity |
 | `ready_for_closure_review` | required work завершён и готов к validation |
-| `validated_for_export` | concept-level validation ref зафиксирован; export остаётся отдельным protocol scope |
+| `validated_for_export` | concept-level validation ref зафиксирован |
 | `blocked` | следующий шаг остановлен конкретным blocker |
 
 ## Integrity semantics
 
 | Status | Условие |
 |---|---|
-| `unverified` | basis ещё не проверен |
-| `verified` | basis проверен на указанной revision/ref |
+| `unverified` | bootstrap/readback basis ещё не проверен |
+| `verified` | exact basis проверен на указанной state revision/ref |
 | `stale` | basis изменился после validation |
 | `conflict` | identity, state или registry расходятся |
 
+Hash не обязателен. Если он используется, basis и способ вычисления документируются; fake/self-referential hash запрещён.
+
 ## Initial local page registry
 
-`Concepts/<concept_slug>/State/page_registry.jsonl` — canonical machine structure map. Он перечисляет только пять реально созданных bootstrap files и позднее добавляет реальные artifacts. Concept README остаётся human entry map. Optional `State/page_map.md` — только derived artifact для большой сети или export.
+`Concepts/<concept_slug>/State/page_registry.jsonl` — canonical machine structure map. Он перечисляет только пять реально созданных bootstrap files и позднее добавляет реальные artifacts. Concept README остаётся human entry map. Optional `State/page_map.md` — derived artifact для большой сети или export.
 
-Минимальная строка для concept entrypoint:
+Минимальная строка concept entrypoint:
 
 ```json
 {"path":"README.md","kind":"markdown","parent":null,"owner":"concept","source_of_truth":true,"entrypoint":true,"links":[],"backlinks":[],"orphan":false,"status":"draft"}
@@ -163,24 +187,52 @@ Initial registry может быть пустым. Не создавать issue
 {"graph_version":1,"scope_type":"execution","scope_path":"Concepts/<concept_slug>/","edge_count":0,"cycle_status":"clear","updated_at":"<timestamp>"}
 ```
 
-Root dependency graph не зеркалит concept-internal edges. Cross-scope edge появляется только после созданного service issue и явного reason.
+Root dependency graph не зеркалит concept-internal edges.
 
-## Service escalation packet
+## Service escalation state contract
 
-При core defect сохранить локально:
+Canonical anchor:
 
 ```text
-source_concept
-source_concept_issue
-defect_summary
-affected_root_paths
-evidence_or_reproduction
-safe_local_workaround
-requested_service_action
-return_anchor
+Concepts/<concept_slug>/State/concept_state.md#pending-service-escalation
 ```
 
-Затем установить `Blocking status = service_escalation_required`, остановить затронутую root mutation и запросить переход в Service Mode. Service Mode создаёт root issue; local state/issue и service issue получают bidirectional refs.
+State fields:
+
+```text
+Service escalation status: none | pending_service_mode | service_issue_created | resolved | cancelled
+Service escalation ref: State/concept_state.md#pending-service-escalation | none
+Service issue ID: <root service issue id> | none
+```
+
+Generated `State/concept_state.md` keeps the same anchor:
+
+```text
+<a id="pending-service-escalation"></a>
+## Pending service escalation
+
+source_concept: <concept_slug>
+source_concept_issue: <local issue id | none>
+defect_summary: <summary>
+affected_root_paths: <paths>
+evidence_or_reproduction: <evidence>
+safe_local_workaround: <workaround | none>
+requested_service_action: <action>
+return_anchor: <concept/local issue anchor>
+created_at: <timestamp>
+updated_at: <timestamp>
+service_escalation_status: pending_service_mode
+service_issue_id: none
+```
+
+Rules:
+
+- `source_concept_issue` может быть `none` только если defect найден вне active issue work;
+- при local issue его registry/state хранит тот же `service_escalation_ref` и `return_anchor`;
+- Execution Mode пишет только concept-local state/issue records, устанавливает `service_escalation_required` и прекращает затронутую root mutation;
+- Service Mode создаёт root service issue;
+- после создания root и concept scopes получают bidirectional refs одной controlled transaction;
+- resolution/cancellation обновляет этот же anchor, status и timestamps; ad-hoc escalation file не создаётся.
 
 ## Issue workflow внутри концепции
 
@@ -203,6 +255,7 @@ Closure требует проверки local pages, local issues, dependencies,
 - Не создавать concrete concept без user intent или approved issue.
 - Не создавать empty directories/Markdown placeholders.
 - Не смешивать lifecycle, readiness и integrity.
+- Не выставлять ready state до verified persistence/readback.
 - Не зеркалить local issue rows в root registry.
 - Не выполнять root repair из Execution Mode после `service_escalation_required`.
 - Не добавлять files, которых нет в local page registry.
