@@ -3,14 +3,16 @@
 Parent: [service_state.md](service_state.md)  
 Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01` / `CB-STAGE-04`  
 Источник истины: `State/service_validation_report.md`  
-Status: `pending_manual_reviewer`  
-Updated: `2026-06-20T00:45:58Z`
+Status: `pass_with_deferred_items`  
+Updated: `2026-06-20T12:42:43Z`
 
 ## Вердикт
 
 Статус root-flatten acceptance repair: `pass_with_deferred_items`.
 
 Production root: корень репозитория `/`. Бывшая wrapper-папка `Concept Builder/` вынесена в корень и удалена из tracked production files. `USER-001` остаётся deferred/non-blocking: service scripts не создаются без отдельного approved issue. Runtime concept folder не создан, потому что `concept_slug` не был предоставлен.
+
+Текущий authoritative status Stage 04: `accepted_merged_main`. Подробное post-merge evidence приведено в финальном разделе `Stage 04 post-merge acceptance`; более ранние pending/merge-not-performed записи ниже сохранены только как исторические checkpoints.
 
 ## Доказательства GitHub-записи
 
@@ -159,13 +161,17 @@ Third narrow rework uses preferred option A: restore the root orientation sectio
 
 `USER-001` остаётся deferred/non-blocking. Service scripts не создаются в этом repair, потому что нет отдельного approved issue. Это единственная причина, по которой итоговый статус остаётся `pass_with_deferred_items`, а не `pass`.
 
-## Итоговый статус
+## Исторический итоговый статус до merge
 
-Текущий status Stage 04: `pending_manual_reviewer`.  
+Следующие строки фиксируют pre-merge checkpoint и не являются текущей истиной после принятого squash merge.
+
+Исторический status Stage 04 на этом checkpoint: `pending_manual_reviewer`.  
 `manual_reaudit_status = pending`.  
-PR `#18` остаётся открытым и несмерженным. Final narrow rework ограничен тремя production files; `State/page_registry.jsonl` не меняется, потому что ссылка/обратная ссылка Existing Issue остаются прежними. PR body обновляется после file writes и report readback, чтобы зафиксировать фактический current head, а не предсказанный SHA.
+PR `#18` на этом checkpoint оставался открытым и несмерженным. Final narrow rework был ограничен тремя production files; `State/page_registry.jsonl` не менялся, потому что ссылка/обратная ссылка Existing Issue оставались прежними. PR body обновлялся после file writes и report readback, чтобы зафиксировать фактический current head, а не предсказанный SHA.
 
-## Stage 04 final narrow rework checkpoint
+## Исторический Stage 04 final narrow rework checkpoint (до merge)
+
+Этот раздел сохранён как pre-merge evidence. Значения `pending_manual_reviewer`, `merge_not_performed` и последующие acceptance gates ниже описывают прошлый checkpoint, а не текущее состояние.
 
 Transaction: `tx-cb-stage-04-final-narrow-rework-20260620`  
 Repository: `hackdestroyerpath/3_Concept_builder_ph3_wth_nts`  
@@ -189,7 +195,7 @@ Updated: `2026-06-20T00:45:58Z`
 
 ### Exact PR scope
 
-PR должен сохранять ровно 12 paths:
+PR должен был сохранять ровно 12 paths:
 
 1. `Instructions/execution_mode_project_instructions.md`
 2. `Instructions/service_mode_project_instructions.md`
@@ -208,15 +214,15 @@ PR должен сохранять ровно 12 paths:
 
 | Gate | Result | Evidence |
 |---|---|---|
-| Branch/base isolation | `pass_before_write` | PR `#18` открыт против `main`, input head `f290a1e6...`, merged=`false`. |
+| Branch/base isolation | `pass_before_write` | PR `#18` был открыт против `main`, input head `f290a1e6...`, merged=`false`. |
 | Attachments cross-file model | `pass_frozen` | Existing Issue и Solution/Contract/Output scaffolds оба делают `attachments_manifest.jsonl` и `attachments/` optional, запрещают пустые placeholders и используют `Attachments: none` при отсутствии объектов. |
-| Historical Codex fact | `pass_frozen` | Historical agent-triggered Codex activity before GOV-001 is recorded as `true`; no Codex use after GOV-001 is recorded as `false`; derived evidence removal is recorded as `true`. |
-| Manual re-audit | `pending` | Reviewer decision не получен и не симулируется executor-ом. |
-| Page registry | `pass_no_write` | Existing Issue link set не изменён; текущий registry содержит 36 parseable unique rows, reciprocal backlink parity и orphan count `0`; observed blob `493ec1b5f038605c52733484e7bb95b7607825b0`. |
-| Persistence JSONL | `pass_frozen` | 21 независимая JSON row; final row содержит scoped facts и не содержит unqualified `codex_used_by_agent=false`. |
-| PR boundary | `pass_before_write` | Current PR scope содержит ровно 12 разрешённых paths. |
-| Stage 05 | `not_started` | Runtime concept folders и service scripts не создаются. |
-| Merge | `not_performed` | Squash merge, main readback и branch deletion требуют последующего explicit reviewer acceptance. |
+| Historical Codex fact | `pass_frozen` | Historical agent-triggered Codex activity before GOV-001 записана как `true`; Codex use after GOV-001 записан как `false`; derived evidence removal записан как `true`. |
+| Manual re-audit | `pending` | Reviewer decision на этом checkpoint ещё не был получен и не симулировался executor-ом. |
+| Page registry | `pass_no_write` | Existing Issue link set не изменён; registry содержал 36 parseable unique rows, reciprocal backlink parity и orphan count `0`; observed blob `493ec1b5f038605c52733484e7bb95b7607825b0`. |
+| Persistence JSONL | `pass_frozen` | 21 независимая JSON row; final row содержала scoped facts и не содержала unqualified `codex_used_by_agent=false`. |
+| PR boundary | `pass_before_write` | PR scope содержал ровно 12 разрешённых paths. |
+| Stage 05 | `not_started` | Runtime concept folders и service scripts не создавались. |
+| Merge | `not_performed` | На этом историческом checkpoint squash merge, main readback и branch deletion ещё ожидали reviewer acceptance. |
 
 ### Frozen content map
 
@@ -227,7 +233,7 @@ PR должен сохранять ровно 12 paths:
 | `State/page_registry.jsonl` | unchanged observed blob `493ec1b5f038605c52733484e7bb95b7607825b0` |
 | `Protocols/service_protocols/solution_contract_output_protocol.md` | unchanged observed blob `c354ce6e724dab66ba9189d6ed6c392f8dbeeabd` |
 
-Report write выполняется только после exact readback первых двух updated files. Resulting report blob/head и обновлённый PR body подтверждаются отдельным post-write readback.
+Исторически report write выполнялся только после exact readback первых двух updated files. Resulting report blob/head и обновлённый PR body подтверждались отдельным post-write readback.
 
 ### Scoped governance facts
 
@@ -241,9 +247,50 @@ Report write выполняется только после exact readback пе�
 - `runtime_concept_folders_created: false`
 - `service_scripts_created: false`
 
-### Remaining acceptance gates
+### Исторические remaining acceptance gates
+
+Ниже сохранён исходный pre-merge план, который после squash merge больше не является текущим remaining work:
 
 1. Apply the three frozen production files through high-level `update_file` and exact `fetch_file` readback.
 2. Update PR body with the confirmed resulting current head, exact 12-path scope, scoped historical/post-policy facts and `pending_manual_reviewer` status.
 3. Manual reviewer examines that current head.
 4. Squash merge, `main` readback and branch deletion remain prohibited until explicit reviewer acceptance.
+
+## Stage 04 post-merge acceptance
+
+Этот раздел является финальной authoritative записью Stage 04. Все более ранние `pending_manual_reviewer`, `merge_not_performed`, `post_merge_main_readback_required` и аналогичные формулировки выше являются историческими pre-merge checkpoints.
+
+| Поле | Значение |
+|---|---|
+| status | `accepted_merged_main` |
+| validation_status | `pass_with_deferred_items` |
+| PR | `#18`, `closed`, `merged=true` |
+| merge_method | `squash` |
+| squash commit | `13286558775897f400d6d53862e95bd61d6f2457` |
+| verified main head before closure sync | `13286558775897f400d6d53862e95bd61d6f2457` |
+| branch deleted | `true` |
+| historical_codex_use_before_gov_001 | `true` |
+| codex_used_after_gov_001 | `false` |
+| codex_derived_evidence_removed | `true` |
+| Stage 05 started | `false` |
+| post-stage donor audit | `pass_no_additional_mandatory_transfer` |
+| remaining Stage 04 blockers after closure sync | `none` |
+
+### Exact 12-path main readback
+
+| Path | Blob SHA |
+|---|---|
+| `Instructions/execution_mode_project_instructions.md` | `9e240a75304f2bfb0f3c971fab8fe9801f32daa9` |
+| `Instructions/service_mode_project_instructions.md` | `5d7260a9a5c5f564fec9e6cc1317b7e13238095b` |
+| `Protocols/common/final_validation_protocol.md` | `86e46cabb31babae86db3ff227b883ef5b207364` |
+| `Protocols/service_protocols/complex_issue_protocol.md` | `4cd9575286cd57669f439290e3bfb4e3f66c5bf5` |
+| `Protocols/service_protocols/existing_issue_protocol.md` | `fc3b8d7fb543d2e801f602938ceeb07357b3e491` |
+| `Protocols/service_protocols/issue_retention_protocol.md` | `5f7aae672db5c09533d87248f30b03d2c30eb900` |
+| `Protocols/service_protocols/linked_issues_protocol.md` | `e06c5588f65e08f789d89310a88f7be0568d5e51` |
+| `Protocols/service_protocols/requirements_protocol.md` | `f379ead71bc3774a27532986de9c698b06989612` |
+| `Protocols/service_protocols/solution_contract_output_protocol.md` | `c354ce6e724dab66ba9189d6ed6c392f8dbeeabd` |
+| `State/page_registry.jsonl` | `493ec1b5f038605c52733484e7bb95b7607825b0` |
+| `State/persistence_log.jsonl` | `7acb5613ed36b7899a0e2b5c83684c553b6d7962` |
+| `State/service_validation_report.md` | `c472a2dc7d9ae979d38325ea01a4afa9ab156925` |
+
+Post-stage donor audit не выявил дополнительного обязательного Stage 04 transfer. После применения этого closure sync Stage 04 не имеет remaining blockers; `USER-001` остаётся единственным неблокирующим deferred item общего service state.
