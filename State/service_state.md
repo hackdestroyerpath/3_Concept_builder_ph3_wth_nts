@@ -4,7 +4,7 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-004`  
 Источник истины: `State/service_state.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-21T01:41:49Z`
+Updated: `2026-06-21T14:27:15Z`
 
 ## Назначение
 
@@ -21,19 +21,20 @@ Updated: `2026-06-21T01:41:49Z`
 | Repository | `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` |
 | Production root | `/` |
 | Default branch | `main` |
-| Write status | `stage_05a_squash_merged_main_verified` |
-| GitHub metadata | `write_mode=direct_main_post_merge_evidence_sync; target_branch=main; transaction=tx-cb-stage-05a-post-merge-closure-sync-20260621` |
+| Write status | `stage_05_squash_merged_main_verified` |
+| GitHub metadata | `write_mode=direct_main_post_merge_evidence_sync; target_branch=main; transaction=tx-cb-stage-05b-post-merge-closure-sync-20260621` |
 | Validation status | `pass_with_deferred_items` |
 | Validation report | [service_validation_report.md](service_validation_report.md) |
 | Blocking status | `none` |
-| Latest accepted unification stage | `Stage 05A` |
-| Verified squash commit | `a9a91e8dd94600afde0b78987c7348db46a991df` |
-| PR | `19` |
+| Latest accepted unification stage | `Stage 05` |
+| Verified squash commit | `c9a2b8f9d6538405ceb10f182c919bae25451ade` |
+| PR | `20` |
 | Branch deleted | `true` |
-| Stage 05 | `05A accepted; 05B not_started` |
-| Next status | `ready_for_stage_05b` |
+| Stage 05 | `05A accepted; 05B accepted; top-level accepted_merged_main` |
+| Stage 06 | `not_started` |
+| Next status | `ready_for_stage_06` |
 
-`Write status` означает: Stage 05A принят через squash merge PR `#19`; accepted head `bea9593e1c22bf7d2137b87a83c0421148efd1f6`, squash commit и подтверждённый `main` head до closure sync `a9a91e8dd94600afde0b78987c7348db46a991df`. Все восемь accepted paths прочитаны из `main`, `State/page_registry.jsonl` сохранил control blob `493ec1b5f038605c52733484e7bb95b7607825b0`, а task branch удалена. Post-merge closure sync обновляет только [service_validation_report.md](service_validation_report.md), этот файл и [persistence_log.jsonl](persistence_log.jsonl). `USER-001` остаётся deferred/non-blocking; Stage 05B этим sync не запускается.
+`Write status` означает: Stage 05 принят как совокупность Stage 05A и Stage 05B. Stage 05B принят через squash merge PR `#20`; accepted head `f60c06229c6ae1e0511ff54fc3364aec115f6efe`, squash commit и подтверждённый `main` head до closure sync `c9a2b8f9d6538405ceb10f182c919bae25451ade`. Все пять accepted paths прочитаны из `main`, `State/page_registry.jsonl` сохранил control blob `493ec1b5f038605c52733484e7bb95b7607825b0`, а task branch отсутствует. Post-merge closure sync обновляет только [service_validation_report.md](service_validation_report.md), этот файл и [persistence_log.jsonl](persistence_log.jsonl). `USER-001` остаётся deferred/non-blocking; Stage 06 не запускается.
 
 ## Accepted Stage 04 capabilities
 
@@ -54,6 +55,16 @@ Updated: `2026-06-21T01:41:49Z`
 - canonical dependency metadata seed;
 - canonical service-escalation handoff;
 - no runtime concept without user scope.
+
+## Accepted Stage 05B capabilities
+
+- read-only export precheck;
+- explicit closed/WIP blocker и limitation matrix;
+- deterministic naming и collision/idempotency policy;
+- package-root local-open и root-escape gates;
+- compact issue summary;
+- synthetic non-production smoke strategy;
+- common final-validation и human/machine catalog parity.
 
 ## Минимальная загрузка при старте `Service Mode`
 
@@ -158,13 +169,13 @@ Updated: `2026-06-21T01:41:49Z`
 
 Неблокирующие deferred items:
 
-- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует accepted Stage 05A state.
+- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует accepted Stage 05 state.
 - Concrete concept folders не созданы: пользователь не задавал concept slug и initial scope.
 
 <a id="next-step-marker"></a>
 
 ## Next-step marker
 
-Next status: `ready_for_stage_05b`.
+Next status: `ready_for_stage_06`.
 
-Следующий рабочий шаг: отдельной bounded задачей запустить Stage 05B. Этот closure sync не начинает Stage 05B и не создаёт runtime concept или fixture.
+Следующий рабочий шаг: отдельной bounded задачей запустить Stage 06. Этот closure sync не начинает Stage 06 и не создаёт runtime concept, fixture или export package.
