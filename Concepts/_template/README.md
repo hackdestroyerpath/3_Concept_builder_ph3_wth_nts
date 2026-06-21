@@ -4,7 +4,7 @@ Parent: [Слой концепций](../README.md)
 Owner issue: `EXEC-011`  
 Источник истины: `Concepts/_template/README.md`  
 Status: `template`  
-Updated: `2026-06-20T20:55:35Z`
+Updated: `2026-06-20T23:57:36Z`
 
 ## Назначение
 
@@ -181,13 +181,31 @@ Initial registry может быть пустым. Не создавать issue
 
 ## Initial dependency graph
 
-`Concepts/<concept_slug>/Issues/dependency_graph.jsonl` хранит concept-local edges и может начинаться с одной metadata row:
+`Concepts/<concept_slug>/Issues/dependency_graph.jsonl` при отсутствии edges содержит ровно одну metadata row:
 
 ```json
-{"graph_version":1,"scope_type":"execution","scope_path":"Concepts/<concept_slug>/","edge_count":0,"cycle_status":"clear","updated_at":"<timestamp>"}
+{
+  "record_type": "metadata",
+  "graph_id": "concept_<concept_slug>_dependency_graph",
+  "scope_type": "execution",
+  "scope_path": "Concepts/<concept_slug>/",
+  "source_registry": "Issues/issue_registry.jsonl",
+  "node_count": 0,
+  "edge_count": 0,
+  "cycle_check": "pass",
+  "cycle_nodes": [],
+  "updated_at": "<timestamp>"
+}
 ```
 
-Root dependency graph не зеркалит concept-internal edges.
+Rules:
+
+- `cycle_status` не используется;
+- при отсутствии edges metadata row является единственной initial row;
+- будущие edges используют `record_type=edge` и canonical Linked Issues relation/readiness vocabulary;
+- при изменении issues или edges обновляются `node_count`, `edge_count`, `cycle_check`, `cycle_nodes` и `updated_at`;
+- local graph остаётся concept-local;
+- root graph не зеркалит concept-internal edges без реальной cross-scope причины.
 
 ## Service escalation state contract
 
