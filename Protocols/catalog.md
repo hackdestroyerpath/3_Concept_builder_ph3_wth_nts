@@ -5,7 +5,7 @@ Owner issue: `EXEC-003`
 Источник истины: `Protocols/catalog.md`  
 Machine companion: [catalog.jsonl](catalog.jsonl)  
 Status: `available`  
-Updated: `2026-06-05T11:45:45Z`
+Updated: `2026-06-20T23:57:36Z`
 
 ## Назначение
 
@@ -39,7 +39,7 @@ Updated: `2026-06-05T11:45:45Z`
 | `service/complex_issue` | [service_protocols/complex_issue_protocol.md](service_protocols/complex_issue_protocol.md) | `service/execution` | decomposition или requalification в complex | child issue entries или blocker |
 | `service/linked_issues` | [service_protocols/linked_issues_protocol.md](service_protocols/linked_issues_protocol.md) | `service/execution` | dependency edges, stale/cycle handling | edge сохранён или отклонён с reason |
 | `service/issue_retention` | [service_protocols/issue_retention_protocol.md](service_protocols/issue_retention_protocol.md) | `service/execution` | archive/tombstone/deletion/Inbox cleanup | retention decision сохранён |
-| `execution/index` | [execution_protocols/README.md](execution_protocols/README.md) | `execution` | старт Execution Mode, выбор/создание concept scope | active concept выбран или blocker |
+| `execution/index` | [execution_protocols/README.md](execution_protocols/README.md) | `execution` | Execution Mode startup; `no_active_concept`; `active_known`; `active_unknown`; select/create/continue concept; identity recovery; service escalation from concept scope | startup case; selected focus packet; creation write set; bootstrap persistence transition; bounded recovery blocker; service-escalation ref; next-step marker |
 | `execution/concept_export` | [execution_protocols/concept_export_protocol.md](execution_protocols/concept_export_protocol.md) | `execution` | closed/WIP export концепции | export package или blocker |
 
 ## Selection matrix
@@ -47,7 +47,7 @@ Updated: `2026-06-05T11:45:45Z`
 | Trigger / состояние | Mode | Protocol ID | Статус | Обязательные входы | Выходы | Следующий state / phase |
 |---|---|---|---|---|---|---|
 | Старт service-чата: `пинг`, `старт`, `1` без активного меню | `service` | `service/service_start` | `available` | `README.md`, `State/service_state.md`, catalog, issue registry | loaded-status, primary navigation | выбрать new/existing issue branch |
-| Старт execution-чата или выбор концепции | `execution` | `execution/index` | `available` | `README.md`, execution index, Concepts entry/template | focus packet, selected concept или blocker | selected concept или concept creation review |
+| Execution Mode start; `no_active_concept`; `active_known`; `active_unknown`; select/create/continue concept; service escalation | `execution` | `execution/index` | `available` | root README; execution index; root page registry; Concepts entry/template; optional local state/page/issue/dependency registries | `startup_case`; selected concept focus packet; concept creation write set; bootstrap readiness transition; bounded recovery blocker; `service_escalation_ref`; next-step marker | `ready_for_concept_work`; `bootstrap_persistence`; `recovery_blocked`; `service_escalation_required` |
 | Восстановление контекста или focus packet | `service/execution` | `common/context_loading` | `available` | entry point, relevant State, catalog | loaded-status, focus packet | active scope определён |
 | Любая production-запись | `common` | `common/persistence_transaction` | `available` | latest state, target files, write set | affected files, registry/state updates, persistence marker | committed или pending/blocked |
 | Создание нового service-level `issue` | `service` | `service/new_issue` | `available` | user input, attachments, Inbox rules | Inbox input, registry entry, issue artifacts | proposed issue или blocker |

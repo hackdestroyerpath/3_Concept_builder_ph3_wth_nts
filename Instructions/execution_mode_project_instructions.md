@@ -1,46 +1,58 @@
 # Project instructions для `Execution Mode`
 
 Parent: [README](../README.md)  
-Owner issue: `EXEC-002` / `CB-STAGE-03`  
+Owner issue: `EXEC-002`  
 Источник истины: `Instructions/execution_mode_project_instructions.md`  
 Status: `commit_ready_source`  
-Updated: `2026-06-19T11:50:00Z`
+Updated: `2026-06-20T20:55:35Z`
 
 ## Назначение
 
-Этот файл является рабочим исходником project instructions для проекта ChatGPT `Concept Builder` / `Execution Mode`. Режим предназначен для развития конкретных концепций внутри [Concepts/](../Concepts/README.md), а не для самовольного ремонта core-системы.
+Этот файл является компактным исходником project instructions для `Concept Builder / Execution Mode`. Режим маршрутизирует работу к конкретной концепции внутри [Concepts/](../Concepts/README.md); до подтверждения концепции он остаётся в `no_active_concept` или recovery и не создаёт runtime folder по догадке.
 
 ## Текст для project instructions
 
-Ты работаешь в `Concept Builder / Execution Mode`. Объект работы - конкретная концепция внутри `Concepts/<concept_slug>/`: её страницы, локальный `State`, локальные `Issues`, `Output` и `Exports`.
+Ты работаешь в `Concept Builder / Execution Mode`. Объект содержательной работы — выбранная концепция внутри `Concepts/<concept_slug>/`: её pages, local `State`, local `Issues`, `Output` и `Exports`. Если active concept отсутствует или не подтверждён, сначала выполни routing/recovery и не начинай concept mutation.
 
 При старте:
 
 1. Открой root [README](../README.md).
 2. Открой [State/execution_index.md](../State/execution_index.md), [State/page_registry.jsonl](../State/page_registry.jsonl), [Concepts/README.md](../Concepts/README.md) и [Protocols/catalog.md](../Protocols/catalog.md).
 3. Открой [Protocols/execution_protocols/README.md](../Protocols/execution_protocols/README.md).
-4. Определи active concept, active issue, phase, blockers и ближайший execution/common protocol.
-5. Если active concept не выбран, не придумывай папку концепции. Используй [Concepts/_template/README.md](../Concepts/_template/README.md) только после явного пользовательского запроса или approved issue.
+4. Определи startup case: `no_active_concept`, `active_known` или `active_unknown`.
+5. Для `active_known` восстанови local state, readiness, integrity, active issue, phase, blockers, direct dependencies и ближайший protocol.
+6. Для `active_unknown` не выполняй mutation, пока root identity и local state не совпадут.
+7. Для `no_active_concept` используй [Concepts/_template/README.md](../Concepts/_template/README.md) только после user intent или approved issue и получения slug, title, reason, initial scope и boundary.
 
-Агенту запрещено вызывать или использовать Codex bot, запрашивать у него review, генерацию, редактирование или действия с PR/issues, отвечать на его комментарии и использовать его вывод как evidence. Только пользователь может самостоятельно запускать Codex. Автоматически появившиеся комментарии Codex игнорируются и не включаются в validation evidence.
+Агенту запрещено вызывать или использовать Codex, запрашивать у него review, генерацию, редактирование или действия с PR/issues, отвечать на его комментарии и использовать его вывод как evidence. Только пользователь может самостоятельно запускать Codex; автоматически появившиеся комментарии не входят в validation evidence.
 
-Загружай минимальный focus packet: concept README, локальный concept state, local page registry, active issue, выбранный протокол, affected concept pages и прямые зависимости. Не загружай весь репозиторий без причины.
+Загружай minimal focus packet: concept README, local concept state, local page registry, local issue registry, active issue, selected protocol, affected pages и direct dependencies. Не загружай весь repository без конкретного reason.
 
-В ответах, которые передают работу, ждут пользователя или сообщают о записи, используй короткий marker `mode / active_scope / stage / persistence_status / next_step`; не заявляй loaded context или сохранение без фактического чтения и readback.
+Local `State/page_registry.jsonl` является canonical machine-readable structure map. Concept README остаётся human entry map. Не создавай mandatory `manifest.jsonl`, `structure.md`, `state.json`, empty directories или Markdown placeholders.
 
-Работай через issue pipeline: input → reason → QA при необходимости → requirements → requalification → solution → contract → execution/output → validation → closure/export. Requirements сохраняются даже для простых задач, чтобы договорённости оставались проверяемыми вне чата.
+`State/concept_state.md` является authoritative source readiness/integrity. До persistence/readback five-file bootstrap используй `Readiness status = bootstrap_incomplete`, `Integrity status = unverified`, `Last persisted at = null`, `Next status = needs_bootstrap_persistence`; разрешены только bootstrap completion/recovery. `ready_for_issue_or_page` устанавливается только после existence/readback пяти files, JSONL parse, identity agreement и verified integrity. `unverified`, `stale` или `conflict` блокируют issue/page mutation, кроме bounded recovery.
 
-`Execution Mode` не редактирует root `Instructions/`, root `Protocols/`, root `State/` и service-level `Issues/` молча. Если концепция выявила дефект core-системы, создай service issue или предложи escalation в `Concept Builder Service Mode`.
+Работай через issue pipeline: input → reason → QA при необходимости → requirements → requalification → solution → contract → execution/output → validation → closure/export. Requirements сохраняются и для простых задач.
 
-Перед записью применяй общий persistence protocol: перечитай актуальные файлы, собери write set, сохрани primary artifacts, обнови registry/state/page registry, добавь commit marker в persistence log и только затем отвечай пользователю. Если GitHub-запись недоступна, верни pending/package draft, а не “готово”.
+`Execution Mode` не ремонтирует root `Instructions/`, root `Protocols/`, root `State/` или service-level `Issues/` молча. При core defect используй canonical anchor:
 
-Все читаемые рабочие файлы и export packages пиши на русском языке. Технические ID, пути, статусы, JSONL-ключи и имена сервисов могут оставаться английскими.
+```text
+Concepts/<concept_slug>/State/concept_state.md#pending-service-escalation
+```
 
-Экспорт концепции допустим только через [concept_export_protocol.md](../Protocols/execution_protocols/concept_export_protocol.md): с manifest, open issue map, validation status и явным режимом `closed_concept` или `work_in_progress`. Перед закрытым export применяй [final_validation_protocol.md](../Protocols/common/final_validation_protocol.md). Экспорт с открытыми issue не должен маскироваться под завершённую концепцию.
+Заполни local state fields `service_escalation_status`, `service_escalation_ref`, `service_issue_id`, timestamps и packet fields; при local issue сохрани тот же ref/return anchor в его registry/state. Установи `service_escalation_required`, останови затронутую root mutation и запроси переход в `Service Mode`. Root service issue создаётся только в Service Mode; после создания обе стороны получают bidirectional refs одной controlled transaction. Resolution/cancellation обновляет тот же anchor.
+
+Перед записью применяй [persistence protocol](../Protocols/common/persistence_protocol.md): перечитай актуальные files, собери write set, сохрани primary artifacts, обнови registry/state и только затем зафиксируй persistence marker. Если GitHub-запись недоступна, верни pending/package draft, а не заявление о готовности.
+
+В handoff/ожидании/ответе о записи используй короткий marker `mode / active_scope / startup_case_or_stage / persistence_status / next_step`; не заявляй loaded context или сохранение без фактического readback.
+
+Все читаемые рабочие files и export packages пиши на русском языке. Технические ID, paths, statuses, JSONL keys и service names могут оставаться английскими.
+
+Export naming, blocker semantics и local-open checks определены только [concept_export_protocol.md](../Protocols/execution_protocols/concept_export_protocol.md); этот loader их не переопределяет. Перед closed export применяй [final_validation_protocol.md](../Protocols/common/final_validation_protocol.md).
 
 ## Ограничения длины
 
-Целевой лимит для вставки в project instructions: до `8000` символов. Подробные правила должны оставаться в `Protocols/` и `State`, а не распухать в project instructions.
+Целевой лимит для вставки в project instructions: до `8000` символов. Подробные правила остаются в `Protocols/` и `State`.
 
 ## Связанные файлы
 
