@@ -4,7 +4,7 @@ Parent: [service_state.md](service_state.md)
 Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01` / `CB-STAGE-04`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-20T12:42:43Z`
+Updated: `2026-06-21T01:41:49Z`
 
 ## Вердикт
 
@@ -12,7 +12,7 @@ Updated: `2026-06-20T12:42:43Z`
 
 Production root: корень репозитория `/`. Бывшая wrapper-папка `Concept Builder/` вынесена в корень и удалена из tracked production files. `USER-001` остаётся deferred/non-blocking: service scripts не создаются без отдельного approved issue. Runtime concept folder не создан, потому что `concept_slug` не был предоставлен.
 
-Текущий authoritative status Stage 04: `accepted_merged_main`. Подробное post-merge evidence приведено в финальном разделе `Stage 04 post-merge acceptance`; более ранние pending/merge-not-performed записи ниже сохранены только как исторические checkpoints.
+Текущий authoritative status Stage 05A: `accepted_merged_main`. Подробное post-merge evidence приведено в финальном разделе `Stage 05A post-merge acceptance`; все более ранние pending/merge-not-performed формулировки сохранены только как исторические checkpoints.
 
 ## Доказательства GitHub-записи
 
@@ -294,3 +294,42 @@ PR должен был сохранять ровно 12 paths:
 | `State/service_validation_report.md` | `c472a2dc7d9ae979d38325ea01a4afa9ab156925` |
 
 Post-stage donor audit не выявил дополнительного обязательного Stage 04 transfer. После применения этого closure sync Stage 04 не имеет remaining blockers; `USER-001` остаётся единственным неблокирующим deferred item общего service state.
+
+## Stage 05A post-merge acceptance
+
+Этот раздел является финальной authoritative записью Stage 05A. Все более ранние Stage 05A строки со статусами `pending_manual_reviewer`, `merge_performed=false`, `post_merge_main_readback_required=true` и branch-scoped readback являются историческими checkpoints и не определяют текущее состояние. Они сохранены без удаления и переписывания.
+
+| Поле | Значение |
+|---|---|
+| status | `accepted_merged_main` |
+| validation_status | `pass_with_deferred_items` |
+| PR | `#19`, `closed`, `merged=true` |
+| merge_method | `squash` |
+| accepted head | `bea9593e1c22bf7d2137b87a83c0421148efd1f6` |
+| squash commit | `a9a91e8dd94600afde0b78987c7348db46a991df` |
+| verified main head before closure sync | `a9a91e8dd94600afde0b78987c7348db46a991df` |
+| page-registry control blob | `493ec1b5f038605c52733484e7bb95b7607825b0` |
+| branch deleted | `true` |
+| runtime concept or fixture created | `false` |
+| Stage 05B started | `false` |
+| automatic Codex output ignored | `true` |
+| agent Codex interaction | `false` |
+| Codex evidence used | `false` |
+| post-stage donor audit | `pass_no_additional_mandatory_stage_05a_transfer` |
+| remaining Stage 05A blockers after closure sync | `none` |
+| next state | `ready_for_stage_05b` |
+
+### Exact eight-path main readback
+
+| Path | Blob SHA |
+|---|---|
+| `Concepts/README.md` | `44caf7fd588b109226b59403d3f860602390d457` |
+| `Concepts/_template/README.md` | `85c1a62c3f1917d06f2871485889a276d789c377` |
+| `Instructions/execution_mode_project_instructions.md` | `77c8dbd86ed1e28568685cfff95c331117942723` |
+| `Protocols/catalog.md` | `f998de2954182194b2ac68a554320434b25bcf54` |
+| `Protocols/catalog.jsonl` | `559e082fa6837709327d464f9aacebfde4da6756` |
+| `Protocols/execution_protocols/README.md` | `6cbf12cbd3be70e0dbbbfd56605e62e9d6288841` |
+| `State/execution_index.md` | `4c33300361339dbdbd0c38166aa22af806c681ae` |
+| `State/persistence_log.jsonl` | `e869425b4093699b6803b0eaa72b18e036e5fea4` |
+
+`State/page_registry.jsonl` не изменяется этим closure sync, потому что Markdown link set не меняется. `USER-001` остаётся deferred/non-blocking. Stage 05B может быть запущен только отдельной bounded задачей после readback этой трёхфайловой синхронизации.
