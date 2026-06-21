@@ -5,7 +5,7 @@ Owner issue: `EXEC-011`
 Protocol ID: `execution/index`  
 Источник истины: `Protocols/execution_protocols/README.md`  
 Status: `available`  
-Updated: `2026-06-20T20:55:35Z`
+Updated: `2026-06-20T23:57:36Z`
 
 ## Назначение
 
@@ -112,7 +112,33 @@ Concepts/<concept_slug>/Issues/dependency_graph.jsonl
 - empty Markdown placeholders не создаются;
 - initial local page registry перечисляет только фактически созданные files;
 - local issue registry может быть пустым;
-- dependency graph может содержать одну metadata row с `edge_count = 0`.
+- dependency graph при отсутствии edges содержит ровно одну metadata row по canonical schema ниже.
+
+### Concept-local dependency graph seed
+
+```json
+{
+  "record_type": "metadata",
+  "graph_id": "concept_<concept_slug>_dependency_graph",
+  "scope_type": "execution",
+  "scope_path": "Concepts/<concept_slug>/",
+  "source_registry": "Issues/issue_registry.jsonl",
+  "node_count": 0,
+  "edge_count": 0,
+  "cycle_check": "pass",
+  "cycle_nodes": [],
+  "updated_at": "<timestamp>"
+}
+```
+
+Rules:
+
+- `cycle_status` не используется;
+- при отсутствии edges metadata row является единственной initial row;
+- будущие edges используют `record_type=edge` и canonical Linked Issues relation/readiness vocabulary;
+- при изменении issues или edges обновляются `node_count`, `edge_count`, `cycle_check`, `cycle_nodes` и `updated_at`;
+- local graph остаётся concept-local;
+- root graph не зеркалит concept-internal edges без реальной cross-scope причины.
 
 ## Bootstrap persistence и readiness transition
 
