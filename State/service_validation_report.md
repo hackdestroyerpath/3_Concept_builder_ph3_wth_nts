@@ -4,7 +4,7 @@ Parent: [service_state.md](service_state.md)
 Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01` / `CB-STAGE-04`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-21T01:41:49Z`
+Updated: `2026-06-21T14:27:15Z`
 
 ## Вердикт
 
@@ -12,7 +12,7 @@ Updated: `2026-06-21T01:41:49Z`
 
 Production root: корень репозитория `/`. Бывшая wrapper-папка `Concept Builder/` вынесена в корень и удалена из tracked production files. `USER-001` остаётся deferred/non-blocking: service scripts не создаются без отдельного approved issue. Runtime concept folder не создан, потому что `concept_slug` не был предоставлен.
 
-Текущий authoritative status Stage 05A: `accepted_merged_main`. Подробное post-merge evidence приведено в финальном разделе `Stage 05A post-merge acceptance`; все более ранние pending/merge-not-performed формулировки сохранены только как исторические checkpoints.
+Текущий authoritative status Stage 05: `accepted_merged_main`. Подробное post-merge evidence приведено в финальных разделах `Stage 05B post-merge acceptance` и `Stage 05 top-level acceptance`; все более ранние pending/merge-not-performed формулировки сохранены только как исторические checkpoints.
 
 ## Доказательства GitHub-записи
 
@@ -333,3 +333,58 @@ Post-stage donor audit не выявил дополнительного обяз
 | `State/persistence_log.jsonl` | `e869425b4093699b6803b0eaa72b18e036e5fea4` |
 
 `State/page_registry.jsonl` не изменяется этим closure sync, потому что Markdown link set не меняется. `USER-001` остаётся deferred/non-blocking. Stage 05B может быть запущен только отдельной bounded задачей после readback этой трёхфайловой синхронизации.
+
+## Stage 05B post-merge acceptance
+
+Этот раздел является финальной authoritative записью Stage 05B. Все branch-scoped записи Stage 05B со статусами `pending_manual_reviewer`, `merge_performed=false`, `branch_readback_required`, `post_merge_main_readback_required` и аналогичными формулировками являются историческими checkpoints, а не текущей истиной.
+
+| Поле | Значение |
+|---|---|
+| stage_05b_status | `accepted_merged_main` |
+| validation_status | `pass_with_deferred_items` |
+| PR | `#20`, `closed`, `merged=true` |
+| merge_method | `squash` |
+| accepted_head | `f60c06229c6ae1e0511ff54fc3364aec115f6efe` |
+| squash_commit | `c9a2b8f9d6538405ceb10f182c919bae25451ade` |
+| verified_main_head_before_sync | `c9a2b8f9d6538405ceb10f182c919bae25451ade` |
+| branch_absent | `true` |
+| page_registry_blob | `493ec1b5f038605c52733484e7bb95b7607825b0` |
+| registry_coverage | `CBU-EXP-001..CBU-EXP-006 = pass` |
+| runtime_concept_created | `false` |
+| runtime_fixture_created | `false` |
+| export_package_created | `false` |
+| stage_06_started | `false` |
+| agent_codex_interaction | `false` |
+| codex_evidence_used | `false` |
+| post_stage_donor_audit | `pass_no_additional_mandatory_stage_05_transfer` |
+| remaining_stage_05b_blockers | `none` |
+| next_state | `ready_for_stage_06` |
+
+### Exact five-path main readback
+
+| Path | Blob SHA |
+|---|---|
+| `Protocols/execution_protocols/concept_export_protocol.md` | `cd642809354a0b15e26fd99c6d7aec1836bf4a66` |
+| `Protocols/common/final_validation_protocol.md` | `d6f85c77689bd9286605a4dc5c531953a1a83bfc` |
+| `Protocols/catalog.md` | `1c62795b1adde4f0bc22cc2aeadad1493e77b506` |
+| `Protocols/catalog.jsonl` | `5ac9056e3480432aa24ef781b32c609e1fc02cfe` |
+| `State/persistence_log.jsonl` | `89995c6cb38a19b3a99e07f255f2205acdc32d68` |
+
+Post-stage donor audit подтвердил, что обязательные Stage 05 transfer items покрыты либо намеренно отклонены архитектурой leader: дополнительный перенос не требуется. `State/page_registry.jsonl` сохраняет control blob `493ec1b5f038605c52733484e7bb95b7607825b0`.
+
+## Stage 05 top-level acceptance
+
+Этот раздел является текущей authoritative записью верхнего уровня Stage 05 и объединяет принятые Stage 05A и Stage 05B.
+
+| Поле | Значение |
+|---|---|
+| stage_05a_status | `accepted_merged_main` |
+| stage_05b_status | `accepted_merged_main` |
+| top_level_stage_05_status | `accepted_merged_main` |
+| validation_status | `pass_with_deferred_items` |
+| remaining_stage_05_blockers | `none` |
+| next_state | `ready_for_stage_06` |
+| stage_06_started | `false` |
+| overall_closure_allowed | `false` |
+
+Stage 06 разрешён только как следующая отдельная bounded задача. Этот closure sync не запускает Stage 06, не создаёт runtime concept, fixture или export package и не закрывает всю программу унификации.
