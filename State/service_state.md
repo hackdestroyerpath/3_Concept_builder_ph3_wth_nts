@@ -4,7 +4,7 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-004`  
 Источник истины: `State/service_state.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-20T12:42:43Z`
+Updated: `2026-06-21T01:41:49Z`
 
 ## Назначение
 
@@ -21,19 +21,19 @@ Updated: `2026-06-20T12:42:43Z`
 | Repository | `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` |
 | Production root | `/` |
 | Default branch | `main` |
-| Write status | `stage_04_squash_merged_main_verified` |
-| GitHub metadata | `write_mode=direct_main_post_merge_evidence_sync; target_branch=main; transaction=tx-cb-stage-04-post-merge-closure-sync-20260620` |
+| Write status | `stage_05a_squash_merged_main_verified` |
+| GitHub metadata | `write_mode=direct_main_post_merge_evidence_sync; target_branch=main; transaction=tx-cb-stage-05a-post-merge-closure-sync-20260621` |
 | Validation status | `pass_with_deferred_items` |
 | Validation report | [service_validation_report.md](service_validation_report.md) |
 | Blocking status | `none` |
-| Latest accepted service stage | `Stage 04` |
-| Verified squash commit | `13286558775897f400d6d53862e95bd61d6f2457` |
-| PR | `18` |
+| Latest accepted unification stage | `Stage 05A` |
+| Verified squash commit | `a9a91e8dd94600afde0b78987c7348db46a991df` |
+| PR | `19` |
 | Branch deleted | `true` |
-| Stage 05 | `not_started` |
-| Next status | `ready_for_stage_05_or_new_service_issue` |
+| Stage 05 | `05A accepted; 05B not_started` |
+| Next status | `ready_for_stage_05b` |
 
-`Write status` означает: Stage 04 принят через squash merge PR `#18`, commit `13286558775897f400d6d53862e95bd61d6f2457` подтверждён как `main` head до closure sync, все 12 merged paths прочитаны из `main`, а task branch удалена. Post-merge closure sync обновляет только [service_validation_report.md](service_validation_report.md), этот файл и [persistence_log.jsonl](persistence_log.jsonl). `USER-001` остаётся deferred/non-blocking. Stage 05 этим sync не запускается.
+`Write status` означает: Stage 05A принят через squash merge PR `#19`; accepted head `bea9593e1c22bf7d2137b87a83c0421148efd1f6`, squash commit и подтверждённый `main` head до closure sync `a9a91e8dd94600afde0b78987c7348db46a991df`. Все восемь accepted paths прочитаны из `main`, `State/page_registry.jsonl` сохранил control blob `493ec1b5f038605c52733484e7bb95b7607825b0`, а task branch удалена. Post-merge closure sync обновляет только [service_validation_report.md](service_validation_report.md), этот файл и [persistence_log.jsonl](persistence_log.jsonl). `USER-001` остаётся deferred/non-blocking; Stage 05B этим sync не запускается.
 
 ## Accepted Stage 04 capabilities
 
@@ -44,6 +44,16 @@ Updated: `2026-06-20T12:42:43Z`
 - retention lifecycle;
 - `GOV-001`;
 - optional attachment artifacts.
+
+## Accepted Stage 05A capabilities
+
+- explicit startup cases;
+- five-file concept bootstrap;
+- verified-only readiness и разделение lifecycle/readiness/integrity;
+- local page/issue/dependency isolation;
+- canonical dependency metadata seed;
+- canonical service-escalation handoff;
+- no runtime concept without user scope.
 
 ## Минимальная загрузка при старте `Service Mode`
 
@@ -148,13 +158,13 @@ Updated: `2026-06-20T12:42:43Z`
 
 Неблокирующие deferred items:
 
-- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует accepted Stage 04 state.
+- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует accepted Stage 05A state.
 - Concrete concept folders не созданы: пользователь не задавал concept slug и initial scope.
 
 <a id="next-step-marker"></a>
 
 ## Next-step marker
 
-Next status: `ready_for_stage_05_or_new_service_issue`.
+Next status: `ready_for_stage_05b`.
 
-Следующий рабочий шаг: отдельной задачей запустить Stage 05 либо открыть новый service issue. Этот closure sync Stage 05 не запускает.
+Следующий рабочий шаг: отдельной bounded задачей запустить Stage 05B. Этот closure sync не начинает Stage 05B и не создаёт runtime concept или fixture.
