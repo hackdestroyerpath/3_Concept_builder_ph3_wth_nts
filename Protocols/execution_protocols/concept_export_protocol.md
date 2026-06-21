@@ -388,7 +388,7 @@ Evidence сохраняется в validation/persistence/PR notes. Файлы s
 11. Проверить collision/idempotency по фактическому export path.
 12. Persist package и `manifest.md`; выполнить readback.
 13. Только после readback обновить concept state export fields.
-14. Обновить local page registry, root [execution_index.md](../../State/execution_index.md) и root page registry только при фактическом status/file/link delta.
+14. Обновить local page registry, root [execution_index.md](../../State/execution_index.md) и root [page registry](../../State/page_registry.jsonl) только при фактическом status/file/link delta.
 15. Добавить factual persistence entry без predicted self-identity.
 16. Ответить пользователю после readback либо честно вернуть blocker.
 
