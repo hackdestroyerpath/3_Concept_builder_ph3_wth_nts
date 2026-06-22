@@ -4,7 +4,7 @@ Parent: [service_state.md](service_state.md)
 Owner issue: `ROOT-FLAT-ACCEPTANCE` / `CB-STAGE-01` / `CB-STAGE-04` / `CB-STAGE-05` / `CB-STAGE-06`  
 Источник истины: `State/service_validation_report.md`  
 Status: `pass_with_deferred_items`  
-Updated: `2026-06-21T22:15:00Z`
+Updated: `2026-06-22T13:23:24Z`
 
 ## Вердикт
 
@@ -12,7 +12,7 @@ Updated: `2026-06-21T22:15:00Z`
 
 Production root: корень репозитория `/`. Бывшая wrapper-папка `Concept Builder/` вынесена в корень и удалена из tracked production files. `USER-001` остаётся deferred/non-blocking: service scripts не создаются без отдельного approved issue. Runtime concept folder не создан, потому что `concept_slug` не был предоставлен.
 
-Текущий authoritative merged-main status: Stage 05 `accepted_merged_main`. Stage 06 ниже является только branch-scoped final-acceptance candidate; manual reviewer pending, PR не смержен, Stage 07 не начат, overall closure не объявляется.
+Текущий authoritative merged-main status: Stage 06 `accepted_merged_main`; Stage 07 `skipped_no_residuals`; overall unification `accepted_merged_main`; closure allowed. Все более ранние branch-scoped candidate и pending-reviewer формулировки ниже являются историческими pre-merge checkpoints.
 
 ## Доказательства GitHub-записи
 
@@ -216,7 +216,7 @@ PR должен был сохранять ровно 12 paths:
 |---|---|---|
 | Branch/base isolation | `pass_before_write` | PR `#18` был открыт против `main`, input head `f290a1e6...`, merged=`false`. |
 | Attachments cross-file model | `pass_frozen` | Existing Issue и Solution/Contract/Output scaffolds оба делают `attachments_manifest.jsonl` и `attachments/` optional, запрещают пустые placeholders и используют `Attachments: none` при отсутствии объектов. |
-| Historical Codex fact | `pass_frozen` | Historical agent-triggered Codex activity before GOV-001 записана как `true`; Codex use after GOV-001 записан как `false`; derived evidence removal записан как `true`. |
+| Historical Codex fact | `pass_frozen` | Historical agent-triggered Codex activity before GOV-001 записана как `true`; Codex use after GOV-001 записан как `false`; derived evidence removal записано как `true`. |
 | Manual re-audit | `pending` | Reviewer decision на этом checkpoint ещё не был получен и не симулировался executor-ом. |
 | Page registry | `pass_no_write` | Existing Issue link set не изменён; registry содержал 36 parseable unique rows, reciprocal backlink parity и orphan count `0`; observed blob `493ec1b5f038605c52733484e7bb95b7607825b0`. |
 | Persistence JSONL | `pass_frozen` | 21 независимая JSON row; final row содержала scoped facts и не содержала unqualified `codex_used_by_agent=false`. |
@@ -345,9 +345,9 @@ overall_closure_allowed: false
 ```
 
 
-## Stage 06 branch-scoped final acceptance candidate
+## Исторический Stage 06 branch-scoped final acceptance candidate (до merge)
 
-Этот раздел является provisional branch result для `stage-06-final-validation-north-star` от exact base `7c098fea42a6875cb9660cb044ec1fbae51462ac`. Он не является merged-main acceptance, не запускает Stage 07 и не разрешает overall closure. Manual reviewer и один open PR в `main` остаются следующими внешними gates.
+Этот раздел является историческим provisional branch result для `stage-06-final-validation-north-star` от exact base `7c098fea42a6875cb9660cb044ec1fbae51462ac`. Все `pending_manual_reviewer`, `closure_allowed=false`, `Stage 07 candidate`, `branch_not_merged` и аналогичные значения ниже описывают pre-merge checkpoint, а не текущее authoritative состояние.
 
 ### Scope и frozen controls
 
@@ -649,3 +649,62 @@ Validation result for the bounded branch candidate: `pass_with_deferred_items`. 
 
 
 Stage 06 enforcement refs: [service instructions](../Instructions/service_mode_project_instructions.md); [execution instructions](../Instructions/execution_mode_project_instructions.md); [final validation protocol](../Protocols/common/final_validation_protocol.md); [complex issue protocol](../Protocols/service_protocols/complex_issue_protocol.md); [issue retention protocol](../Protocols/service_protocols/issue_retention_protocol.md); [linked issues protocol](../Protocols/service_protocols/linked_issues_protocol.md); [requirements protocol](../Protocols/service_protocols/requirements_protocol.md).
+
+## Stage 06 post-merge acceptance
+
+Этот раздел является текущей authoritative записью Stage 06 после принятого squash merge PR `#21`. Все branch-scoped `pending_manual_reviewer`, `closure_allowed=false`, `Stage 07 candidate`, `branch_not_merged`, `merge forbidden` и аналогичные значения в предыдущем разделе являются историческими pre-merge checkpoints.
+
+```yaml
+stage_06_status: accepted_merged_main
+validation_status: pass_with_deferred_items
+pr: 21
+pr_closed: true
+pr_merged: true
+merge_method: squash
+accepted_head: 63ab967596adaec808af3c1218a0e2aa757cb6f1
+squash_commit: 2e53711bb751f21c54b24c3d6dc6b9ed0944230b
+verified_main_head_before_sync: 2e53711bb751f21c54b24c3d6dc6b9ed0944230b
+branch_absent: true
+north_star_total: 74
+accepted_done: 64
+accepted_deferred: 3
+rejected_with_reason: 7
+residual: 0
+residual_ids: []
+```
+
+### Exact six-path `main` readback
+
+```yaml
+Protocols/common/final_validation_protocol.md: c63592d082a5b9396d99d2107c77f030a18907d9
+Protocols/catalog.md: bfbfe3b3f47ddb1c6aedde9e4f6a77c6710615d9
+Protocols/catalog.jsonl: 5b4f0484f669f72e61a179857f00e7383a0ff098
+Issues/issue_registry.md: fd00d8d95f76abe5ea79677f67d51c515ddb67bd
+State/service_validation_report.md: c96400cb28cae6f26c80eb592c62a3e6e6dd5c4a
+State/persistence_log.jsonl: c3dc4a5ba05d19377326cd82bd4f03691875561f
+```
+
+`USER-001` / `NO-007`, `NAV-007` и `CTX-006` остаются accepted deferred/nonblocking decisions. Их owner, reason и next action сохранены в North Star matrix; они не входят в `residual_ids` и не являются blockers.
+
+## Stage 07 decision
+
+```yaml
+stage_07_status: skipped_no_residuals
+stage_07_started: false
+residual: 0
+residual_ids: []
+reason: no residual IDs remain after accepted Stage 06 disposition of all 74 North Star IDs
+```
+
+Stage 07 content work не выполняется. Любая новая работа требует нового approved issue и не является продолжением Stage 07.
+
+## Overall unification closure
+
+```yaml
+overall_unification_status: accepted_merged_main
+overall_closure_allowed: true
+remaining_blockers: []
+next_state: ready_for_runtime_use_or_new_service_issue
+```
+
+Программа унификации закрыта на repository State. Текущая production-система готова к runtime use; дальнейшие изменения выполняются только через новый approved service issue.
