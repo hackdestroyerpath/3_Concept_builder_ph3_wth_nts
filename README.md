@@ -1,8 +1,8 @@
 # Concept Builder
 
-Статус: `pass_with_deferred_items`  
+Статус: `repair_rework_candidate_pending_manual_reviewer`  
 Источник истины этого входа: `README.md`  
-Последнее обновление: `2026-06-17T14:07:00Z`  
+Последнее обновление: `2026-06-25T22:04:48+02:00`  
 Реестр страниц: [State/page_registry.jsonl](State/page_registry.jsonl)  
 Карта навигации: [State/navigation_map.md](State/navigation_map.md)  
 Финальная проверка: [State/service_validation_report.md](State/service_validation_report.md)
@@ -17,6 +17,23 @@
 Production root: корень репозитория `/`; бывшая wrapper-папка `Concept Builder/` вынесена в корень и не является production boundary.
 
 Этот файл является главным входом в репозиторий. Он не дублирует всю систему: он ведёт агента к ближайшему источнику истины и помогает выбрать минимальный рабочий контекст.
+
+## Current-main repair candidate
+
+```yaml
+repository: hackdestroyerpath/3_Concept_builder_ph3_wth_nts
+verified_base_main: 194970c7c5ac37f2dbbfcd51256caaa46f67f8f9
+latest_accepted_implementation: Stage 06 merged in PR #21
+stage_07_status: repair_candidate_pending_manual_reviewer
+base_residual_ids: [RES-CLOSURE-001, RES-LANG-001]
+candidate_residual_ids: []
+closure_candidate: true
+closure_allowed: false
+```
+
+Реализация через merged PR `#21` присутствует в `main`. Коммит `194970c7c5ac37f2dbbfcd51256caaa46f67f8f9` изменил только `State/service_validation_report.md` и добавил неподтверждённое cross-file утверждение о финальном закрытии; текущий bounded repair candidate исправляет эту truth drift.
+
+`candidate_residual_ids=[]` и `closure_candidate=true` относятся только к полностью записанному и перечитанному head ветки `agent/cbu-current-main-truth-language-repair-20260622`. Они не означают merge или final closure. `closure_allowed=false` сохраняется до manual reviewer acceptance, squash merge, fresh `main` readback и отдельного final closure transition.
 
 ## Старт агента
 
@@ -117,4 +134,4 @@ Production root: корень репозитория `/`; бывшая wrapper-�
 
 ## Текущий статус сборки
 
-`Service Mode` и базовый `Execution Mode` находятся в состоянии `pass_with_deferred_items` после direct-main root-flatten repair. Production root: корень репозитория `/`; бывшая wrapper-папка `Concept Builder/` удалена из tracked production files. Фактическая GitHub-запись выполнена напрямую в `main` для `hackdestroyerpath/3_Concept_builder_ph3_wth_nts`; transaction `tx-cb-root-flatten-20260616`. Конкретные concept folders не созданы, потому что пользователь не дал `concept_slug` и initial scope. `USER-001` остаётся deferred/non-blocking и не создаёт service scripts без отдельного approved issue.
+`Service Mode` и базовый `Execution Mode` сохраняют accepted implementation through merged PR `#21`. Текущий branch candidate устраняет `RES-CLOSURE-001` и `RES-LANG-001`, но остаётся `repair_candidate_pending_manual_reviewer`: `closure_candidate=true`, `closure_allowed=false`, merge не выполнен. Следующий gate — manual reviewer recheck, затем только при acceptance squash merge, fresh `main` readback и отдельный final closure transition. `USER-001` остаётся deferred/non-blocking; concrete concept folders и service scripts не создавались.

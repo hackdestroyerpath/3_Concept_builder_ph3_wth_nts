@@ -5,8 +5,8 @@ Owner issue: `EXEC-005`
 Источник истины: `Issues/issue_registry.md`  
 Machine companion: [issue_registry.jsonl](issue_registry.jsonl)  
 Dependency graph: [dependency_graph.jsonl](dependency_graph.jsonl)  
-Status: `validated`  
-Updated: `2026-06-21T22:15:00Z`
+Status: `validated_pending_current_main_repair`  
+Updated: `2026-06-25T22:04:48+02:00`
 
 ## Назначение
 
@@ -36,7 +36,7 @@ Updated: `2026-06-21T22:15:00Z`
 | `EXEC-009` | `implementation` | `closed` | `ready` | Solution/contract/output workflow принят. | `Protocols/service_protocols/solution_contract_output_protocol.md` |
 | `EXEC-010` | `implementation` | `closed` | `ready` | Complex/linked workflow принят. | `Protocols/service_protocols/complex_issue_protocol.md` |
 | `EXEC-011` | `implementation` | `closed` | `ready` | Execution/concept/export layer принята. | `Protocols/execution_protocols/README.md` |
-| `EXEC-012` | `implementation` | `closed` | `ready` | Final-validation path принят и усилен Stage 06 branch candidate. | `Protocols/common/final_validation_protocol.md` |
+| `EXEC-012` | `implementation` | `closed` | `ready` | Stage 06 implementation принята через merged PR `#21`; current-main residual repair и отдельный final closure transition ещё ожидаются. | `Protocols/common/final_validation_protocol.md` |
 | `USER-001` | `user-noted` | `deferred` | `ready` | Nonblocking: scripts только по отдельному cost/benefit issue. | `Issues/CB-SVC-001-script-assessment/` |
 | `USER-002` | `user-noted` | `closed` | `ready` | State layout покрыт. | `State/service_state.md` |
 | `USER-003` | `user-noted` | `closed` | `ready` | Execution Mode покрыт. | `Protocols/execution_protocols/README.md` |
@@ -48,6 +48,21 @@ Updated: `2026-06-21T22:15:00Z`
 | `OPT-002` | `optimizer-detected` | `closed_as_continuous_guard` | `not_applicable` | Operational language/style guard. | `Protocols/common/final_validation_protocol.md` |
 | `OPT-003` | `optimizer-detected` | `closed_as_continuous_guard` | `ready` | Context budget/local focus. | `State/service_state.md` |
 | `OPT-004` | `optimizer-detected` | `closed_as_continuous_guard` | `ready` | Link/backlink/orphan guard. | `State/page_registry.jsonl` |
+
+## Current bounded residual repair
+
+`RES-CLOSURE-001` и `RES-LANG-001` являются current-main repair residuals, а не новыми North Star source IDs и не synthetic runtime issue. Их branch candidate находится в `agent/cbu-current-main-truth-language-repair-20260622` и остаётся `pending_manual_reviewer`.
+
+```yaml
+base_main: 194970c7c5ac37f2dbbfcd51256caaa46f67f8f9
+base_residual_ids: [RES-CLOSURE-001, RES-LANG-001]
+candidate_residual_ids: []
+stage_07_status: repair_candidate_pending_manual_reviewer
+closure_candidate: true
+closure_allowed: false
+```
+
+Candidate fields применимы только после exact branch readback. Merge и final closure не выполнены.
 
 ## Deferred items
 

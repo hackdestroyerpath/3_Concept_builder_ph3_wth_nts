@@ -5,13 +5,13 @@ Owner issue: `EXEC-006`
 Источник истины: `Inbox/README.md`  
 Связанные протоколы: [new_issue_protocol.md](../Protocols/service_protocols/new_issue_protocol.md), [issue_retention_protocol.md](../Protocols/service_protocols/issue_retention_protocol.md)  
 Status: `available-empty-entrypoint`  
-Updated: `2026-06-05T09:52:51Z`
+Updated: `2026-06-22T21:56:58+02:00`
 
 ## Назначение
 
 `Inbox` хранит входные материалы пользователя до и после превращения их в `issue`: текст точки входа, attachments, manifest, связь с issue и traceability. Это staging-зона источников, а не место для решений, requirements или output.
 
-Смысл простой: сначала сохранить вход и связь, потом анализировать. Обратный порядок удобен только тем, кто любит спорить с собственной памятью.
+Сначала сохраняются вход и traceability, затем начинается анализ. Если persistence или readback не подтверждены, обработка останавливается с честным pending/blocked status.
 
 ## Что хранится в Inbox
 

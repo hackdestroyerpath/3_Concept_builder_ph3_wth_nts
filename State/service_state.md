@@ -3,8 +3,8 @@
 Parent: [README](../README.md)  
 Owner issue: `EXEC-004`  
 Источник истины: `State/service_state.md`  
-Status: `pass_with_deferred_items`  
-Updated: `2026-06-21T14:27:15Z`
+Status: `repair_rework_candidate_pending_manual_reviewer`  
+Updated: `2026-06-25T22:04:48+02:00`
 
 ## Назначение
 
@@ -17,24 +17,31 @@ Updated: `2026-06-21T14:27:15Z`
 | Mode | `Service Mode` |
 | Active scope | `root_service` |
 | Active issue | `none` |
-| Active phase | `none` |
+| Active phase | `current_main_truth_language_repair_rework` |
 | Repository | `hackdestroyerpath/3_Concept_builder_ph3_wth_nts` |
 | Production root | `/` |
 | Default branch | `main` |
-| Write status | `stage_05_squash_merged_main_verified` |
-| GitHub metadata | `write_mode=direct_main_post_merge_evidence_sync; target_branch=main; transaction=tx-cb-stage-05b-post-merge-closure-sync-20260621` |
-| Validation status | `pass_with_deferred_items` |
+| Task branch | `agent/cbu-current-main-truth-language-repair-20260622` |
+| Pull request | `#22` (`open`, `unmerged`) |
+| Write status | `current_main_truth_language_repair_rework_candidate_pending_manual_reviewer` |
+| GitHub metadata | `write_mode=branch_pr; base_main=194970c7c5ac37f2dbbfcd51256caaa46f67f8f9; reviewed_input_head=beb12ea6d012949b4480c84fc493203bb1f13a11` |
+| Validation status | `pass_with_deferred_items`; rework candidate pending complete branch readback and manual reviewer recheck |
 | Validation report | [service_validation_report.md](service_validation_report.md) |
-| Blocking status | `none` |
-| Latest accepted unification stage | `Stage 05` |
-| Verified squash commit | `c9a2b8f9d6538405ceb10f182c919bae25451ade` |
-| PR | `20` |
-| Branch deleted | `true` |
+| Blocking status | `pending_manual_reviewer` |
+| Latest accepted implementation | `Stage 06 merged in PR #21` |
+| Verified base main | `194970c7c5ac37f2dbbfcd51256caaa46f67f8f9` |
 | Stage 05 | `05A accepted; 05B accepted; top-level accepted_merged_main` |
-| Stage 06 | `not_started` |
-| Next status | `ready_for_stage_06` |
+| Stage 06 | `accepted implementation merged in PR #21` |
+| Stage 07 status | `repair_candidate_pending_manual_reviewer` |
+| Base residual IDs | `RES-CLOSURE-001`, `RES-LANG-001` |
+| Candidate residual IDs | `[]` only after complete branch validation/readback |
+| Closure candidate | `true` only after complete branch validation/readback |
+| Closure allowed | `false` |
+| Next status | `pending_manual_reviewer_recheck_then_squash_merge_fresh_main_readback_and_separate_final_closure_transition` |
 
-`Write status` означает: Stage 05 принят как совокупность Stage 05A и Stage 05B. Stage 05B принят через squash merge PR `#20`; accepted head `f60c06229c6ae1e0511ff54fc3364aec115f6efe`, squash commit и подтверждённый `main` head до closure sync `c9a2b8f9d6538405ceb10f182c919bae25451ade`. Все пять accepted paths прочитаны из `main`, `State/page_registry.jsonl` сохранил control blob `493ec1b5f038605c52733484e7bb95b7607825b0`, а task branch отсутствует. Post-merge closure sync обновляет только [service_validation_report.md](service_validation_report.md), этот файл и [persistence_log.jsonl](persistence_log.jsonl). `USER-001` остаётся deferred/non-blocking; Stage 06 не запускается.
+Stage 06 implementation from merged PR `#21` присутствует в `main`. Commit `194970c7c5ac37f2dbbfcd51256caaa46f67f8f9` добавил unsupported positive final-closure claim только в [service_validation_report.md](service_validation_report.md), тогда как README, service state, issue snapshot, page metadata и [persistence_log.jsonl](persistence_log.jsonl) не подтверждали отдельный разрешённый final transition.
+
+Текущая ветка `agent/cbu-current-main-truth-language-repair-20260622` исправляет base residuals `RES-CLOSURE-001` и `RES-LANG-001`. Candidate residuals считаются пустыми, а `closure_candidate=true` — factual только после полного final-branch readback. Ветка не является merged state; `closure_allowed=false`, manual reviewer recheck, squash merge, fresh `main` readback и separate final-closure transition остаются обязательными gates. Приведённые ниже operational sections и accepted capabilities сохраняются без сокращения.
 
 ## Accepted Stage 04 capabilities
 
@@ -165,17 +172,17 @@ Updated: `2026-06-21T14:27:15Z`
 
 ## Blockers
 
-Блокирующие вопросы: `none`.
+Блокирующий gate: `pending_manual_reviewer`. Reviewer blockers `CBU-RW-HISTORY-001` и `CBU-RW-BOUND-001` считаются закрытыми только после complete branch readback и повторного manual review.
 
 Неблокирующие deferred items:
 
-- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует accepted Stage 05 state.
+- `USER-001`: оценка служебных скриптов вынесена в будущий approved issue; это не блокирует accepted implementation или текущий repair candidate.
 - Concrete concept folders не созданы: пользователь не задавал concept slug и initial scope.
 
 <a id="next-step-marker"></a>
 
 ## Next-step marker
 
-Next status: `ready_for_stage_06`.
+Next status: `pending_manual_reviewer_recheck_then_squash_merge_fresh_main_readback_and_separate_final_closure_transition`.
 
-Следующий рабочий шаг: отдельной bounded задачей запустить Stage 06. Этот closure sync не начинает Stage 06 и не создаёт runtime concept, fixture или export package.
+Следующий gate: manual reviewer проверяет exact final branch head, сохранение historical evidence, bounded deltas и семь blob SHA. Merge, post-merge `main` readback и положительный final-closure transition находятся вне этой executor-задачи.
