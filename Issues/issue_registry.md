@@ -4,7 +4,7 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-005`  
 Источник истины: `Issues/issue_registry.md`  
 Machine companion: [issue_registry.jsonl](issue_registry.jsonl)  
-Dependency graph: [dependency_graph.jsonl](/dependency_graph.jsonl)  
+Dependency graph: [dependency_graph.jsonl](dependency_graph.jsonl)  
 Status: `validated_pending_current_main_repair`  
 Updated: `2026-06-25T22:04:48+02:00`
 
