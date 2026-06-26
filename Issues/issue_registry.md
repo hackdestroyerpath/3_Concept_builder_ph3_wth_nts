@@ -4,28 +4,28 @@ Parent: [README](../README.md)
 Owner issue: `EXEC-005`  
 Источник истины: `Issues/issue_registry.md`  
 Machine companion: [issue_registry.jsonl](issue_registry.jsonl)  
-Dependency graph: [dependency_graph.jsonl](dependency_graph.jsonl)  
+Dependency graph: [dependency_graph.jsonl](/dependency_graph.jsonl)  
 Status: `validated_pending_current_main_repair`  
-Updated: `2026-06-22T21:56:58+02:00`
+Updated: `2026-06-25T22:04:48+02:00`
 
 ## Назначение
 
-Этот файл — человекочитаемый вход в root issue-модель `Concept Builder`. Machine source — `issue_registry.jsonl`, dependency edges — `dependency_graph.jsonl`. Runtime issue folders создаются только когда реальный lifecycle требует phase artifacts; пустые placeholders запрещены.
+Этот файл — человекочитаемый вход в root issue-модель `Concept Builder`. Machine source — `issue_registry.jsonl`, dependency edges — `dependency_graph.jsonl`. Runtime issue folders не создаются заранее; они появляются только когда реальный protocol требует phase artifacts.
 
 ## Status policy
 
 | Status | Значение |
 |---|---|
-| `closed` | issue реализован и покрыт accepted validation |
+| `closed` | issue реализован и покрыт финальной проверкой |
 | `deferred` | issue отложен с owner, reason и next action |
-| `closed_as_continuous_guard` | разовая задача закрыта как постоянный guard |
-| `blocked` | нужен bounded repair или внешнее решение |
+| `closed_as_continuous_guard` | разовое issue закрыто как постоянный guard |
+| `blocked` | нужен repair step |
 
 ## Coverage snapshot
 
 | ID | Class | Status | Dependency ready | Coverage / decision | Основной output |
 |---|---|---|---|---|---|
-| `EXEC-001` | `implementation` | `closed` | `not_applicable` | Root network и entry map приняты. | `README.md` |
+| `EXEC-001` | `implementation` | `closed` | `not_applicable` | Закрыто accepted root validation; новые изменения требуют approved issue. | `README.md` |
 | `EXEC-002` | `implementation` | `closed` | `ready` | Project instruction loaders приняты. | `Instructions/service_mode_project_instructions.md` |
 | `EXEC-003` | `implementation` | `closed` | `ready` | Catalog и routing приняты. | `Protocols/catalog.md` |
 | `EXEC-004` | `implementation` | `closed` | `ready` | State/persistence model принята. | `State/service_state.md` |
@@ -37,7 +37,7 @@ Updated: `2026-06-22T21:56:58+02:00`
 | `EXEC-010` | `implementation` | `closed` | `ready` | Complex/linked workflow принят. | `Protocols/service_protocols/complex_issue_protocol.md` |
 | `EXEC-011` | `implementation` | `closed` | `ready` | Execution/concept/export layer принята. | `Protocols/execution_protocols/README.md` |
 | `EXEC-012` | `implementation` | `closed` | `ready` | Stage 06 implementation принята через merged PR `#21`; current-main residual repair и отдельный final closure transition ещё ожидаются. | `Protocols/common/final_validation_protocol.md` |
-| `USER-001` | `user-noted` | `deferred` | `ready` | Scripts только по отдельному cost/benefit issue после usage signal. | `Issues/CB-SVC-001-script-assessment/` |
+| `USER-001` | `user-noted` | `deferred` | `ready` | Nonblocking: scripts только по отдельному cost/benefit issue. | `Issues/CB-SVC-001-script-assessment/` |
 | `USER-002` | `user-noted` | `closed` | `ready` | State layout покрыт. | `State/service_state.md` |
 | `USER-003` | `user-noted` | `closed` | `ready` | Execution Mode покрыт. | `Protocols/execution_protocols/README.md` |
 | `USER-004` | `user-noted` | `closed` | `ready` | Add-during-approval покрыт. | `Protocols/service_protocols/new_issue_protocol.md` |
@@ -74,20 +74,22 @@ Candidate fields применимы только после exact branch readbac
 
 | ID | Guard | Owner / trigger | Canonical enforcement paths | Failure action |
 |---|---|---|---|---|
-| `OPT-001` | Task-state, prompt, handoff/archive и methodology не являются runtime production. | Repository boundary; перед production mutation и final acceptance. | `README.md`; `State/page_registry.jsonl`; `State/service_validation_report.md`; `Protocols/common/final_validation_protocol.md` | `blocked`; исключить dev-only paths и повторить boundary audit. |
-| `OPT-002` | Readable operational Markdown преимущественно русский; technical tokens разрешены. | При изменении readable Markdown. | `Protocols/common/final_validation_protocol.md` | `blocked` при operational unreadability, contradiction или non-operational conversational wording. |
-| `OPT-003` | Entry → focused → expanded только с reason; low confidence ведёт в recovery. | Startup, restore, context lift. | `State/service_state.md`; `Protocols/common/context_loading_protocol.md` | Остановить affected execution и загрузить минимальный missing evidence. |
-| `OPT-004` | Actual exact-case links должны совпадать с registry и reciprocal backlinks. | Create/update/delete Markdown или final acceptance. | `State/page_registry.jsonl`; `State/service_validation_report.md` | `blocked`; repair content/registry/backlinks одной bounded transaction. |
+| `OPT-001` | Production/development boundary: task-state, prompt, handoff/archive и methodology не являются runtime production. | Repository boundary; перед любой production mutation и final acceptance. | `README.md`; `State/page_registry.jsonl`; `State/service_validation_report.md`; `Protocols/common/final_validation_protocol.md` | `blocked`; исключить dev-only paths, перечитать scope и повторить boundary audit. |
+| `OPT-002` | Readable agent-oriented language/style: основной operational text на русском; technical tokens разрешены. | Language policy; при изменении readable Markdown. | `Protocols/common/final_validation_protocol.md` | `blocked` только при operational unreadability, semantic contradiction или explicit contract violation; cosmetic sweep не запускать. |
+| `OPT-003` | Context budget/local focus: entry → focused → expanded только с reason; low confidence ведёт в recovery. | State / context loading; startup, restore, context lift. | `State/service_state.md`; `Protocols/common/context_loading_protocol.md` | Остановить affected execution, загрузить минимальный missing evidence и зафиксировать recovery marker. |
+| `OPT-004` | Links/backlinks/orphans: actual exact-case relative links должны совпадать с registry. | Navigation; create/update/delete Markdown или final acceptance. | `State/page_registry.jsonl`; `State/service_validation_report.md` | `blocked`; repair content/registry/backlinks одной bounded transaction, затем повторить readback. |
 
 ## Dependency readiness
 
-Graph metadata фиксирует `node_count=23`, `edge_count=39`, `cycle_check=pass`. Raw legacy `satisfied` нормализуется в `ready` только вместе с terminal source issue, required artifact/state evidence и accepted validation ref. Deferred `USER-001` не блокирует текущий production manifest.
+Graph metadata фиксирует `node_count=23`, `edge_count=39`, `cycle_check=pass`. Raw historical edge status `satisfied` нормализуется в `ready` только вместе с closed source issue, required artifact/state evidence и accepted validation ref; одна строка `satisfied` без evidence не разрешает transition. Deferred `USER-001` не блокирует current production manifest.
 
 ## Связанные файлы
 
 - [Root README](../README.md)
 - [Service state](../State/service_state.md)
 - [Service instructions](../Instructions/service_mode_project_instructions.md)
+- Service validation report: `State/service_validation_report.md`
+- Structural backlog: `State/structural_backlog.jsonl`
 - [Protocol catalog](../Protocols/catalog.md)
 - [Issue archive](_archive/README.md)
 - [Issue tombstones](_tombstones/README.md)
